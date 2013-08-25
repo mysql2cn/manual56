@@ -7,7 +7,7 @@
 ### AHI adaptive hash index的缩写
 ### AIO 异步化IO
 ### Antelope 不译，innodb code name
-### aplliction programming interface 译为: API
+### application programming interface 译为: API
 ### apply  应用
 ### .ARM file  不译 Archive表的定义信息
 ### .ARZ file 不译 Archive表的数据文件
