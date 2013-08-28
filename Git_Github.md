@@ -18,7 +18,9 @@ Git就是一个版本控制系统，学会使用Git的命令行，就可以在�
 #### 基本信息配置
 * **配置用户名**  
 
-	git config --global user.name <用户名>  
+```bash
+git config --global user.name <用户名>  
+```
  
     用于Git的用户名。请注意，这个用户名只是作为一个标识，不用于进行服务器登录等。
 
