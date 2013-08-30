@@ -5,22 +5,22 @@
 ### adaptive flushing 自适应刷新
 ### adaptive hash index 自适应哈希索引
 ### AHI adaptive hash index的缩写
-### AIO 异步化IO
+### AIO 异步IO
 ### Antelope 不译，innodb code name
-### aplliction programming interface 译为: API
-### apply  应用
-### .ARM file  不译 Archive表的定义信息
+### application programming interface 译为: API
+### apply 应用
+### .ARM file 不译 Archive表的定义信息
 ### .ARZ file 不译 Archive表的数据文件
-### asynchronous I/O  异步I/O  也可说AIO
+### asynchronous I/O 异步I/O 也可说AIO
 ### atomic 原子（性）
-### atomic instruction  CPU中不可中断的指令（原子指令）
+### atomic instruction CPU中不可中断的指令（原子指令）
 ### auto-increment 自增
 ### auto-increment locking 自增锁
-### autocommit  自动提交
-### availability  可用性
+### autocommit 自动提交
+### availability 可用性
 
 ## B ##
-### B-tree  B树
+### B-tree B树
 ### backticks 反引号
 ### backup 备份
 ### Barracda （Innodb code name）
@@ -43,10 +43,10 @@
 ### .cfg file 不译
 ### change buffer 变更缓冲区
 ### change buffering 变更缓冲
-### checkpoint  检查点
-### checksum  校验
+### checkpoint 检查点
+### checksum 校验
 ### child table 子表
-### clean page  干净的页
+### clean page 干净的页
 ### clean shutdown 完成buffer刷新的关闭
 ### client 客户端
 ### clustered index 聚集索引
@@ -56,12 +56,12 @@
 ### column prefix 列的前缀
 ### commit 提交
 ### compact row format 紧凑（compact）的行格式
-### composite index  组合索引
+### composite index 复合索引
 ### compressed backup 压缩备份
 ### compressed row format 压缩的行格式
 ### compression 压缩
 ### compression failure 压缩失败
-### concatenated index  组合索引
+### concatenated index 复合索引
 ### concurrency 并发
 ### configuration file 配置文件
 ### consistend read 一致性读
@@ -70,7 +70,7 @@
 ### covering index 覆盖索引
 ### crash 崩溃
 ### crash recovery 崩溃恢复
-### CRUD  （不译）
+### CRUD （不译）
 ### cursor 游标 Or 光标
 
 ## D ##
@@ -79,9 +79,9 @@
 ### data directory 数据目录 
 ### data files 数据文件
 ### data manipulation language 译为:DML
-### data warehouse  ： DW Or 数据仓库
+### data warehouse DW Or 数据仓库
 ### database 数据库
-### DCL : Data control language  不译
+### DCL : Data control language 不译
 ### DDL
 ### deadlock 死锁
 ### deadlock detection 死锁检测
@@ -91,10 +91,10 @@
 ### descending index 降序索引
 ### dirty page 脏页
 ### dirty read 脏读
-### disk-based 以磁盘为存储介质
+### disk-based 基于磁盘
 ### disk-bound 磁盘带宽
 ### DML 
-### document id  全文索引编号
+### document id 全文索引编号
 ### doublewrite buffer 双写缓冲
 ### drop 删除
 ### dynamic row format 变长行格式
@@ -116,7 +116,7 @@
 ### flush 刷新
 ### flush list 刷新列表
 ### foreign key 外键
-### FOREIGN KEY constraint 外键一致性
+### FOREIGN KEY constraint 外键约束
 ### .frm file 
 ### FTS 全文搜索
 ### full backup 全备
@@ -130,7 +130,7 @@
 ### gap lock 间隙锁
 ### general log 数据库日志
 ### general query log 同general log 数据库日志
-### global_stransaction 全局日志
+### global_transaction 全局事务
 ### group commit 组提交
 
 ## H ##
@@ -176,13 +176,13 @@
 ### intention exclusive lock 意向排它锁
 ### intention lock 意向锁
 ### intention shared lock 意向共享锁
-### inverted index
+### inverted index 反向索引
 ### IOPS 每秒读写次数，可不译
 ### .isl file .isl文件
 ### isolation level 事务隔离级别
 
 ## J ##
-### jion 关联
+### join 关联
 
 ## K ##
 ### KEY_BLOCK_SIZE InnoDB表选项
@@ -235,7 +235,7 @@
 ## N ##
 ### natural key 自然主键
 ### neighbor page 相邻页
-### next-key lock 记录间隙锁
+### next-key lock 行间隙锁
 ### non-blocking I/O 同AIO
 ### non-locking read 不加锁读
 ### non-repeatable read 非重复读
@@ -295,12 +295,12 @@
 ### RAID 磁盘阵列
 ### random dive 随机取样
 ### raw backup 原始备份
-### READ COMMITTED  隔离级别，不译 
+### READ COMMITTED 隔离级别，不译 
 ### READ UNCOMMITTED 隔离级别，不译
 ### read view MVCC在内核中用到的一个快照模式 
 ### read-ahead 预读
 ### read-only transaction 只读事务
-### record lock 记录锁
+### record lock 行锁
 ### redo 重做，不译
 ### redo log 重做日志，不译
 ### redundant row format 冗余行格式，innodb的一种行的存储格式，不译
@@ -314,7 +314,7 @@
 ### rollback segment 回滚段
 ### row 行
 ### row format 行格式
-### row lock 行锁
+### row lock 行级锁
 ### row-based replication 行复制
 ### row-level locking 行级锁
 ### rw-lock 读写锁
@@ -322,9 +322,9 @@
 ## S ##
 ### savepoint 保存点
 ### scalability 可扩展性
-### scale out 向外扩展 
-### scale up 向上扩展
-### schema  数据库（仅MySQL）
+### scale out 水平扩展 
+### scale up 垂直扩展
+### schema 数据库（仅MySQL）
 ### search index 搜索索引
 ### secondary index 二级索引
 ### segment 段
@@ -359,7 +359,7 @@
 
 ## T ## 
 ### table 表
-### table lock 表锁
+### table lock 表级锁
 ### table scan 全表扫描
 ### table type 表（引擎）类型
 ### tablespace 表空间
@@ -378,7 +378,7 @@
 ### troubleshooting 故障排除
 ### truncate 删节
 ### tuple 元组
-### two-phase commit 两阶段提交
+### two-phase commit 两段式提交
 
 ## U ##
 ### undo 撤销，不译
@@ -404,4 +404,4 @@
 ### XA XA
 
 ## Y ##
-### young  InnoDB Buffer Pool 通过LRU算法管理页面的替换策略。LRU List按照功能被划分为两部分：LRU_young 与LRU_old.
+### young InnoDB Buffer Pool 通过LRU算法管理页面的替换策略。LRU List按照功能被划分为两部分：LRU_young 与LRU_old.
