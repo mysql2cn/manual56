@@ -163,7 +163,8 @@ For a discussion of MySQL Database Server capabilities, see [Section 1.3.2, “T
 > 2. 如果部分章节二三级标题超过了十个，可以在第1到第9节前面加0，方便排序。例如，`20.1. The INFORMATION_SCHEMA CHARACTER_SETS Table`，可以命名为`20.01_The_INFORMATION_SCHEMA CHARACTER_SETS_Table.md`。但是，文档里面书写的时候没有必要加0。
 > 3. 每个第二级标题也独立命名为一个文件，为了方便查看，后面再加`.0`。例如，`16.2. Replication Implementation`，命名为`16.2.0_Replication_Implementation.md`，这样就可以排到`16.2.1_Replication_Implementation_Details.md`之前；
 > 4. 文件命名使用原英文标题，并且保持原大小写不变；
-> 5. 有特殊符号，不能用于文件命名时，只需将特殊符号删除即可；
+> 5. 有特殊符号，比如括号，将符合（除个别由两个单词组成的单词中间的连接线）删除，只使用单词来命名；
+> 6. 文件命名中禁止出现空格；
 
 ---
 ---
