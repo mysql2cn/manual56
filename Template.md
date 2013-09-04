@@ -164,7 +164,7 @@ For a discussion of MySQL Database Server capabilities, see [Section 1.3.2, “T
 > 3. 每个第二级标题也独立命名为一个文件，为了方便查看，后面再加`.0`。例如，`16.2. Replication Implementation`，命名为`16.2.0_Replication_Implementation.md`，这样就可以排到`16.2.1_Replication_Implementation_Details.md`之前；
 > 4. 文件命名使用原英文标题，并且保持原大小写不变；
 > 5. 有特殊符号，比如括号，将符合（除个别由两个单词组成的单词中间的连接线）删除，只使用单词来命名；
-> 6. 标题中禁止出现空格；
+> 6. 文件命名中禁止出现空格；
 
 ---
 ---
