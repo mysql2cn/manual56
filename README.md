@@ -12,7 +12,7 @@
  1. [专业术语词汇表](./docs/glossary.md)
 
 * **翻译模板**
- 1. [翻译模板](./翻译文档模板.md)
+ 1. [翻译模板](./Template.md)
 
 * **MySQL 文档**
  1. [MySQL 5.6 Reference Manual](http://dev.mysql.com/doc/refman/5.6/en/index.html)——没错，这就是要翻译的文档。
