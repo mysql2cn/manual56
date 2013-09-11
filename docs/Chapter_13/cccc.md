@@ -1,2 +1,29 @@
-testcc
-sss
+# 16. Replication
+
+* [16.1. Replication Configuration](./16.1.0_Replication_Configuration.md)
+  - [16.1.1. How to Set Up Replication](./16.1.1_How_to_Set_Up_Replication.md)
+  - [16.1.2. Replication Formats](./16.1.2_Replication_Formats.md)
+  - [16.1.3. Replication with Global Transaction Identifiers](./16.1.3_Replication_with_Global_Transaction_Identifiers.md)
+  - [16.1.4. Replication and Binary Logging Options and Variables](./16.1.4_Replication_and_Binary_Logging_Options_and_Variables.md)
+  - [16.1.5. Common Replication Administration Tasks](./16.1.5_Common_Replication_Administration_Tasks.md)
+* [16.2. Replication Implementation](./16.2.0_Replication_Implementation.md)
+  - [16.2.1. Replication Implementation Details](./16.2.1_Replication_Implementation_Details.md)
+  - [16.2.2. Replication Relay and Status Logs](./16.2.2_Replication_Relay_and_Status_Logs.md)
+  - [16.2.3. How Servers Evaluate Replication Filtering Rules](./16.2.3_How_Servers_Evaluate_Replication_Filtering_Rules.md)
+* [16.3. Replication Solutions](./16.3.0_Replication_Solutions.md)
+  - [16.3.1. Using Replication for Backups](./16.3.1_Using_Replication_for_Backups.md)
+  - [16.3.2. Using Replication with Different Master and Slave Storage Engines](./16.3.2_Using_Replication_with_Different_Master_and_Slave_Storage_Engines.md)
+  - [16.3.3. Using Replication for Scale-Out](./16.3.3_Using_Replication_for+Scale-Out.md)
+  - [16.3.4. Replicating Different Databases to Different Slaves](./16.3.4_Replicating_Different_Databases_to_Different_Slaves.md)
+  - [16.3.5. Improving Replication Performance](./16.3.5_Improving_Replication_Performance.md)
+  - [16.3.6. Switching Masters During Failover](./16.3.6_Switching_Masters_During_Failover.md)
+  - [16.3.7. Setting Up Replication Using SSL](./16.3.7_Setting_Up_Replication_Using_SSL.md)
+  - [16.3.8. Semisynchronous Replication](./16.3.8_Semisynchronous_Replication.md)
+  - [16.3.9. Delayed Replication](./16.3.9_Delayed_Replication.md)
+* [16.4. Replication Notes and Tips](./16.4.0_Replication_Notes_and_Tips.md)
+  - [16.4.1. Replication Features and Issues](./16.4.1_Replication_Features_and_Issues.md)
+  - [16.4.2. Replication Compatibility Between MySQL Versions](./16.4.2_Replication_Compatibility_Between_MySQL_Versions.md)
+  - [16.4.3. Upgrading a Replication Setup](./16.4.3_Upgrading_a_Replication_Setup.md)
+  - [16.4.4. Troubleshooting Replication](./16.4.4_Troubleshooting_Replication.md)
+  - [16.4.5. How to Report Replication Bugs or Problems](./16.4.5_How_to_Report_Replication_Bugs_or_Problems.md)
+
