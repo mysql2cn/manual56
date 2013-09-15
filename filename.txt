@@ -794,7 +794,7 @@
 18.06.04_Partitioning_and_Locking.md
 
 ##_第十九章
-19.00.00_Stored_Programs_and_View.md
+19.00.00_Stored_Programs_and_Views.md
 19.01.00_Defining_Stored_Programs.md
 19.02.00_Using_Stored_Routines_Procedures_and_Functions.md
 19.02.01_Stored_Routine_Syntax.md
