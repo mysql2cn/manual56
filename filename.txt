@@ -1,18 +1,18 @@
-   ÕâÊÇÎÒÃÇ·­Òë¹ı³ÌÖĞËùĞèÒªµÄËùÓĞÎÄ¼şµÄÃüÃû¡£´ó¼ÒÔÚÌí¼ÓÎÄ¼şÊ±£¬ÇëÖ±½Ó´ÓÕâÀï¸´ÖÆÕ³Ìù¼´¿É¡£
- 
-   ÕûÀí¹ı³ÌÖĞ£¬×öÁËÈçÏÂ´¦Àí£º
-   1. ½«,¡¢-¡¢£­¡¢¡¯¡¢:µÈ·ûºÅÖ±½ÓÊ¹ÓÃÏÂ»®ÏßÌæ»»£»
-   2. ½«/¡¢?¡¢(¡¢)µÈ·ûºÏÖ±½ÓÉ¾³ı£»
-   3. É¾³ı¶àÓàµÄ¿Õ¸ñ£¬ÈÃµ¥´ÊÖ®¼ä½ö±£ÁôÒ»¸ö¿Õ¸ñ£»
+ï»¿è¿™æ˜¯æˆ‘ä»¬ç¿»è¯‘è¿‡ç¨‹ä¸­æ‰€éœ€è¦çš„æ‰€æœ‰æ–‡ä»¶çš„å‘½åã€‚å¤§å®¶åœ¨æ·»åŠ æ–‡ä»¶æ—¶ï¼Œè¯·ç›´æ¥ä»è¿™é‡Œå¤åˆ¶ç²˜è´´å³å¯ã€‚
 
-   Ê±¼ä²Ö´Ù£¬Èç¹û·¢ÏÖÎÊÌâ£¬Çë¼°Ê±Í¨ÖªÎÒ¡£ÎÒ»á¾¡¿ì´¦ÀíµÄ¡£Ğ»Ğ»£¡
+æ•´ç†è¿‡ç¨‹ä¸­ï¼Œåšäº†å¦‚ä¸‹å¤„ç†ï¼š
+1. å°†,ã€-ã€ï¼ã€â€™ã€:ç­‰ç¬¦å·ç›´æ¥ä½¿ç”¨ä¸‹åˆ’çº¿æ›¿æ¢ï¼›ï¼ˆç”±ä¸¤ä¸ªå•è¯åŠ è¿æ¥çº¿ç»„æˆçš„åˆæˆè¯ä¸­é—´çš„æ¨ªçº¿ä¿æŒä¸å˜ï¼Œæ¯”å¦‚HP-UXã€Third-Partyç­‰ï¼‰
+2. å°†/ã€?ã€(ã€)ç­‰ç¬¦åˆç›´æ¥åˆ é™¤ï¼›
+3. åˆ é™¤å¤šä½™çš„ç©ºæ ¼ï¼Œè®©å•è¯ä¹‹é—´ä»…ä¿ç•™ä¸€ä¸ªç©ºæ ¼ï¼›
 
-   --D¹Ï¸ç Àî¾ı
+æ—¶é—´ä»“ä¿ƒï¼Œå¤„ç†è¿‡ç¨‹éš¾å…æœ‰æ‰€é—æ¼æˆ–è€…é”™è¯¯ï¼Œå¦‚æœå‘ç°é—®é¢˜ï¼Œè¯·åŠæ—¶é€šçŸ¥æˆ‘ã€‚æˆ‘ä¼šå°½å¿«å¤„ç†çš„ã€‚è°¢è°¢ï¼
+
+--Dç“œå“¥ æå›
 
 ------------------------------------------------------------------------
-ÎÄ¼şÁĞ±íÈçÏÂ£º
+æ–‡ä»¶åˆ—è¡¨å¦‚ä¸‹ï¼š
 
-##_µÚÒ»ÕÂ
+##_ç¬¬ä¸€ç« 
 01.00.00_General_Information.md    
 01.01.00_About_This_Manual.md    
 01.02.00_Typographical_and_Syntax_Conventions.md    
@@ -42,7 +42,7 @@
 01.09.04_Tools_that_were_used_to_create_MySQL.md    
 01.09.05_Supporters_of_MySQL.md    
 
-##_µÚ¶şÕÂ
+##_ç¬¬äºŒç« 
 02.00.00_Installing_and_Upgrading_MySQL.md    
 02.01.00_General_Installation_Guidance.md    
 02.01.01_Operating_Systems_Supported_by_MySQL_Community_Server.md    
@@ -97,7 +97,7 @@
 02.12.00_Environment_Variables.md    
 02.13.00_Perl_Installation_Notes.md    
 
-##_µÚÈıÕÂ
+##_ç¬¬ä¸‰ç« 
 03.00.00_Tutorial.md    
 03.01.00_Connecting_to_and_Disconnecting_from_the_Server.md    
 03.02.00_Entering_Queries.md    
@@ -120,7 +120,7 @@
 03.06.09_Using_AUTO_INCREMENT.md    
 03.07.00_Using_MySQL_with_Apache.md    
 
-##_µÚËÄÕÂ
+##_ç¬¬å››ç« 
 04.00.00_MySQL_Programs.md    
 04.01.00_Overview_of_MySQL_Programs.md    
 04.02.00_Using_MySQL_Programs.md    
@@ -176,7 +176,7 @@
 04.08.02_replace_A_String-Replacement_Utility.md    
 04.08.03_resolveip_Resolve_Host_name_to_IP_Address_or_Vice_Versa.md    
 
-##_µÚÎåÕÂ
+##_ç¬¬äº”ç« 
 05.00.00_MySQL_Server_Administration.md    
 05.01.00_The_MySQL_Server.md    
 05.01.01_Server_Option_and_Variable_Reference.md    
@@ -230,7 +230,7 @@
 05.07.00_Tracing_mysqld_Using_DTrace.md    
 05.07.01_mysqld_DTrace_Probe_Reference.md    
 
-##_µÚÁùÕÂ
+##_ç¬¬å…­ç« 
 06.00.00_Security.md    
 06.01.00_General_Security_Issues.md    
 06.01.01_Security_Guidelines.md    
@@ -262,7 +262,7 @@
 06.03.11_MySQL_Enterprise_Audit_Log_Plugin.md    
 06.03.12_SQL-Based_MySQL_Account_Activity_Auditing.md    
 
-##_µÚÆßÕÂ
+##_ç¬¬ä¸ƒç« 
 07.00.00_Backup_and_Recovery.md    
 07.01.00_Backup_and_Recovery_Types.md    
 07.02.00_Database_Backup_Methods.md    
@@ -286,7 +286,7 @@
 07.06.04_MyISAM_Table_Optimization.md    
 07.06.05_Setting_Up_a_MyISAM_Table_Maintenance_Schedule.md    
 
-##_µÚ°ËÕÂ
+##_ç¬¬å…«ç« 
 08.00.00_Optimization.md    
 08.01.00_Optimization_Overview.md    
 08.02.00_Optimizing_SQL_Statements.md    
@@ -371,7 +371,7 @@
 08.13.15_DISTINCT_Optimization.md    
 08.13.16_Subquery_Optimization.md    
 
-##_µÚ¾ÅÕÂ
+##_ç¬¬ä¹ç« 
 09.00.00_Language_Structure.md    
 09.01.00_Literal_Values.md    
 09.01.01_String_Literals.md    
@@ -391,7 +391,7 @@
 09.05.00_Expression_Syntax.md    
 09.06.00_Comment_Syntax.md    
 
-##_µÚÊ®ÕÂ
+##_ç¬¬åç« 
 10.00.00_Globalization.md    
 10.01.00_Character_Set_Support.md    
 10.01.01_Character_Sets_and_Collations_in_General.md    
@@ -424,7 +424,7 @@
 10.06.02_Time_Zone_Leap_Second_Support.md    
 10.07.00_MySQL_Server_Locale_Support.md    
 
-##_µÚÊ®Ò»ÕÂ
+##_ç¬¬åä¸€ç« 
 11.00.00_Data_Types.md    
 11.01.00_Data_Type_Overview.md    
 11.01.01_Numeric_Type_Overview.md    
@@ -457,7 +457,7 @@
 11.07.00_Choosing_the_Right_Type_for_a_Column.md    
 11.08.00_Using_Data_Types_from_Other_Database_Engines.md    
 
-##_µÚÊ®¶şÕÂ
+##_ç¬¬åäºŒç« 
 12.00.00_Functions_and_Operators.md    
 12.01.00_Function_and_Operator_Reference.md    
 12.02.00_Type_Conversion_in_Expression_Evaluation.md    
@@ -509,7 +509,7 @@
 12.19.04_Rounding_Behavior.md    
 12.19.05_Precision_Math_Examples.md    
 
-##_µÚÊ®ÈıÕÂ
+##_ç¬¬åä¸‰ç« 
 13.00.00_SQL_Statement_Syntax.md    
 13.01.00_Data_Definition_Statements.md    
 13.01.01_ALTER_DATABASE_Syntax.md    
@@ -593,7 +593,7 @@
 13.08.03_HELP_Syntax.md    
 13.08.04_USE_Syntax.md    
 
-##_µÚÊ®ËÄÕÂ
+##_ç¬¬åå››ç« 
 14.00.00_Storage_Engines.md    
 14.01.00_Setting_the_Storage_Engine.md    
 14.02.00_The_InnoDB_Storage_Engine.md    
@@ -631,7 +631,7 @@
 14.12.01_Pluggable_Storage_Engine_Architecture.md    
 14.12.02_The_Common_Database_Server_Layer.md    
 
-##_µÚÊ®ÎåÕÂ
+##_ç¬¬åäº”ç« 
 15.00.00_High_Availability_and_Scalability.md    
 15.01.00_Oracle_VM_Template_for_MySQL_Enterprise_Edition.md    
 15.02.00_Overview_of_MySQL_with_DRBDPacemakerCorosyncOracle_Linux.md    
@@ -658,7 +658,7 @@
 15.07.05_Using_MySQL_Proxy.md    
 15.07.06_MySQL_Proxy_FAQ.md    
 
-##_µÚÊ®ÁùÕÂ
+##_ç¬¬åå…­ç« 
 16.00.00_Replication.md    
 16.01.00_Replication_Configuration.md    
 16.01.01_How_to_Set_Up_Replication.md    
@@ -687,7 +687,7 @@
 16.04.04_Troubleshooting_Replication.md    
 16.04.05_How_to_Report_Replication_Bugs_or_Problems.md    
 
-##_µÚÊ®ÆßÕÂ
+##_ç¬¬åä¸ƒç« 
 17.00.00_MySQL_Cluster_NDB_7.3.md    
 17.01.00_MySQL_Cluster_Overview.md    
 17.01.01_MySQL_Cluster_Core_Concepts.md    
@@ -768,7 +768,7 @@
 17.06.11_MySQL_Cluster_Replication_Conflict_Resolution.md    
 17.07.00_MySQL_Cluster_Release_Notes.md    
 
-##_µÚÊ®°ËÕÂ
+##_ç¬¬åå…«ç« 
 18.00.00_Partitioning.md    
 18.01.00_Overview_of_Partitioning_in_MySQL.md    
 18.02.00_Partitioning_Types.md    
@@ -793,7 +793,7 @@
 18.06.03_Partitioning_Limitations_Relating_to_Functions.md    
 18.06.04_Partitioning_and_Locking.md    
 
-##_µÚÊ®¾ÅÕÂ
+##_ç¬¬åä¹ç« 
 19.00.00_Stored_Programs_and_View.md    
 19.01.00_Defining_Stored_Programs.md    
 19.02.00_Using_Stored_Routines_Procedures_and_Functions.md    
@@ -819,7 +819,7 @@
 19.06.00_Access_Control_for_Stored_Programs_and_Views.md    
 19.07.00_Binary_Logging_of_Stored_Programs.md    
 
-##_µÚ¶şÊ®ÕÂ
+##_ç¬¬äºŒåç« 
 20.00.00_INFORMATION_SCHEMA_Tables.md    
 20.01.00_The_INFORMATION_SCHEMA_CHARACTER_SETS_Table.md    
 20.02.00_The_INFORMATION_SCHEMA_COLLATIONS_Table.md    
@@ -882,7 +882,7 @@
 20.31.03_The_INFORMATION_SCHEMA_TP_THREAD_GROUP_STATS_Table.md    
 20.32.00_Extensions_to_SHOW_Statements.md    
 
-##_µÚ¶şÊ®Ò»ÕÂ
+##_ç¬¬äºŒåä¸€ç« 
 22.00.00_Connectors_and_APIs.md    
 21.01.00_Performance_Schema_Quick_Start.md    
 21.02.00_Performance_Schema_Configuration.md    
@@ -912,7 +912,7 @@
 21.14.00_Performance_Schema_and_Plugins.md    
 21.15.00_Using_the_Performance_Schema_to_Diagnose_Problems.md    
 
-##_µÚ¶şÊ®¶şÕÂ
+##_ç¬¬äºŒåäºŒç« 
 22.00.00_Connectors_and_APIs.md    
 22.01.00_MySQL_ConnectorODBC.md    
 22.01.01_ConnectorODBC_Versions.md    
@@ -1027,7 +1027,7 @@
 22.13.00_MySQL_Tcl_API.md    
 22.14.00_MySQL_Eiffel_Wrapper.md    
 
-##_µÚ¶şÊ®ÈıÕÂ
+##_ç¬¬äºŒåä¸‰ç« 
 23.00.00_Extending_MySQL.md    
 23.01.00_MySQL_Internals.md    
 23.01.01_MySQL_Threads.md    
@@ -1047,7 +1047,7 @@
 23.04.02_Debugging_a_MySQL_Client.md    
 23.04.03_The_DBUG_Package.md    
 
-##_µÚ¶şÊ®ËÄÕÂ
+##_ç¬¬äºŒåå››ç« 
 24.00.00_MySQL_Enterprise_Edition.md    
 24.01.00_MySQL_Enterprise_Monitor.md    
 24.02.00_MySQL_Enterprise_Backup.md    
@@ -1055,10 +1055,10 @@
 24.04.00_MySQL_Enterprise_Audit.md    
 24.05.00_MySQL_Enterprise_Thread_Pool.md    
 
-##_µÚ¶şÊ®ÎåÕÂ
+##_ç¬¬äºŒåäº”ç« 
 25.00.00_MySQL_Workbench.md    
 
-##_µÚ¶şÊ®ÁùÕÂ
+##_ç¬¬äºŒåå…­ç« 
 26.00.00_MySQL_for_Excel.md    
 26.01.00_Installing_and_Configuring.md    
 26.02.00_Edit_MySQL_Data_in_Excel.md    
@@ -1068,7 +1068,7 @@
 26.06.00_MySQL_for_Excel_FAQ.md    
 
 
-##_¸½Â¼_A
+##_é™„å½•_A
 A.00.00_Licenses_for_Third-Party_Components.md    
 A.01.00_Ant-Contrib_License.md    
 A.02.00_ANTLR_3_License.md    
@@ -1127,7 +1127,7 @@ A.54.00_V8_License.md
 A.55.00_zlib_License.md    
 A.56.00_ZLIB.NET_License.md    
 
-##_¸½Â¼_B
+##_é™„å½•_B
 B.00.00_MySQL_5.6_Frequently_Asked_Questions.md    
 B.01.00_MySQL_5.6_FAQ_General.md    
 B.02.00_MySQL_5.6_FAQ_Storage_Engines.md    
@@ -1145,7 +1145,7 @@ B.13.00_MySQL_5.6_FAQ_Replication.md
 B.14.00_MySQL_5.6_FAQ_MySQL_Enterprise_Scalability_Thread_Pool.md    
 
 
-##_¸½Â¼_C
+##_é™„å½•_C
 C.00.00_Errors_Error_Codes_and_Common_Problems.md    
 C.01.00_Sources_of_Error_Information.md    
 C.02.00_Types_of_Error_Values.md    
@@ -1162,10 +1162,10 @@ C.05.07_Table_Definition-Related_Issues.md
 C.05.08_Known_Issues_in_MySQL.md    
 
 
-##_¸½Â¼_D
+##_é™„å½•_D
 D.00.00_MySQL_Release_Notes.md    
 
-##_¸½Â¼_E
+##_é™„å½•_E
 E.00.00_Restrictions_and_Limits.md    
 E.01.00_Restrictions_on_Stored_Programs.md    
 E.02.00_Restrictions_on_Condition_Handling.md    
