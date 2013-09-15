@@ -26,5 +26,6 @@
 * **Git & Github**
  1. [GotGitHub](http://www.worldhello.net/gotgithub/)
  2. [Githug通关全攻略](http://fancyoung.com/blog/githug-cheat-sheet/)
+ 3. [Git&Github社区化协作使用指南](http://www.diguage.com/archives/42.html)--D瓜哥录制的视频加文字说明，建议从这个教程看起。
 
 
