@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# 根据Git的提交日志，提取每个人的提交内容，输出到以邮箱命名的文件中
+
 git log --pretty=format:%ae | sort -u > mail.list
 
 for name in `cat ./mail.list`
