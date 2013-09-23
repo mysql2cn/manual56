@@ -106,9 +106,9 @@ For a discussion of MySQL Database Server capabilities, see [Section 1.3.2, “T
 
 ### **代码：**
 
-	For a discussion of MySQL Database Server capabilities, see [Section 1.3.2, “The Main Features of MySQL”][1.3.2]
+	For a discussion of MySQL Database Server capabilities, see [Section 1.3.2, “The Main Features of MySQL”][01.03.02]
 	
-	[1.3.2]: ./docs/Chapter_01/1.3.2_The_Main_Features_of_MySQL.md  //注释：如果是在翻译文档中，不需要引用`docs`这级目录。
+	[01.03.02]: ./docs/Chapter_01/01.03.02_The_Main_Features_of_MySQL.md  //注释：如果是在翻译文档中，不需要引用`docs`这级目录。
 
 ### **说明：**
 
@@ -118,7 +118,7 @@ For a discussion of MySQL Database Server capabilities, see [Section 1.3.2, “T
 > 2. “链接ID”（不明白请看上面的“语法说明”）以章节号来命名；
 > 3. 链接全部放到文件末尾，上面以“链接ID”来引用，方便检查和后续修改；
 > 4. 根据下面的“文件命名”和“章节命名”方法，先自己确定链接，等相应章节完成后，检查链接是否正确；
-> 5. **涉及到第四级标题的链接，请使用链接到第三级标题的URL后面+`#`+<第四级标题序号>，例如：`../Chapter_16/16.2.1_Replication_Implementation_Details.md#16.2.2.1`**
+> 5. **涉及到第四级标题的链接，请使用链接到第三级标题的URL后面+`#`+<第四级标题序号>，例如：`../Chapter_16/16.02.01_Replication_Implementation_Details.md#16.2.2.1`**
 
 ---
 ---
@@ -149,22 +149,24 @@ For a discussion of MySQL Database Server capabilities, see [Section 1.3.2, “T
 
 ### **示例：文件命名**
 
-16.2.1\_Replication\_Implementation_Details.md  // 因为下划线包括的字符在Markdown中表示斜体。所以，Markdown源文件中使用了`\`来转义。显示时不会看到`\`。
+16.02.01\_Replication\_Implementation_Details.md  // 因为下划线包括的字符在Markdown中表示斜体。所以，Markdown源文件中使用了`\`来转义。显示时不会看到`\`。
+
 
 ### **代码：**
 
-    16.2.1_Replication_Implementation_Details.md
+    16.02.01_Replication_Implementation_Details.md
 
 ### **说明：**
 
 > **注释：**
 > 
 > 1. 标题号数字之间使用`.`号连接，其他中间以下划线连接的；如果遇到是两个单词+连接线组成，则保持原来的连接线不变，例如`Third-Party`，保持不变；
-> 2. 如果部分章节二三级标题超过了十个，可以在第1到第9节前面加0，方便排序。例如，`20.1. The INFORMATION_SCHEMA CHARACTER_SETS Table`，可以命名为`20.01_The_INFORMATION_SCHEMA CHARACTER_SETS_Table.md`。但是，文档里面书写的时候没有必要加0。
-> 3. 每个第二级标题也独立命名为一个文件，为了方便查看，后面再加`.0`。例如，`16.2. Replication Implementation`，命名为`16.2.0_Replication_Implementation.md`，这样就可以排到`16.2.1_Replication_Implementation_Details.md`之前；
+> 2. 文件序号直接全部使用两位数表示。例如，`20.1. The INFORMATION_SCHEMA CHARACTER_SETS Table`，可以命名为`20.01.00_The_INFORMATION_SCHEMA CHARACTER_SETS_Table.md`。但是，文档里面书写的时候没有必要加0。
+> 3. 每个第二级标题也独立命名为一个文件，为了方便查看，后面再加`.0`。例如，`16.2. Replication Implementation`，命名为`16.02.00_Replication_Implementation.md`，这样就可以排到`16.02.01_Replication_Implementation_Details.md`之前；
 > 4. 文件命名使用原英文标题，并且保持原大小写不变；
 > 5. 有特殊符号，比如括号，将符合（除个别由两个单词组成的单词中间的连接线）删除，只使用单词来命名；
 > 6. 文件命名中禁止出现空格；
+> 7. **最简单的方法：直接从[filename.txt](https://github.com/mysql2cn/manual56/blob/master/filename.txt)文件里面复制出相关的名称来命名；** （进行合并时，也会检查是否和这个文件里面所示的名称保持一致，不一致的，第一次提交不会合并；修改后还不一致的，合并后，由合并的童鞋重命名文件保持一致。）
 
 ---
 ---
