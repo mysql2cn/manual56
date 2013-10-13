@@ -22,6 +22,7 @@
  1. [Markdown 快速入门](http://wowubuntu.com/markdown/basic.html)
  2. [Markdown 语法说明](http://wowubuntu.com/markdown/index.html)——这里有Markdown编辑器介绍。选一个自己趁手的工具就行。
  3. [轻量级标记语言](http://www.worldhello.net/gotgithub/appendix/markups.html)——我们需要使用一些Github扩展过的Markdown格式，比如表格，这个文档有详细介绍。
+ 4. [超链接和锚点在Markdown中的处理：视频+文档](http://www.diguage.com/archives/64.html)
  
 * **Git & Github**
  1. [GotGitHub](http://www.worldhello.net/gotgithub/)
