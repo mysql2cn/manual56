@@ -15,8 +15,9 @@
  1. [翻译模板](./Template.md)
 
 * **MySQL 文档**
- 1. [MySQL 5.6 Reference Manual](http://dev.mysql.com/doc/refman/5.6/en/index.html)——没错，这就是要翻译的文档。
- 2. [MySQL 5.6 Reference Manual A4 PDF版](http://downloads.mysql.com/docs/refman-5.6-en.a4.pdf)——这个和上面是同一个文档，这个是PDF版，只是为了方便您下载。
+ 1. [MySQL 5.6 Reference Manual 翻译专用版本](http://pan.baidu.com/s/1n8Dq2)
+ 2. [MySQL 5.6 Reference Manual](http://dev.mysql.com/doc/refman/5.6/en/index.html)——没错，这就是要翻译的文档。
+ 3. [MySQL 5.6 Reference Manual A4 PDF版](http://downloads.mysql.com/docs/refman-5.6-en.a4.pdf)——这个和上面是同一个文档，这个是PDF版，只是为了方便您下载。
 
 * **Markdown格式说明**
  1. [Markdown 快速入门](http://wowubuntu.com/markdown/basic.html)
