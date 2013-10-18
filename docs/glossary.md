@@ -125,9 +125,9 @@
 ### fuzzy checkpointing 模糊检查点刷新
 
 ## G ##
-### GA 一般可用（建议直接用 GA）
+### <a name="GA"/>GA 一般可用（建议直接用 GA）
 ### gap 间隙
-### gap lock 间隙锁
+### <a name="gap_lock"/>gap lock 间隙锁
 ### general log 数据库日志
 ### general query log 同general log 数据库日志
 ### global_transaction 全局事务
@@ -221,7 +221,7 @@
 ### multi-core 多核
 ### multiversion concurrency control 多版本并发控制
 ### mutex 互斥
-### MVC 多版本并发控制
+### MVCC 多版本并发控制
 ### my.cnf 配置文件（Unix/Linux）
 ### my.ini 配置文件（Windows）
 ### .MYD file .MYD文件
