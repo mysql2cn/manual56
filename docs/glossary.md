@@ -117,16 +117,49 @@ CPU提供的特殊机制，用来保证关键的低层操作不被打断。
 
 ### availability 可用性
 
-对MySQL、操作系统或硬件等主机故障的处理能力，必要时还要恢复，以及维护其它可能引起宕机的行为。经常与扩展性（`scalability`）配合使用，成为大规模部署中的一个关键因素。
+对MySQL、操作系统或硬件故障及因为维护行为而引起宕机等主机故障的处理能力，以及在必要情况下从上述所有故障中恢复的能力。经常与扩展性（`scalability`）配合使用，成为大规模部署中的一个关键因素。
 
 参见 [scalability].
 
 ## <a name='B'></a>B ##
 
 ### B-tree B树
+
+数据库索引上很流行使用的树形数据结构。该数据结构一直保持排序状态，保证快速精确查找（等于操作）和范围查找（比如大于、小于和BETWEEN操作）。这种类型的索引在绝大多数的存储引擎中是可用的，如InnoDB和MyISAM。
+
+因为B树的节点可以有很多子节点，所以B树和二叉数不同，二叉树的节点最多有两个子节点。
+
+哈希索引（***hash index***）与它的差别是，哈希索引只在内存存储引擎中可用。内存存储引擎也可以使用B树索引，如果查询中用到了范围查找操作，你可以为内存表选用B树索引。
+
+参见 [hash index].
+
 ### backticks 反引号
+
+MySQL SQL语句中的标识如果含有特殊字符或保留词，就必须用反引号（`）括起来。例如，为了使用名为`FOO#BAR`的或名为`SELECT`列，你就要把这些标识符指定为\`FOO#BAR\`和\`SELECT\`。由于反引号提供一种额外的安全级别，它们被广泛使用的程序生成的SQL语句，其中的标识符名称可能不会提前知道。
+
+其它的数据库系统使用双引号（"）将这样的特殊名字包围起来。为了移植性起见，你可以在MySQL启用ANSI_QUOTES模式并用双引号来代替反引号来限定标识符名称。
+参见 [SQL].
+
 ### backup 备份
+
+为了安全保存起见，拷贝MySQL实例部分或全部表的数据和元数据的过程。也指拷备完成的文件集合。这是DBA们的一项终极任务。这个过程的反向操作是恢复（***restore***）。
+
+对于MySQL，物理备份（***physical backup***）由MySQL企业版备份（***MySQL Enterprise Backup***）产品来完成，逻辑备份（***logical backup***）由***mysqldump***命令来完成。这些技术所产生备份数据在文件大小与文件结构以及速度（特别是恢复操作的速度）等方面都有不同的特性。
+
+热备（***hot backup***）、温备（***warm backup***）和冷备（c***old backup***）因它们干涉数据库操作的多少而有很大不同。（热备最少干涉，冷备最多。）
+
+参见 [cold backup], [hot backup], [logical backup], [MySQL Enterprise Backup], [mysqldump], [physical backup], [warm backup].
+
 ### Barracda （Innodb code name）
+支持表压缩的InnoDB文件格式的代码名。这种文件格式首先是在InnoDB Plugin中提到的。它提供压缩行格式实现InnoDB的表压缩，提供动态行格式来提高BLOB和大文本字段的存储分布。你可以通过innodb_file_format选项来选择使用。
+
+因为InnoDB系统表空间是以原始的Antelope文件格式存储的，所以要使用Barracuda文件格式时，你必须要启用file-per-table选项，它会讲最新创建表的表空间从系统表空间中隔离出来。
+
+The MySQL Enterprise Backup product version 3.5 and above supports backing up tablespaces that use the Barracuda file format.
+MySQL企业版备份产品的3.5版及以上版本支持用Barracuda文件格式来备份表空间。
+
+参见 [Antelope], [compact row format], [compressed row format], [dynamic row format], [file format], [file-per-table], [innodb_file_format], [MySQL Enterprise Backup], [row format], [system tablespace].
+
 ### beta 公测
 ### binary log 二进制日志
 ### binlog 二进制日志（同binary log）
