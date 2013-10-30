@@ -1,29 +1,165 @@
 # MySQL专业词汇表 #
 
-## A ##
-### ACID
-### adaptive flushing 自适应刷新
-### adaptive hash index 自适应哈希索引
-### AHI adaptive hash index的缩写
-### AIO 异步IO
-### Antelope 不译，innodb code name
-### application programming interface 译为: API
-### apply 应用
-### .ARM file 不译 Archive表的定义信息
-### .ARZ file 不译 Archive表的数据文件
-### asynchronous I/O 异步I/O 也可说AIO
-### atomic 原子（性）
-### atomic instruction CPU中不可中断的指令（原子指令）
-### auto-increment 自增
-### auto-increment locking 自增锁
-### autocommit 自动提交
+这些术语在MySQL数据库服务器中经常被用到。此词汇表源于InnoDB存储引擎的专业术语手册，并且主要的释义都是InnoDB相关的。
+
+## <a name="A"></a>A ##
+### <a name='glos_acid' /></a>ACID: ACID 
+原子性（atomicity）、 一致性（consistency）、隔离性（isolation）和持久性（durability）的首字母缩写。这些属性是一个数据库系统全部具备的，并且与事务（***transaction***）的概念紧紧绑在一起。InnoDB的事务特性遵守ACID原则。
+
+事务是可以提交或回滚的原子（***atomic***）工作单元。当一个事务造成数据库的多处更改，所有的更改要么在事务提交（***committed***）后全部成功，要么在事务回滚（***rolled back***）后全部撤消。
+
+数据库在任何时候都处于一致的状态——在每一次提交或回滚后，以及事务在进行中时。如果相关的数据正在被跨表更新，查询看到的是所有的旧值或所有的新值，而不会是新旧兼有的。
+
+当事务在进行时它们之间是被保护（被隔离）的；它们之间不能互相干涉或看到其它事务未提交的数据。这种隔离是靠锁（***locking***）机制实现的。有经验的用户可以调整隔离级别（***isoloation level***），当他们可以确认事务真的不会相互干涉时，牺牲少许保护换取性能和并发（***concurrency***）的提升。
+
+事务的结果是持久的：一旦提交操作成功了，在掉电、系统崩溃、资源竞争或其它非数据库应用所引起的潜在危险等情况下，事务引起的更改是安全的。持久性通常需要写到磁盘存储上，具有一定冗余量来防止在写操作过程中的掉电故障或软件崩溃。（在InnodDB中，双写缓冲（***doublewrite buffer***）来帮助完成一致性。）
+
+参见 [atomic], [commit], [concurrency], [doublewrite buffer], [isolation level], [locking], [rollback], [transaction].
+
+### <a name='glos_adaptive_flushing'></a>adaptive flushing: 自适应刷新
+一个***InnoDB***用来平滑处理由检查点（***checkpoints***）产年的I/O压力的算法。MySQL周期性地将小集合的修改了的页面（***pages***）刷新（***flushing***）到数据文件（***data files***）中，而不是一次性将所有修改过的页从缓冲池（***buffer pool***）中刷新到数据文件。自适应刷新算法通过基于刷新率和redo信息产生的速率，估计出执行周期刷新的最佳值，而扩展了这个进程。它在MySQL 5.1的InnoDB插件中第一次被提到。
+
+参见 [buffer pool], [checkpoint], [data files], [flush], [InnoDB], [page], [redo log].
+
+### <a name='glos_adaptive_hash_index'></a>adaptive hash index: 自适应哈希索引
+
+是一个通过在内存中构建哈希索引（***hash index***）来加速对InnoDB的表=和IN查找操作的优化。MySQL监视InnoDB表的索引查询，如果查询更适合哈希索引，它会为被频繁访问到的索引页（***pages***）自动创建一个哈希索引。从某种意义上讲，自适应哈希索引实时地配置MySQL，以利用大内存的优势，这样做更接近于内存数据库的架构。这个特性由[innodb_adaptive_hash_index]()这个选项控制。因为这个功能只对部分负载有好处，并且***buffer pool***中哈希索引所用过的内存也被保留了，所以你对这个功能权衡取舍。
+
+哈希索引创建一直是基于已存在的InnoDB的以B树（***B-tree***）结构组织的二级索引（***secondary index***）。根据使用索引搜索模式的不同，MySQL可以在任何长度的B树键值前缀上构建哈希索引。一个哈希索引可以是部分的；整个B树没必要全缓存在buffer pool中。
+
+在MySQL 5.6或更高的版本中，另一种利用InnoDB表快速单值查询优势的方法是在InnoDB中使用***memcached***的接口。结节参见[第14.2.9节，InnoDB集成memcached](14.02.09)
+
+参见 [B-tree], [buffer pool], [hash index], [memcached], [page], [secondary index].
+
+### <a name='glos_ahi'></a>AHI: adaptive hash index的缩写
+
+adaptive hash index的缩写。
+
+参见 [adaptive hash index]。
+
+### <a name='glos_aio'></a>AIO: 异步IO
+
+异步I/O（asynchronous I/O）的缩写。你会在InnoDB的消息或关键字中看到它。
+
+参见 [asynchronous I/O]。
+
+### <a name='glos_antelopoe'></a>Antelope: 不译，innodb code name
+
+原始InnoDB文件格式的代码名称。它支持冗余（***redundant***）与精简（***compact***）的行格式，但是不支持新的***Barracuda***代码中的动态（***dynamic***）与压缩（***compressed***）行格式。
+
+如果你的应用能受益于InnoDB表压缩，或使用BLOBs或大文本字段时能从动态行格式中获益，你可以将表切到Barracuda格式。你可以通过在创建表之前设置[innodb_file_format]选项来选择使用何种文件格式。
+
+参见 [Barracuda], [compact row format], [compressed row format], [dynamic row format], [file format], [innodb_file_format], [redundant row format].
+
+### <a name='glos_application_programming_interface'></a>application programming interface: API
+
+ 一个函数或程序集合。一个API为函数、程序、参数和返回值提供一组稳定名字与类型。
+
+### <a name='glos_apply'></a>apply: 应用
+
+当一个MySQL企业版备份（MySQL Enterprise Backup）在数据库运行时生成的备份并没有包含最新的修改时，更新备份文件以包含这些改动的过程程就被称为应用（***apply***）步骤。它由`mysqlbackup`命令的`apply-log`选项指定。
+
+在改动被应用前，我们把文件称为原始备份（***raw backup***）。在改动被应用后，我们把文件称为一致备份（***prepared backup***）。改动记录在***ibbackup_logfile**文件中；一旦应用步骤完成，这些文件就没啥用了。
+
+参见 [hot backup], [ibbackup_logfile], [MySQL Enterprise Backup], [prepared backup], [raw backup].
+
+### <a name='glos_arm_file'></a>.ARM file: 不译 Archive表的定义信息
+
+Archive表的定义信息。相对于.ARZ文件。这个后缀的文件总是包含由MySQL企业版备份mysqlbackup命令所产生的备份中。
+
+参见 [.ARZ file], [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name='glos_arz_file'></a>.ARZ file: 不译 Archive表的数据文件
+
+Archive表的数据文件。相对于.ARM文件。这个后缀的文件总是包含由MySQL企业版备份mysqlbackup命令所产生的备份中。
+
+参见 [.ARM file], [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name='glos_asynchronous_io'></a>asynchronous I/O: 异步I/O，也可说AIO
+
+一种允许其它操作可以在I/O完成之前继续的I/O操作类型。也叫无阻塞I/O，简写为AIO。InnoDB在某些可以运行并行操作但不影响数据库准确性的操作上使用这种I/O类型，比如把那些实际上没有访问到但马上就要被访问到的页读进buffer pool中。
+
+从历史上来看，InnoDB曾经只在Window系统上使用过异步I/O。从InnoDB Plugin 1.1 开始，InnoDB在Linux系统上也使用了异步I/O。这个改变对libaio产生依赖。在其它类Unix系统上，InnoDB只使用同步I/O。
+
+参见 [buffer pool], [non-blocking I/O].
+
+### <a name='glos_atomic'></a>atomic: 原子（性）
+
+在SQL的环境中，事务是要么完全生效（当提交后），或完全无效（当回滚后）的工作集。这个不可分割（“原子”）的属性就是缩写***ACID***中的“A”。
+
+参见 [ACID], [commit], [rollback], [transaction].
+
+### <a name='glos_atomic_instruction'></a>atomic instruction: CPU中不可中断的指令（原子指令）
+
+CPU提供的特殊机制，用来保证关键的低层操作不被打断。
+
+### <a name='glos_auto_increment'></a>auto-increment: 自增
+
+一个在列上自动添加递增序列值的表的列属性（用`AUTO_INCREMENT`关键字指定）。InnoDB只支持主键列上的自增。
+
+它会节省开发者的工作量，在插入新行时不必再生成新的唯一值。它为查询分析器提供很有用的信息，因为列已知是非空且值唯一。这样的列上值可以在各种环境中用做查询键，并且因为它们是自动生成的，所以根本没有必要改动它们；正因如此，主键列常常被定义为自增。
+
+自增万会对基于语句的复制（***statement-based replicataion***）带来麻烦， 因为在从库上同步过去的语句不一定会生成与主库上一致的列值，这要归咎于计时问题。当你有一个自增主键，你只能在`innodb_autoinc_lock_mode=1`的情况下使用基于语句的复制。如果你设置了`innodb_autoinc_lock_mode=2`，它会允许高并发的插入操作，请使用基于行的复制（***row-based replication***）而不要使用基于语句的复制。`innodb_autoinc_lock_mode=0`是之前的（传统的）默认设置，但只有遇到兼容性问题时才会使用该设置。
+
+参见 [auto-increment locking], [innodb_autoinc_lock_mode], [primary key], [row-based replication], [statement-based replication].
+
+### <a name='glos_auto_increment_locking'></a>auto-increment locking: 自增锁
+
+自增（`auto-increment`）主键在带来方便会引起对并发性能上的权衡。在最简单的情况，如果一个事务正在往表里插值，其它的事务必须等待各自的插表，为的是让第一个事务插入的行能够获得连续的键值。InnoDB包含一些优化以及`innodb_autoinc_lock_mode`选项，这样你就可以选择如何在可预测的自增序列值与最大并发（`concurrency`）插入之间做出取舍。
+
+参见 [auto-increment], [concurrency], [innodb_autoinc_lock_mode].
+
+### <a name='glos_autocommit'></a>autocommit: 自动提交
+
+使在每句SQL语句后产生提交（`commit`）操作的选项。在InnoDB表中使用跨多条`SQL`语句的事务（`transactions`）的情况下，不推荐这个模式。它会帮助提高InnoDB表只读的事务（`read-only transactions`），这儿会将锁（`locking`）的负载和产生的`undo`数据最小化，特别是在MySQL 5.6.4及更高版本中。它同样适用于事务不起作用的MyISAM表。
+
+参见 [commit], [locking], [read-only transaction], [SQL], [transaction], [undo].
+
 ### availability 可用性
 
-## B ##
+对MySQL、操作系统或硬件故障及因为维护行为而引起宕机等主机故障的处理能力，以及在必要情况下从上述所有故障中恢复的能力。经常与扩展性（`scalability`）配合使用，成为大规模部署中的一个关键因素。
+
+参见 [scalability].
+
+## <a name='B'></a>B ##
+
 ### B-tree B树
+
+数据库索引上很流行使用的树形数据结构。该数据结构一直保持排序状态，保证快速精确查找（等于操作）和范围查找（比如大于、小于和BETWEEN操作）。这种类型的索引在绝大多数的存储引擎中是可用的，如InnoDB和MyISAM。
+
+因为B树的节点可以有很多子节点，所以B树和二叉数不同，二叉树的节点最多有两个子节点。
+
+哈希索引（***hash index***）与它的差别是，哈希索引只在内存存储引擎中可用。内存存储引擎也可以使用B树索引，如果查询中用到了范围查找操作，你可以为内存表选用B树索引。
+
+参见 [hash index].
+
 ### backticks 反引号
+
+MySQL SQL语句中的标识如果含有特殊字符或保留词，就必须用反引号（`）括起来。例如，为了使用名为`FOO#BAR`的或名为`SELECT`列，你就要把这些标识符指定为\`FOO#BAR\`和\`SELECT\`。由于反引号提供一种额外的安全级别，它们被广泛使用的程序生成的SQL语句，其中的标识符名称可能不会提前知道。
+
+其它的数据库系统使用双引号（"）将这样的特殊名字包围起来。为了移植性起见，你可以在MySQL启用ANSI_QUOTES模式并用双引号来代替反引号来限定标识符名称。
+参见 [SQL].
+
 ### backup 备份
+
+为了安全保存起见，拷贝MySQL实例部分或全部表的数据和元数据的过程。也指拷备完成的文件集合。这是DBA们的一项终极任务。这个过程的反向操作是恢复（***restore***）。
+
+对于MySQL，物理备份（***physical backup***）由MySQL企业版备份（***MySQL Enterprise Backup***）产品来完成，逻辑备份（***logical backup***）由***mysqldump***命令来完成。这些技术所产生备份数据在文件大小与文件结构以及速度（特别是恢复操作的速度）等方面都有不同的特性。
+
+热备（***hot backup***）、温备（***warm backup***）和冷备（c***old backup***）因它们干涉数据库操作的多少而有很大不同。（热备最少干涉，冷备最多。）
+
+参见 [cold backup], [hot backup], [logical backup], [MySQL Enterprise Backup], [mysqldump], [physical backup], [warm backup].
+
 ### Barracda （Innodb code name）
+支持表压缩的InnoDB文件格式的代码名。这种文件格式首先是在InnoDB Plugin中提到的。它提供压缩行格式实现InnoDB的表压缩，提供动态行格式来提高BLOB和大文本字段的存储分布。你可以通过innodb_file_format选项来选择使用。
+
+因为InnoDB系统表空间是以原始的Antelope文件格式存储的，所以要使用Barracuda文件格式时，你必须要启用file-per-table选项，它会讲最新创建表的表空间从系统表空间中隔离出来。
+
+The MySQL Enterprise Backup product version 3.5 and above supports backing up tablespaces that use the Barracuda file format.
+MySQL企业版备份产品的3.5版及以上版本支持用Barracuda文件格式来备份表空间。
+
+参见 [Antelope], [compact row format], [compressed row format], [dynamic row format], [file format], [file-per-table], [innodb_file_format], [MySQL Enterprise Backup], [row format], [system tablespace].
+
 ### beta 公测
 ### binary log 二进制日志
 ### binlog 二进制日志（同binary log）
@@ -32,7 +168,7 @@
 ### bounce 性能抖动
 ### buddy allocator （Innodb buffer pool内存分配中的单位）
 ### buffer 缓冲（或不译）
-### buffer pool 缓冲池 （或不译）
+### <a name='glos_buffer_pool' /></a>buffer pool 缓冲池 （或不译）
 ### buffer pool instance 缓冲池实例（或不译）
 ### built-in 内置
 ### business rules 业务规则
@@ -125,9 +261,9 @@
 ### fuzzy checkpointing 模糊检查点刷新
 
 ## G ##
-### GA 一般可用（建议直接用 GA）
+### <a name="GA"/>GA 一般可用（建议直接用 GA）
 ### gap 间隙
-### gap lock 间隙锁
+### <a name="gap_lock"/>gap lock 间隙锁
 ### general log 数据库日志
 ### general query log 同general log 数据库日志
 ### global_transaction 全局事务
@@ -221,7 +357,7 @@
 ### multi-core 多核
 ### multiversion concurrency control 多版本并发控制
 ### mutex 互斥
-### MVC 多版本并发控制
+### MVCC 多版本并发控制
 ### my.cnf 配置文件（Unix/Linux）
 ### my.ini 配置文件（Windows）
 ### .MYD file .MYD文件
@@ -405,3 +541,293 @@
 
 ## Y ##
 ### young InnoDB Buffer Pool 通过LRU算法管理页面的替换策略。LRU List按照功能被划分为两部分：LRU_young 与LRU_old.
+
+[ACID]: #glos_acid
+[.ARM file]: #glos_arm_file
+[.ARZ file]: #glos_arz_file
+[Antelope]: #glos_antelope
+[B-tree]: #glos_b_tree
+[Barracuda]: #glos_barracuda
+[DCL]: #glos_dcl
+[DDL]: #glos_ddl
+[DML]: #glos_dml
+[FOREIGN KEY constraint]: #glos_foreign_key_constraint
+[FULLTEXT index]: #glos_fulltext_index
+[Fast Index Creation]: #glos_fast_index_creation
+[GA]: #glos_ga
+[INFORMATION_SCHEMA]: #glos_information_schema
+[InnoDB]: #glos_innodb
+[LRU]: #glos_lru
+[LSN]: #glos_lsn
+[MVCC]: #glos_mvcc
+[MYD file]: #glos_myd_file
+[MYI file]: #glos_myi_file
+[MySQL]: #glos_mysql
+[MySQL Enterprise Backup]: #glos_mysql_enterprise_backup
+[NOT NULL constraint]: #glos_not_null_constraint
+[NULL]: #glos_null
+[NoSQL]: #glos_nosql
+[OLTP]: #glos_oltp
+[Performance Schema]: #glos_performance_schema
+[Pthreads]: #glos_pthreads
+[READ]: #glos_read
+[READ COMMITTED]: #glos_read_committed
+[READ UNCOMMITTED]: #glos_read_uncommitted
+[REPEATABLE]: #glos_repeatable
+[REPEATABLE READ]: #glos_repeatable_read
+[SERIALIZABLE]: #glos_serializable
+[SQL]: #glos_sql
+[SSD]: #glos_ssd
+[TRG file]: #glos_trg_file
+[TRN file]: #glos_trn_file
+[XA]: #glos_xa
+[adaptive hash index]: #glos_adaptive_hash_index
+[apply]: #glos_apply
+[asynchronous I/O]: #glos_asynchronous_io
+[atomic]: #glos_atomic
+[auto-increment]: #glos_auto_increment
+[auto-increment locking]: #glos_auto_increment_locking
+[autocommit]: #glos_autocommit
+[availability]: #glos_availability
+[backup]: #glos_backup
+[beta]: #glos_beta
+[binary log]: #glos_binary_log
+[binlog]: #glos_binlog
+[bottleneck]: #glos_bottleneck
+[buffer]: #glos_buffer
+[buffer pool]: #glos_buffer_pool
+[buffer pool instance]: #glos_buffer_pool_instance
+[built-in]: #glos_built_in
+[cardinality]: #glos_cardinality
+[cfg file]: #glos_cfg_file
+[change buffer]: #glos_change_buffer
+[change buffering]: #glos_change_buffering
+[checkpoint]: #glos_checkpoint
+[child table]: #glos_child_table
+[clean page]: #glos_clean_page
+[clean shutdown]: #glos_clean_shutdown
+[client]: #glos_client
+[clustered index]: #glos_clustered_index
+[cold backup]: #glos_cold_backup
+[column]: #glos_column
+[column index]: #glos_column_index
+[commit]: #glos_commit
+[compact row format]: #glos_compact_row_format
+[composite index]: #glos_composite_index
+[compressed backup]: #glos_compressed_backup
+[compressed row format]: #glos_compressed_row_format
+[compression]: #glos_compression
+[concurrency]: #glos_concurrency
+[configuration file]: #glos_configuration_file
+[consistent read]: #glos_consistent_read
+[constraint]: #glos_constraint
+[counter]: #glos_counter
+[crash]: #glos_crash
+[crash recovery]: #glos_crash_recovery
+[cursor]: #glos_cursor
+[data]: #glos_data
+[data dictionary]: #glos_data_dictionary
+[data directory]: #glos_data_directory
+[data files]: #glos_data_files
+[data warehouse]: #glos_data_warehouse
+[database]: #glos_database
+[deadlock]: #glos_deadlock
+[deadlock detection]: #glos_deadlock_detection
+[delete]: #glos_delete
+[delete buffering]: #glos_delete_buffering
+[denormalized]: #glos_denormalized
+[dirty page]: #glos_dirty_page
+[dirty read]: #glos_dirty_read
+[disk-based]: #glos_disk_based
+[disk-bound]: #glos_disk_bound
+[doublewrite buffer]: #glos_doublewrite_buffer
+[drop]: #glos_drop
+[dynamic row]: #glos_dynamic_row
+[dynamic row format]: #glos_dynamic_row_format
+[early adopter]: #glos_early_adopter
+[error log]: #glos_error_log
+[eviction]: #glos_eviction
+[exclusive lock]: #glos_exclusive_lock
+[extent]: #glos_extent
+[fast shutdown]: #glos_fast_shutdown
+[file format]: #glos_file_format
+[file-per-table]: #glos_file_per_table
+[fixed]: #glos_fixed
+[flush]: #glos_flush
+[foreign key]: #glos_foreign_key
+[frm file]: #glos_frm_file
+[full backup]: #glos_full_backup
+[full table scan]: #glos_full_table_scan
+[full-text search]: #glos_full_text_search
+[fuzzy checkpointing]: #glos_fuzzy_checkpointing
+[gap]: #glos_gap
+[gap lock]: #glos_gap_lock
+[general query log]: #glos_general_query_log
+[hash index]: #glos_hash_index
+[high-water mark]: #glos_high_water_mark
+[history list]: #glos_history_list
+[hot backup]: #glos_hot_backup
+[ib-file set]: #glos_ib_file_set
+[ib_logfile]: #glos_ib_logfile
+[ibbackup_logfile]: #glos_ibbackup_logfile
+[ibd file]: #glos_ibd_file
+[ibdata]: #glos_ibdata
+[ibdata file]: #glos_ibdata_file
+[ibtmp file]: #glos_ibtmp_file
+[ibz file]: #glos_ibz_file
+[ilist]: #glos_ilist
+[implicit row lock]: #glos_implicit_row_lock
+[in-memory database]: #glos_in_memory_database
+[incremental backup]: #glos_incremental_backup
+[index]: #glos_index
+[index hint]: #glos_index_hint
+[index prefix]: #glos_index_prefix
+[infimum record]: #glos_infimum_record
+[innodb_autoinc_lock_mode]: #glos_innodb_autoinc_lock_mode
+[innodb_lock_wait_timeout]: #glos_innodb_lock_wait_timeout
+[innodb_strict_mode]: #glos_innodb_strict_mode
+[insert]: #glos_insert
+[insert buffer]: #glos_insert_buffer
+[insert buffering]: #glos_insert_buffering
+[instance]: #glos_instance
+[intention lock]: #glos_intention_lock
+[isolation level]: #glos_isolation_level
+[join]: #glos_join
+[latch]: #glos_latch
+[list]: #glos_list
+[lock]: #glos_lock
+[lock mode]: #glos_lock_mode
+[locking]: #glos_locking
+[locking read]: #glos_locking_read
+[log]: #glos_log
+[log buffer]: #glos_log_buffer
+[log file]: #glos_log_file
+[log group]: #glos_log_group
+[logical]: #glos_logical
+[logical backup]: #glos_logical_backup
+[low-water mark]: #glos_low_water_mark
+[master server]: #glos_master_server
+[master thread]: #glos_master_thread
+[memcached]: #glos_memcached
+[metadata lock]: #glos_metadata_lock
+[metrics counter]: #glos_metrics_counter
+[midpoint insertion strategy]: #glos_midpoint_insertion_strategy
+[mini-transaction]: #glos_mini_transaction
+[mixed-mode insert]: #glos_mixed_mode_insert
+[mutex]: #glos_mutex
+[mycnf]: #glos_mycnf
+[myini]: #glos_myini
+[mysql]: #glos_mysql
+[mysqlbackup command]: #glos_mysqlbackup_command
+[mysqld]: #glos_mysqld
+[mysqldump]: #glos_mysqldump
+[natural key]: #glos_natural_key
+[neighbor page]: #glos_neighbor_page
+[next-key lock]: #glos_next_key_lock
+[non-blocking I/O]: #glos_non_blocking_io
+[non-locking read]: #glos_non_locking_read
+[non-repeatable read]: #glos_non_repeatable_read
+[normalized]: #glos_normalized
+[off-page column]: #glos_off_page_column
+[online]: #glos_online
+[online DDL]: #glos_online_ddl
+[optimistic]: #glos_optimistic
+[optimizer]: #glos_optimizer
+[option]: #glos_option
+[option file]: #glos_option_file
+[overflow page]: #glos_overflow_page
+[page]: #glos_page
+[page cleaner]: #glos_page_cleaner
+[page size]: #glos_page_size
+[parent]: #glos_parent
+[parent table]: #glos_parent_table
+[partial backup]: #glos_partial_backup
+[persistent statistics]: #glos_persistent_statistics
+[pessimistic]: #glos_pessimistic
+[phantom]: #glos_phantom
+[physical]: #glos_physical
+[physical backup]: #glos_physical_backup
+[plan stability]: #glos_plan_stability
+[plugin]: #glos_plugin
+[point-in-time recovery]: #glos_point_in_time_recovery
+[prepared]: #glos_prepared
+[prepared backup]: #glos_prepared_backup
+[primary key]: #glos_primary_key
+[process]: #glos_process
+[pseudo-record]: #glos_pseudo_record
+[purge]: #glos_purge
+[purge buffering]: #glos_purge_buffering
+[purge lag]: #glos_purge_lag
+[query]: #glos_query
+[query execution plan]: #glos_query_execution_plan
+[raw]: #glos_raw
+[raw backup]: #glos_raw_backup
+[read view]: #glos_read_view
+[read-ahead]: #glos_read_ahead
+[read-only]: #glos_read_only
+[read-only transaction]: #glos_read_only_transaction
+[record lock]: #glos_record_lock
+[redo]: #glos_redo
+[redo log]: #glos_redo_log
+[redundant row format]: #glos_redundant_row_format
+[referential integrity]: #glos_referential_integrity
+[relational]: #glos_relational
+[replication]: #glos_replication
+[restore]: #glos_restore
+[rollback]: #glos_rollback
+[rollback segment]: #glos_rollback_segment
+[row]: #glos_row
+[row format]: #glos_row_format
+[row lock]: #glos_row_lock
+[row-based replication]: #glos_row_based_replication
+[rw-lock]: #glos_rw_lock
+[scalability]: #glos_scalability
+[scale out]: #glos_scale_out
+[scale up]: #glos_scale_up
+[schema]: #glos_schema
+[search index]: #glos_search_index
+[secondary index]: #glos_secondary_index
+[server]: #glos_server
+[shutdown]: #glos_shutdown
+[slave server]: #glos_slave_server
+[slow]: #glos_slow
+[slow shutdown]: #glos_slow_shutdown
+[space ID]: #glos_space_id
+[spin]: #glos_spin
+[startup]: #glos_startup
+[statement-based replication]: #glos_statement_based_replication
+[stopword]: #glos_stopword
+[storage engine]: #glos_storage_engine
+[strict mode]: #glos_strict_mode
+[sublist]: #glos_sublist
+[supremum]: #glos_supremum
+[supremum record]: #glos_supremum_record
+[surrogate key]: #glos_surrogate_key
+[synthetic key]: #glos_synthetic_key
+[system]: #glos_system
+[system tablespace]: #glos_system_tablespace
+[table]: #glos_table
+[table lock]: #glos_table_lock
+[table type]: #glos_table_type
+[tablespace]: #glos_tablespace
+[temporary tablespace]: #glos_temporary_tablespace
+[thread]: #glos_thread
+[transaction]: #glos_transaction
+[transportable tablespace]: #glos_transportable_tablespace
+[truncate]: #glos_truncate
+[two-phase commit]: #glos_two_phase_commit
+[undo]: #glos_undo
+[undo log]: #glos_undo_log
+[unique]: #glos_unique
+[unique constraint]: #glos_unique_constraint
+[unique index]: #glos_unique_index
+[unique key]: #glos_unique_key
+[victim]: #glos_victim
+[wait]: #glos_wait
+[warm backup]: #glos_warm_backup
+[warm up]: #glos_warm_up
+[workload]: #glos_workload
+
+[14.02.09]: ../Chapter_14/14.02.09_InnoDB_Integration_with_memcached.md
+[innodb_adaptive_hash_index]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_adaptive_hash_index
+[innodb_file_format]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_file_format
