@@ -123,7 +123,7 @@ CPU提供的特殊机制，用来保证关键的低层操作不被打断。
 
 ## <a name='B'></a>B ##
 
-### B-tree B树
+### <a name='glos_b_tree'></a>B-tree: B树
 
 数据库索引上很流行使用的树形数据结构。该数据结构一直保持排序状态，保证快速精确查找（等于操作）和范围查找（比如大于、小于和BETWEEN操作）。这种类型的索引在绝大多数的存储引擎中是可用的，如InnoDB和MyISAM。
 
@@ -133,14 +133,14 @@ CPU提供的特殊机制，用来保证关键的低层操作不被打断。
 
 参见 [hash index].
 
-### backticks 反引号
+### <a name='glos_backticks'></a>backticks: 反引号
 
 MySQL SQL语句中的标识如果含有特殊字符或保留词，就必须用反引号（`）括起来。例如，为了使用名为`FOO#BAR`的或名为`SELECT`列，你就要把这些标识符指定为\`FOO#BAR\`和\`SELECT\`。由于反引号提供一种额外的安全级别，它们被广泛使用的程序生成的SQL语句，其中的标识符名称可能不会提前知道。
 
 其它的数据库系统使用双引号（"）将这样的特殊名字包围起来。为了移植性起见，你可以在MySQL启用ANSI_QUOTES模式并用双引号来代替反引号来限定标识符名称。
 参见 [SQL].
 
-### backup 备份
+### <a name='glos_backup'></a>backup: 备份
 
 为了安全保存起见，拷贝MySQL实例部分或全部表的数据和元数据的过程。也指拷备完成的文件集合。这是DBA们的一项终极任务。这个过程的反向操作是恢复（***restore***）。
 
@@ -150,28 +150,100 @@ MySQL SQL语句中的标识如果含有特殊字符或保留词，就必须用�
 
 参见 [cold backup], [hot backup], [logical backup], [MySQL Enterprise Backup], [mysqldump], [physical backup], [warm backup].
 
-### Barracda （Innodb code name）
+### <a name='glos_barracda'></a>Barracda: Innodb code name
 支持表压缩的InnoDB文件格式的代码名。这种文件格式首先是在InnoDB Plugin中提到的。它提供压缩行格式实现InnoDB的表压缩，提供动态行格式来提高BLOB和大文本字段的存储分布。你可以通过innodb_file_format选项来选择使用。
 
 因为InnoDB系统表空间是以原始的Antelope文件格式存储的，所以要使用Barracuda文件格式时，你必须要启用file-per-table选项，它会讲最新创建表的表空间从系统表空间中隔离出来。
 
-The MySQL Enterprise Backup product version 3.5 and above supports backing up tablespaces that use the Barracuda file format.
 MySQL企业版备份产品的3.5版及以上版本支持用Barracuda文件格式来备份表空间。
 
 参见 [Antelope], [compact row format], [compressed row format], [dynamic row format], [file format], [file-per-table], [innodb_file_format], [MySQL Enterprise Backup], [row format], [system tablespace].
 
-### beta 公测
-### binary log 二进制日志
-### binlog 二进制日志（同binary log）
-### bind query expansion （使用query expansion）
-### bottleneck 瓶颈
-### bounce 性能抖动
-### buddy allocator （Innodb buffer pool内存分配中的单位）
-### buffer 缓冲（或不译）
-### <a name='glos_buffer_pool' /></a>buffer pool 缓冲池 （或不译）
-### buffer pool instance 缓冲池实例（或不译）
-### built-in 内置
-### business rules 业务规则
+### <a name='glos_beta'>beta: 公测
+
+软件产品生命周期中早期阶段，彼时它只用来评估，经常是没有定义发行号或发行号小于1。InnoDB没有用beta名称，而更喜欢用可以扩展为几次发布的测试版来演进为一个GA版。
+
+参见 [early adopter], [GA].
+
+### <a name='glos_binary_log'></a>binary log: 二进制日志
+
+包含所有尝试修改表数据的语句记录的文件。这些语句可以是为更新从库（replication）副本而重放了的，也可以是从一个备份中恢复表数据后产生的。你可以将记录二进制日志的功能打开或闭，虽然Oracle建议你在用复制或备份时一直打开它。
+
+你可以通过mysqlbinlog命令来检查二进制日志的内容，或将这些语句在复制或恢复时重放。如需更多二进制日志的信息，参考[第5.2.4章，二进制日志][05.02.04]。如需更多MySQL中二进制日志相关的配置选项，参考[16.1.4.4章，二进制选项与变量][16.01.04.04]。
+
+对于MySQL企业备份（***MySQL Enterprise Backup***）产品，二进制日志的文件名和文件中的当前位置是非常重要的细节。你可以用`--slave-info`选项来让在复制环境下的备份文件记录主库的信息。
+
+在MySQL 5.0 之前的版本中有一个类似的功能叫更新日志（update log）。在MySQL5.0及更高版本中，二进制日志代替了更新日志。
+
+参见 [binlog], [MySQL Enterprise Backup], [replication].
+
+### <a name='glos_binlog'></a>binlog: 二进制日志（同binary log）
+
+二进制日志（***binary log***）的俗称。例如，你会在邮件消息或论坛话题中看到这个简写。
+
+参见 [binary log].
+
+### blind query expansion: 使用query expansion
+
+一种使用`WITH QUERY EXPANSION`短语激活的全文搜索的特殊模式。它会执行两次搜索，第二次的搜索的短语是由第一次搜索结果中少数几个高度关联的文档拼成的。这种技术主要用在短词搜索上，很有可能只有一个词。它能发现那些搜索项并没有在文档中明确出现但有关联的匹配。
+
+参见 [full-text search].
+
+### <a name='glos_bottleneck'></a>bottleneck: 瓶颈
+
+系统中大小或能力受限的部分，它会影响限制整个系统的吞吐量。比如，内部可能比实际需要的少；访问一个必需的资源可能会阻止多个CPU内核同时运行；或等待硬盘I/O完成可能会阻止CPU的满负荷运行。干掉瓶颈往往是提高并发（***concurrency***）。例如，多个InnoDB ***buffer pool***实例的功能减少了多个会话同时读写buffer pool时的资源竞争。
+
+参见 [buffer pool], [concurrency].
+
+### <a name='glos_bounce'></a>bounce: 性能抖动
+
+重启之后的紧跟着出现的当机（***shutdown***）。理想情况是提前做一个预热，这样性能和吞吐量会很快恢复到一个较高水平。
+
+参见 [shutdown].
+
+### <a name='glos_buddy_allocator'></a>buddy allocator （Innodb buffer pool内存分配中的单位）
+
+InnoDB ***buffer pool***管理不同大小***pages***的机制。
+
+参见 [buffer pool], [page], [page size].
+
+### <a name='glos_buffer'></a>buffer: 缓冲（或不译）
+
+一个用来做临时存储的内存或磁盘空间。数据被缓存在内存中，以便更高效地写磁盘（使用少而大的I/O操作代替多而小）。数据缓存在磁盘上以获得更高的可靠性，这样即使在极端情况下发生崩溃或其它故障发生时也可以恢复。InnoDB主要的缓冲类型就是***buffer pool***、***doublewrite buffer***和***insert buffer***。
+参见 [buffer pool], [crash], [doublewrite buffer], [insert buffer].
+
+### <a name='glos_buffer_pool' /></a>buffer pool: 缓冲池 （或不译）
+
+保持缓存了的InnoDB表和索引的内存区域。为了获得高容量的读操作的效率，buffer pool被分为页页（***page***）以持有多行。为了获得更高缓存管理的效率，buffer pool实现为一个页面链接；很少使用的数据利用***LRU***算法的变体从将其老化并从缓存中剔出。在大内存的系统中，你可以通过将buffer pool分割为多个buffer pool实例（***buffer pool instance***）来提高并发。
+
+好几种`InnoDB`的状态变量、`information_schema`表及`performance_schema`表都能帮助你监测buffer pool的内部工况。自MySQL 5.6始，你还可以在通过诸如`innodb_buffer_pool_dump_at_shutdown`和`innodb_buffer_pool_load_at_startup`的InnoDB的配置变量，在启动和关闭服务时导出或恢复buffer bool中的内容，也可以在任何时间手工操作。
+
+参见 [buffer pool instance], [LRU], [page], [warm up].
+
+### <a name='glos_buffer_pool_instance'></a>buffer pool instance: 缓冲池实例（或不译）
+
+在buffer pool中划分的任何区域，由innodb_buffer_pool_instances配置控制。由innodb_buffer_pool_size指定的总内存大小在被所有的实例瓜分。通常情况下，系统分配给InnoDB buffer pool好多个GB情况下，才适合用多buffer pool instances（每个实例1GB或更大）。在系统在多个并发会话环境下从buffer pool中加载或查寻大量的数据时，利用多实例可以降低对管理buffer pool的数据结构的排它访问竞争。
+
+参见 [buffer pool].
+
+### <a name='glos_built_in'></a>built-in: 内置
+
+The built-in InnoDB storage engine within MySQL is the original form of distribution for the storage engine. Contrast with the InnoDB Plugin. Starting with MySQL 5.5, the InnoDB Plugin is merged back into the MySQL code base as the built-in InnoDB storage engine (known as InnoDB 1.1).
+
+MySQL中内置的InnoDB存储引擎是存储引擎发布的原始形态。相对于InnoDB Plugin而言。自MySQL 5.5始，InnoDB Plugin又合并回MySQL代码中成为内置的InnoDB存储引擎（也就是InnoDB 1.1）。
+
+这在MySQL 5.1中的区别还是蛮大的，功能与bug可能会应用到InnoDB Plugin而不是内置的InnoDB中，反之亦然。
+
+参见 [InnoDB], [plugin].
+
+
+### <a name='glos_business_rules'></a>business rules: 业务规则
+
+规范商业软件基础行为的关系和序列，用于运作一个商业公司。有时这些规则由法律决定，有时由公司政策决定。小心规划保证关系由数据库编码与加强，并且行为通过应用逻辑来执行，精确反应出公司的真实政策并能处理现实生活中的情况。
+
+例如，一个员工离职可能会触发一系列人力资源部门的行为。人力资源数据库也可能具备能描述一个已受雇但尚未开始工作的员工数据的灵活性。在一个在线服务中关闭一个账户可能会导致数据从数据库中删除，或数据被移走或被标志以便以后在该账户重新启用时恢复。一个公司可能要制定政策除了要考虑如工资不能为负数等合理性检查之外，还要考虑工资的最大值、最小值及如何调整等。一个零售业数据库可能不允许相同序列号被返回一次以上的采购，或当、不允许信用卡购买超过某个金额，而一个用来检测欺诈行为的数据库则允许这些行为。
+
+参见 [relational].
 
 ## C ##
 ### cache 缓存
@@ -831,3 +903,5 @@ MySQL企业版备份产品的3.5版及以上版本支持用Barracuda文件格式
 [14.02.09]: ../Chapter_14/14.02.09_InnoDB_Integration_with_memcached.md
 [innodb_adaptive_hash_index]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_adaptive_hash_index
 [innodb_file_format]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_file_format
+[05.02.04]: ./05.02.04_The_Binary_Log.md
+[16.01.04.04]: ../Chapter_16/16.01.04_Replication_and_Binary_Logging_Options_and_Variables.md#16.01.04.04
