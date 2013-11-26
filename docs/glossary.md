@@ -378,30 +378,145 @@ MySQL企业备份产品(***MySQL Enterprise Backup***)的一个压缩属性，�
 ### <a name='glos_concatenated_index'></a>concatenated index: 复合索引
 参考 [composite index].
 
-### <a name='glos_concurrency'></a>concurrency 并发
-多个操作(在数据库的术语中，叫***transactions***)同时执行而不会互联影响的能力。
+### <a name='glos_concurrency'></a>concurrency: 并发
+多个操作(在数据库的术语中，叫***transactions***)同时执行而不会互联影响的能力。并发也与性能是密切相关的，因为在理想情况下，使用了高效的锁机制(***locking***)来以最小的性能代价去保护多个同时工作的事务。
 
-### configuration file 配置文件
-### consistend read 一致性读
-### constraint 约束
-### counter 记数器
-### covering index 覆盖索引
-### crash 崩溃
-### crash recovery 崩溃恢复
-### CRUD (不译)
-### cursor 游标 Or 光标
+参见 [ACID], [locking], [transactions].
 
-## D ##
-### data definition language 译为：DDL
-### data dictionary 数据字典
-### data directory 数据目录 
-### data files 数据文件
-### data manipulation language 译为:DML
-### data warehouse DW Or 数据仓库
-### database 数据库
-### DCL : Data control language 不译
-### DDL
-### deadlock 死锁
+### <a name='glos_configuration_file'></a>configuration file: 配置文件
+保存MySQL启动参数选项(***option***)的文件。传统上该文件在Linux和UNIX上名为`my.cnf`，在Windows上名为`my.ini`。你可以在该文件的[mysqld]节设置大量与InnoDB相关的选项。
+
+一般来讲，这个文件可以在`/etc/my.cnf`、`/etc/mysql/my.cnf`、`/usr/local/mysql/etc/my.cnf`和`~/.my.cnf`下可以找到。有关该文件的搜索路径的细节请参考[第4.2.3.3节，使用配置文件](04.02.03.03)。
+
+当你使用MySQL企业备份(***MySQL Enterprise Backup***)产品，你一般会用到两个配置文件：一个用来指定数据从哪儿来工它们是如何组织的(它可能是你真正服务的最原始的配置文件)，另一个是只包含一小部分选项的精简版，用来指定备份数据去哪儿和它们是如何组织的。要使用MySQL企业备份(***MySQL Enterprise Backup***)产品的话，配置文件中必须包含常规配置文件中一些没有加进去的选项，所以为使用MySQL企业备份(***MySQL Enterprise Backup***)产品起见，你可能要向已存在的配置文件中加入一些选项。
+
+参见 [my.cnf](mycnf), [option file].
+
+### <a name='glos_consistend_read'></a>consistend read: 一致性读
+一个使用快照信息来呈现基于一个时间点的查询结果的读操作，而不管同一时间点上执行的事务所带来的变更。如果查询到的数据已经被其它事务改变，原始数据会基于***undo log***中的内容进行重建。这个技术避免了一些因为一个事务被强制等待另一个事务结束而降低并发(***concurrency***)的加锁(***locking***)问题。
+
+在可重复读隔离(***repeatable read***)级别，快照基于第一次读操作执行的时间。在提交可读(***read committed***)隔离级别，快照在每一次一致性读操作时都重置。
+
+一致性读的默认模式下，InnoDB会用提交可读(***READ COMMITTED***)和可重复读(***REPEATABLE
+READ***)隔离级别处理`SELECT`语句。因为一个一致性读操作不会向它访问的表加任何锁，所以其它会话可以在一个一致性读操作正在这个表上执行的时候自由地修改这些表。
+
+更多可用的隔离级别的技术细节，请参考[第14.2.2.4节，一致性无锁读](14.02.02.04)。
+
+参考 [ACID], [concurrency], [isolation level], [locking], [MVCC], [READ COMMITTED], [READ UNCOMMITTED], [REPEATABLE READ], [SERIALIZABLE], [transaction], [undo log].
+
+### <a name='glos_constraint'></a>constraint: 约束
+一个可以阻止数据库更改以防止数据变得不一致的自动测试。(在计算机科学术语中，是一种与不变状态相关的断言)。约束是***ACID***理念中至关重要的组成部，用来维持数据的一致性。MySQL中支持约束的有外键约束(***FOREIGN KEY constraints***)与唯一约束(***UNIQUE constraints***)。
+
+参考 [ACID], [foreign key], [relational], [unique constraint].
+
+### <a name='glos_counter'></a>counter: 计数器
+由一种特殊的`InnoDB`操作增加的一个值。有助于标志一个服务繁忙程度、分析性能问题的源头和测试变更(例如，对配置选项或查询使用的索引的变更)是否有期望的低级别的效果。不同类型的计数器可以通过***performance_schema***表和***infomation_schema***表，特别是`infomation_schema.innodb_metrics`表来获得。
+
+参见 [INFORMATION_SCHEMA], [metrics counter], [Performance Schema].
+
+### <a name='glos_covering_index'></a>covering index: 覆盖索引
+一个包含查询所检索的所有列的索引(***index***)。替代将索引值当成指针在全表行里查找，查询直接从索引结构中返回值，节省了磁盘I/O。InnoDB要比MyISAM能更多地应用这种优化技术，因为InnoDB的二级索引(***secondary index***)也包含了主键列。InnoDB不能在被一个事务修改过的表上应用这种技术，直到这个事务结束为止。
+
+给定一下正确的查询，任何单列索引(***column index***)或组合索引(***composite index***)都可以做为一个覆盖索引。设计你的索引或查询让它们能够在任何可能的情况下利到这种优化技术的好处。
+
+参见 [column index], [composite index], [index], [secondary index].
+
+###  <a name='glos_crash'></a>crash: 崩溃
+MySQL使用“崩溃”这个术语来一般指代服务的任何在没有做自己正常清理工作情况下的非预期的宕机(***shutdown***)操作。例如，一个崩溃可能由数据库服务器上机器或存储设备的硬件故障引发；一个潜在的数据不匹配导致MySQL服务的挂起；一个DBA触发的快速关机(***fast shutdown***)；或其它更多原因。***InnoDB***自动崩溃恢复(***crash recovery***)的鲁棒性确保在服务重起后数据是一致的，而不需要DBA做额外的工作。
+
+参见 [crash recovery], [fast shutdown], [InnoDB], [redo log], [shutdown].
+
+### <a name='glos_crash_recovery'></a>crash recovery 崩溃恢复
+MySQL在崩溃后再次启动时做的清理行为。对于InnoDB表，未完成的事务带来的变更会利用redo log中的数据来重放。在崩溃之前提交的但尚未写到数据文件中的变更会从双写缓冲中重构。当数据库正常关机时，此类行为会在关闭时由清除操作来执行。
+
+在正常的操作中，提交了的数据在写入到数据文件前的一段时间内被存储在变更缓冲中。这在与一直让数据文件保持最新之间存在取舍，让数据保持最新会在正常操作中带来性能开销，但缓冲数据会在关机或崩溃恢复时要花费更多时间。
+
+参见 [change buffer], [commit], [crash], [data files], [doublewrite buffer], [InnoDB], [purge], [redo log].
+
+### <a name='glos_crud'></a>CRUD: CRUD
+“create, read, update, delete”首字母缩写，数据库应用中的常见操作序列。经常表示一类相对简单的可以快速用任何语言可以实现数据库用法(基本的***DDL***、***DML***和***SQL***查询(***query***)语句)的应用。
+
+参见 [DDL], [DML], [query], [SQL].
+
+### <a name='glos_cursor'></a>cursor: 游标或光标
+一个用来表示查询(***query***)结果集的内部数据结构，或其它使用SQL `WHERE`子句执行搜索的操作。它像其它高级语言中的迭代器一样工作，让结果集中的每个值都被请求到。
+
+虽然SQL为你处理了游标进程，但你可以在处理性能关键的代码时可以深入了解内部工作机理。
+
+参见 [query].
+
+## <a name="D"></a>D ##
+
+### <a name='glos_data_definition_language'></a>data definition language: DDL
+
+参见 [DDL].
+
+### <a name='glos_data_dictionary'></a>data dictionary: 数据字典
+保存跟踪诸如表(***tables***)、索引(***indexes***)以及表列(***columns***)等InnoDB相关的对象的元数据。这些元数据的物理位置在InnoDB系统表空间(***system tablespace***)中。因为历史原因，它与存储在***.frm***文件中的信息在某些维度上是重合的。
+
+因为MySQL企业备份(***MySQL Enterprise Backup***)产品一直备份系统表空间，所以所有的备份都多包含数据字典的内容。
+
+参见 [column], [.frm file][frm file], [hot backup], [index], [MySQL Enterprise Backup], [system tablespace], [table].
+
+### <a name='glos_data_directory'></a>data directory: 数据目录
+一个目录，下面存储着每个MySQL实例(***instance***)保存InnoDB的数据文件(***data files***)以及对因数据库的目录。由datadir配置选项控制。
+
+参见 [data files], [instance].
+
+### <a name='glos_data_files'></a>data files 数据文件
+在物理上包含InnoDB表(***table***)和索引(***index***)数据的文件。在一种类型的系统表空间(***system tablespace***)中，在数据文件和表之间可以是一对多的关系，它可以持有多个InnoDB表和数据目录(***data dictionary***)。当***file-per-table***选项激活时，数据文件和表之间也可以是一对一的关系，新创建的表将被存储到单独的表空间(***tablespace***)中。
+
+参见 [data dictionary], [file-per-table], [index], [system tablespace], [table], [tablespace].
+
+### <a name='glos_data_manipulation_language'></a>data manipulation language: DML
+
+参见 [DML]。
+
+### <a name='glos_data_warehouse'></a>data warehouse: DW或数据仓库
+一个主要用来运行大查询(***queries***)的数据库系统或应用。为了提高查询效率，只读或几乎只读的数据以反范式(***denormalized***)的形式组织。在MySQL 5.6及更高版本中，可以获益于为只读事务做的优化。
+
+与***OLTP***相对。
+
+参见 [denormalized], [OLTP], [query], [read-only transaction].
+
+### <a name='glos_database'></a>database: 数据库
+在MySQL数据目录(***data directory***)中，每个数据库都用一个单独的目录来表示。InnoDB的系统表空间(***system tablespace***，它也可以保持MySQL实例(***instance***)中多个数据库的表数据)被保存在数据文件(***data files***)中，数据文件存在于单独的数据库目录之外。当file-per-table模式激活，代表InnoDB表的.ibd文件存储在数据库目录中。
+
+对于长时间使用MySQL的用户来说，数据库是一个熟悉的概念。一个有Oracle数据库背景的用户会发现MySQL中数据库的意思与Oracle数据库中所谓的***schema***很相近。
+
+参见 [data files], [file-per-table], [.ibd file][ibd file], [instance], [schema], [system tablespace].
+
+### <a name='glos_dcl'></a>DCL: Data control language
+数据控制语言，一组用来管理权限的***SQL***语句。在MySQL中，由***GRANT***和***REVOKE***语句组成。
+
+与***DDL***与***DML***对应。
+
+参见 [DDL], [DML], [SQL].
+
+### <a name='glos_ddl'></a>DDL: Data definition language
+数据定义语言，一组用来操作数据库本身而不是单独表行的***SQL***语句。包括所有的`CREATE`、`ALTER`和`DROP`语句。也包括`TRUNCATE`语句，因为它异于`DELETE FROM tabel_name`语句，尽管从最终效果上看，两者是非常相似。
+
+DDL语句自动提交(***commit***)当前事务(***transaction***)；它们不能回滚(***rolled back***)。
+
+InnoDB相关的DDL方面有`CREATE INDEX`和`DROP INDEX`的速度提高和***file-per-table***选项对`TRUNCATE TABLE`语句行为影响的方式。
+
+与DML和DCL对应。
+
+参见 [commit], [DCL], [DML], [file-per-table], [rollback], [SQL], [transaction].
+
+### <a name='glos_deadlock'></a>deadlock: 死锁
+不同的事务不能够继续的一种情况，因为它们都持有一个其它事务(***transactions***)所需要的锁(***lock***)。由于两个事务都需要等待资源可用，也永远不会释放他们所持有的锁。
+
+当一个事务以相反的顺序锁定了多个表中的行(由诸如`UPDATE`或`SELECT .. FOR UPDATE`)时会发生死锁。一个死锁也有可能在诸如锁定索引的范围和间隙时发生，每个事务获取了一些锁但因为时间原因没有获取到其它锁。
+
+为了减少死锁的几率，使用事务，而不是`LOCK TABLE`语句；保持事务中插入或更新的数据足够小这样它们就不会过久地停留在打开状态；当不同的事务更新多个表或大范围的行时，在每个事务中使用相同的操作顺序(如`SELECT ... FOR UPDATE`)；为`SELECT ... FOR UPDATE`和`UPDATE ... WHERE`语句创建索引。死锁几率与隔离级别(***isolation level***)无关，因为隔离级别改变读操作行为，而死锁因写操作而起。
+
+如果一个死锁产生了，InnoDB检测到状态并让其中一个事务(***victim***)回滚(***rolls back**)。因此，就算是你的应用逻辑准确无比，你也应该处理一个事务需要重试的情况。要查看InnoDB用户事务中的最后一个死锁，使用`SHOW ENGINE INNODB STATUS`。如果频繁的死锁让一个事务结构体或应用错误处理的问题变得非常明显，激活`innodb_print_all_deadlocks`选项运行`mysqld`，它会将所有关于死锁的信息全打到`mysqld`错误日志中。
+
+更多死锁如何自动检测与处理的背景资料，参考[第14.2.2.10节，死锁检测与回滚][14.02.02.10]。更多避免与恢复死锁状况的提示，参考[第14.2.2.11节，如何应对死锁][14.02.02.11]。
+
+参考 [concurrency], [gap], [isolation level], [lock], [locking], [rollback], [transaction], [victim].
+
 ### deadlock detection 死锁检测
 ### delete 删除
 ### delete buffering 删除缓冲
@@ -1010,17 +1125,22 @@ MySQL企业备份产品(***MySQL Enterprise Backup***)的一个压缩属性，�
 [warm up]: #glos_warm_up
 [workload]: #glos_workload
 
-[14.02.09]: ../Chapter_14/14.02.09_InnoDB_Integration_with_memcached.md
-[innodb_adaptive_hash_index]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_adaptive_hash_index
-[innodb_file_format]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_file_format
+
+[04.02.03.03]: ../Chapter_04/04.02.03_Specifying_Program_Options.md#04.02.03.03
 [05.02.04]: ./05.02.04_The_Binary_Log.md
-[16.01.04.04]: ../Chapter_16/16.01.04_Replication_and_Binary_Logging_Options_and_Variables.md#16.01.04.04
-[innodb_change_buffering]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md##sysvar_innodb_change_buffering
-[innodb_change_buffer_max_size]: ../Chapter_14/14.02.14_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_change_buffer_max_size
-[SHOW ENGINE INNODB STATUS]: ../Chapter_15/13.07.05_SHOW_Syntax.md#13.07.05.16
-[innodb_checksum]: ../Chapter_14/14.02.14_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_checksum
-[innochecksum]: ../Chapter_04/04.06.01_Innochecksum_Offline_InnoDB_File_Checksum_Utility.md
-[binlog_checksum]: ../Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_binlog_checksum 
-[master_verify_checksum]: ./Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_master_verify_checksum: 
-[slave_sql_verify_checksum]: ./Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_slave_sql_verify_checksum
+[14.02.02.04]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.04
+[14.02.02.10]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.10
+[14.02.02.11]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.11
 [14.02.08]: ../Chapter_14/14.02.08_InnoDB_Compressed_Tables.md
+[14.02.09]: ../Chapter_14/14.02.09_InnoDB_Integration_with_memcached.md
+[16.01.04.04]: ../Chapter_16/16.01.04_Replication_and_Binary_Logging_Options_and_Variables.md#16.01.04.04
+[binlog_checksum]: ../Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_binlog_checksum 
+[innochecksum]: ../Chapter_04/04.06.01_Innochecksum_Offline_InnoDB_File_Checksum_Utility.md
+[innodb_adaptive_hash_index]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_adaptive_hash_index
+[innodb_change_buffer_max_size]: ../Chapter_14/14.02.14_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_change_buffer_max_size
+[innodb_change_buffering]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md##sysvar_innodb_change_buffering
+[innodb_checksum]: ../Chapter_14/14.02.14_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_checksum
+[innodb_file_format]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_file_format
+[master_verify_checksum]: ./Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_master_verify_checksum: 
+[SHOW ENGINE INNODB STATUS]: ../Chapter_15/13.07.05_SHOW_Syntax.md#13.07.05.16
+[slave_sql_verify_checksum]: ./Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_slave_sql_verify_checksum
