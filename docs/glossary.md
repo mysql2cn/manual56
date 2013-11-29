@@ -612,13 +612,37 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 ## <a name="E"></a>E ##
 
 ### <a name='glos_early_adopter'></a>early adopter: 测试版
-### error log 错误日志
-### eviction 替换出去
-### exclusive lock 排它锁
-### extent 区
+类似测试(***beta***)，是一个产品在非关键任务环境中通过了性能、功能和兼容性评估的阶段。InnoDB用***early adopter***来代替beta，通过一系列的更新版本，达到***GA***发布版本。
 
-## F ##
-### Fast Index Creation 快速创建索引
+参见 [beta], [GA].
+
+### <a name='glos_error_log'></a>error log: 错误日志
+一种展示MySQL启动、关键运行时错误及崩溃(***crash***)信息的日志(***log***)，细节请参考[5.2.2节，错误日志](05.02.02)。
+
+参见 [crash], [log].
+
+### <a name='glos_evition'></a>eviction: 替换出去
+一个将项目从缓存或其它临时存储区删除的过程，比如从InnoDB ***buffer pool***中。通常但不总时用***LRU***算法来判断将哪个项目删除。当一个脏页(***dirty page***)被替换出去，它的内容会被刷新(***flushed***)到磁盘，并且任何脏(***dirty***)的相邻(***neighbor***)页也可能会被刷新。
+
+参见 [buffer pool], [dirty page], [flush], [LRU].
+
+### <a name='glos_exclusion_lock'></a>exclusive lock: 排它锁
+一种阻止任何其它的事务(***transaction***)锁定相同行的锁(***lock***)。取决于事务隔离级别(***isolation level***)，这种类型的锁可能阻止其它事务写相同的行，也有可能阻止其它事务读取相册的行。InnoDB默认的隔离级别，可重复读(***REPEATABLE READ***)，通过允许事务读取加有排它锁的行获得更高的并发(***concurrency***)，这种技术叫做一致性读(***consistent read***)。
+
+参见 [concurrency], [consistent read], [isolation level], [lock], [REPEATABLE READ], [shared lock], [transaction].
+
+### <a name='glos_extent'></a>extent: 区
+表空间(***tablespace***)中总共1MB的一组页(***pages***)。默认的页大小(***page size***)为16KB，一个区包含64个页。在MySQL5.6中，页大小可以是4KB或8KB，这种情况下一个区可以包含更多的页，但总大小仍为1M。
+
+诸如段(***segments***)、预读(***read-ahead***)请求和双写缓冲(***doublewrite buffer***)等这样InnoDB的特性在使用读、写、申请或释放数据时，都是一次一个区来操作。
+
+参见 [doublewrite buffer], [neighbor page], [page], [page size], [read-ahead], [segment], [tablespace].
+
+## <a name="F"></a>F ##
+
+### <a name='glos_fast_index_creation'></a>Fast Index Creation: 快速创建索引
+
+
 ### fast shutdown 快速关闭
 ### file format 文件格式
 ### file-per-table 独立表空间
@@ -1163,6 +1187,7 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 [search index]: #glos_search_index
 [secondary index]: #glos_secondary_index
 [server]: #glos_server
+[shared lock]: #glos_shared_lock
 [shutdown]: #glos_shutdown
 [slave server]: #glos_slave_server
 [slow]: #glos_slow
@@ -1205,7 +1230,8 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 
 
 [04.02.03.03]: ../Chapter_04/04.02.03_Specifying_Program_Options.md#04.02.03.03
-[05.02.04]: ./05.02.04_The_Binary_Log.md
+[05.02.02]: ../Chapter_05/05.02.02_The_Error_Log.md
+[05.02.04]: ../Chapter_05/05.02.04_The_Binary_Log.md
 [14.02.02.04]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.04
 [14.02.02.10]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.10
 [14.02.02.11]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.11
