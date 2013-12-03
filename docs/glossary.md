@@ -517,23 +517,101 @@ InnoDB相关的DDL方面有`CREATE INDEX`和`DROP INDEX`的速度提高和***fil
 
 参考 [concurrency], [gap], [isolation level], [lock], [locking], [rollback], [transaction], [victim].
 
-### deadlock detection 死锁检测
-### delete 删除
-### delete buffering 删除缓冲
-### denormalized 反范式
-### descending index 降序索引
-### dirty page 脏页
-### dirty read 脏读
-### disk-based 基于磁盘
-### disk-bound 磁盘带宽
-### DML 
-### document id 全文索引编号
-### doublewrite buffer 双写缓冲
-### drop 删除
-### dynamic row format 变长行格式
+### <a name='glos_deadlock_detection'></a>deadlock detection: 死锁检测
+一个自动检测死锁(***deadlock***)发生并自动回滚(***roll back***)其中一个事务(***the victim***)的机制。
 
-## E ##
-### early adopter 测试版
+参见 [deadlock], [rollback], [transaction], [victim].
+
+### <a name='glos_delete'></a>delete: 删除
+当InnoDB处理一个删除语句时，行记录被立即标记为删除并不再能被查询返回。存储稍后会在称为清除操作的周期性垃圾回收期间被收回，由单独的线程执行。要移除大量的数据，与它们自己性能特性相关的操作是***truncate***和***drop***
+
+参考 [drop], [purge], [truncate].
+
+### <a name='glos_delete_buffering'></a>delete buffering 删除缓冲
+将因删除操作而发生的索引变更在插入缓冲(***insert buffer***)中存储而不是立马写入它们的技术，这么做是为了将物理写操作的随机I/O降到最小。(因为删除操作有两步处理，这个操作将正常标记索引记录为删的写操作缓冲下来。)它是变更缓冲(***change buffering***)的一种类型；其它的为插入缓冲(***insert buffering***)和清除缓冲(***purge buffering***)。
+
+参见 [change buffer], [change buffering], [insert buffer], [insert buffering], [purge buffering].
+
+### <a name='glos_denormalized'></a>denormalized: 反范式
+一种数据存储策略，它将多个不同表中的数据重复复制，而不是将这些表通过外键(***foreign keys***)和关联(***join***)查询链接起来。一般在数据仓库(***data warehouse***)应用中使用，它的数据在加载后不会再更新。在这样的应用中，查询的性能要比为更新时维持一致更重要而使其简单更重要。
+
+与它对应的是范式(***normalized***)。
+
+参见 [data warehouse], [normalized].
+
+### <a name='glos_descending_index'></a>descending index: 降序索引
+在某些数据库系统中有效的一种索引，索引的存储专门为处理`ORDER BY column DESC`子句而优化。虽然目前MySQL允许`DESC`关键字出现在`CREATE TABLE`语句中，但它并没有为结果索引使用用任何特殊的存储布局。
+
+参见 [index].
+
+### <a name='glos_dirty_page'></a>dirty page: 脏页
+一个已经在内存中被更新过，但变更尚未写入(刷新,***flushed***)到数据文件(***data files***)中的InnoDB ***buffer pool***中页(***page***)。
+
+与它对应的是净页(***clean page***)。
+
+参见 [buffer pool], [clean page], [data files], [flush], [page].
+
+### <a name='glos_dirty_read'></a>dirty read: 脏读
+一个获取到不可靠数据的操作，数据被另一个事务更新但尚未提交。它只在未提交读的隔离级别中有可能出现。
+
+这种操作并不遵守数据库设计的ACID原则。它的一致性是非常有风险的，因为数据可能会被回滚，或在提交前进一步被更新；那个时候，做了脏读的事务可能会使用从未被准确确认过的数据。
+
+它的对立面是一致性读，InnoDB全力确保一个事务不会读到另一个事务修改过的信息，即使其它事务在期间已经做了提交。
+
+参见 [ACID], [commit], [consistent read], [isolation level], [READ COMMITTED], [READ UNCOMMITTED], [rollback].
+
+###  <a name='glos_disc_based'></a>disk-based 基于磁盘
+See Also adaptive hash index, buffer pool, in-memory database.
+主要在磁盘(硬盘或等同于硬盘)上组织数据的一种数据库。数据在磁盘与内存之间来回传输修改。与它对应的是内存数据库。尽管InnoDB是基于磁盘的，但经也包含一些诸如buffer pool、多buffer pool实例和自适应索引等让一些工作主要在内存中完成。
+
+参见 [adaptive hash index], [buffer pool], [in-memory database].
+
+### <a name='glos_cpu_bound'></a>cpu-bound: CPU带宽
+一种瓶颈(***bottleneck***)主要是内存中CPU操作的负载类型。通常来说会包括读密集型的操作，其中的结果可以全部缓存中***buffer pool***中。
+
+参见 [bottleneck], [buffer pool], [disk-bound], [workload].
+
+### <a name='glos_disk_bound'></a>disk-bound: 磁盘带宽
+一种瓶颈(***bottleneck***)主要是磁盘I/O的负载类型。(也叫I/O带宽,***I/O-bound***。)一般包括频繁写盘或随机读取更多不适合放在***buffer pool***中的数据。
+
+参见 [bottleneck], [buffer pool], [cpu-bound], [workload].
+
+### <a name='glos_dml'></a>DML: 不译
+数据操作语言，一组用来执行insert、update和delete操作的SQL语句。SELECT语句有时候也被当成是DML句句，因为SELECT ... FOR UPDAET模式受到与INSERT、UPDATE和DELETE一样的锁的考虑。
+
+DML语句对InnoDB表的操作是以事务方式进行的，所以它的效果可以当成一个单元被提交或回滚。
+
+对比使用***DDL***和***DCL***。
+
+参见 [commit], [DCL], [DDL], [locking], [rollback], [SQL], [transaction]。
+
+### <a name='glos_document_id'></a>document id: 全文索引编号
+在InnoDB全文搜索(***full-text search***)特性中，一个在表中包含全文索引(***FULLTEXT  index***)的特殊的列，用来唯一标识与每个搜索词链表(***ilist***)相关联的文档。它的名字为`FTS_DOC_ID`(必须大写)。此列本身类型必须为`BIGINT UNSIGNED NOT NULL`，并有一个名为`FTS_DOC_ID_INDEX`的唯一索引。你最好在创建表的时候就定义此列。如果InnoDB必须加入此列，同时创建一个全文(***FULLTEXT***)索引，索引操作是相当昂贵的。
+
+参见 [full-text search], [FULLTEXT index], [ilist].
+
+### <a name='glos_doublewrite_buffer'></a>doublewrite buffer: 双写缓冲
+InnoDB使用一种新的文件刷新技术叫双写。在页(***pages***)写入到数据文件(***data files***)之前，InnoDB先把它们写到相邻的一个叫做双写缓冲的区域中。只有当写入并刷新到双写缓冲的操作已经完成的情况下，InnoDB才会将这些页写到数据文件中它们真正的位置上。如果操作系统在页写的中途崩溃了，InnoDB可以在稍后的崩溃恢复(***crash recovery***)中从双写缓冲找到一个健全的页的拷贝来。
+
+尽管数据始终要写两次，但双写缓冲并不需要两部的I/O开销或I/O操作。数据自身被当成一个大的连续的块写入到缓冲中，并用一个单独的`fsync()`调用操作系统。
+
+要关掉双写缓冲，设置选项`innodb_doublrwrite=0`。
+
+参见 [crash recovery], [data files], [page], [purge].
+
+### <a name='glos_drop'></a>drop: 删除
+一种通过诸如`DROP TABLE`或`DROP INDEX`等语句来删除数据库对象的***DDL***操作。内部映射为`ALTER TABLE`语句。从InnoDB角度看，这些操作的性能考虑主要包括为确保相关的对象全部被更新而锁定数据字典(***data dictionary***)的时间，以及更新如***buffer pool***等内存结构的时间。对于一个表(***table***)来说，drop操作跟***truncate***操作(TRANCATE TABLE语句)在特性上有一点儿不一样。
+
+参见 [buffer pool], [data dictionary], [DDL], [table], [truncate].
+
+### <a name='glos_dynamic_row_format'></a>dynamic row format: 变长行格式
+InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda file format***)中的一部分。因为`TEXT`和`BLOB`字段在保持其它字段的页之外存储，所以它对包含大对量的行来说非常高效。因为大字段通常不会被访问用来做查询条件，所以他们经常不会被带入到`buffer pool`中，从而减少I/O操作，并更合理地利用了缓存。
+
+参见 [Barracuda], [buffer pool], [file format], [row format].
+
+## <a name="E"></a>E ##
+
+### <a name='glos_early_adopter'></a>early adopter: 测试版
 ### error log 错误日志
 ### eviction 替换出去
 ### exclusive lock 排它锁
