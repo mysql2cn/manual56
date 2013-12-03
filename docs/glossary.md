@@ -640,17 +640,66 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 
 ## <a name="F"></a>F ##
 
-### <a name='glos_fast_index_creation'></a>Fast Index Creation: 快速创建索引
+### <a name='glos_fast_index_creation'></a>Fast Index Creation: 快速索引创建
+一种通过避免完全重写对应的表而加速InnoDB二级索引(***secondary indexes***)创建速度的功能，在InnoDB Plugin中引入，一在是MySQL 5.5及更高版本的组成之一。加速同样适用于删除二级索引。
 
+因为索引的维护会增加性能上的开销来完成大量的数据传输操作，所以可以考虑在做诸如`ALTER TABLE ... ENGINE=INNODB`或`INSERT INTO ... SELECT FROM ...`的操作时不做二级索引，而在完成后再创建索引。
 
-### fast shutdown 快速关闭
-### file format 文件格式
-### file-per-table 独立表空间
-### fill factor 填充因子
-### fixed row format 定长行格式
-### flush 刷新
-### flush list 刷新列表
-### foreign key 外键
+在MySQL 5.6中，这个特性变得更加通用：你可以在索引正在被创建时读写这个表，并且更多类型ALTER TABLE操作可以在不拷贝表、不阻止***DML***操作或两者兼有的情况下执行。因此我们可以将这组特性叫做在线DDL而不是快速索引创建。
+
+参见 [DML], [index], [online DDL], [secondary index].
+
+### <a name='glos_fast_shutdown'></a>fast shutdown: 快速关闭
+InnoDB默认的关闭(***shutdown***)程序，基于配置设置`innodb_fast_shutdown=1`。为了节省时间，某些刷新(***flush***)操作被跳过。这类关闭在正常使用中是安全的，因为刷新操作会在下次启动时执行，使用了与崩溃恢复(***crash recovery***)相同的机制。在因为升级或降级而关闭数据库的情况下，做缓慢关机(***slow shutdown***)替代以确保关机过程中所有相关的变更都应用到数据文件(***data files***)中。
+
+参见 [crash recovery], [data files], [flush], [shutdown], [slow shutdown].
+
+### <a name='glos_file_format'></a>file format: 文件格式
+InnoDB为每个表所使用的格式，通常激活***file-per-table***设置来确保每张表都存储在单独的`.ibd`文件(***.ibd file***)中。目前，InnoDB中可用的格式是***Antelope***和***Barracuda***。每种文件格式都支持一种或多种行格式(***row format***)。Barracuda表中可用的行格式，压缩(***COMPRESSED***)与动态(***DYNAMIC***)，为InnoDB开启了重要的新的存储特性。
+
+参见 [Antelope], [Barracuda], [file-per-table], [.ibd file][ibd file], [ibdata file], [row format].
+
+### <a name='glos_file_per_table'></a>file-per-table: 独立表空间
+受`innodb_file_per_table`选项控制的设置的普通名。这是一个影响InnoDB文件存储、功能可用性及I/O好多方面的重要配置。在MySQL 5.6.7及更高版本中它默认开启。在MySQL 5.6.7之前的版本中它默认关闭。
+
+对于每一个在此选项生效时创建的表来说，数据是存储在一个单独的.ibd文件(***.ibd file***)中，而不是系统表空间(***system tablespace***)的ibdata文件(***ibdata file***)中。当表数据存储在独立的文件中时，你有更多选择非默认文件格式(***file format***)与行格式(***row format***)的灵活性，这些格式要求一些必须的特性，如数据压缩。`TRUNCATE TABLE`操作也会更快，并且回收了的空间可以为操作系统所用，而不是留给InnoDB。
+
+MySQL企业备份产品(***MySQL Enterprise Backup***)对它们自己文件中的表来说更具灵活性。比如，表在单独的文件中时，它可以从备份中排除掉。所以，这个选项适合那些备份频率降低或在不同的备份日程中的表。
+
+参见 [compressed row format], [compression], [file format], [.ibd file][ibd file], [ibdata file], [innodb_file_per_table], [row format], [system tablespace].
+
+### <a name='glos_fill_factor'></a>fill factor: 填充因子
+在InnoDB索引(***index***)中，在页(***page***)分裂前页中被索引数据占据的部分。在索引数据最初在页间划分时没有用到的空间允许那些用更长的字符串更新的行不再需要代价过高的索引维护操作。如果填充因子过小，索引需要消耗比所需更多的空间，导致在读索引时带来额外的I/O开销。如果填充因子过高，任何增加列值长度的更新都会导致因索引维护带来的额外的I/O负载。更多信息参考[第14.2.2.13.4节，InnoDB索引的物理结构]。
+
+参见 [index], [page].
+
+### <a name='glos_fixed_row_format'></a>fixed row format: 定长行格式
+MyISAM引擎使用的行格式，InnoDB不用。如果你使用`row_format=fixed`选项创建一张InnoDB表，InnoDB会把这个选项转化成精简行格式(***compact row format***)来替代，不过`fixed`变量可能仍然出现在诸如`SHOW TABLE STATUS`报表中。
+
+参见 [compact row format], [row format].
+
+### <a name='glos_flush'></a>flush: 刷新
+将变更写到数据库文件中，这些变量是已经缓冲在一个内存区或一个临时磁盘存储区。被定期刷新的InnoDB的存储结构体包括***redo log***、***undo log***和***buffer pool***。
+
+刷新会因为内存变满了和系统需要释放一些空间而发生，因为一个提交(***commit***)操作意味着来自事务的变更可以确定了，或因为一个缓慢关机(***slow shutdown***)操作意味着所有的未完成的工作应该确定了。在并不需要一次性将所有缓冲了的数据刷新时，`InnoDB`使用一种叫模糊检查点(***fuzzy checkpointing***)的技术刷新小批量的页来平滑I/O负载。
+
+参见 [buffer pool], [commit], [fuzzy checkpointing], [neighbor page], [redo log], [slow shutdown], [undo log].
+
+### <a name='glos_flush_list'></a>flush list: 刷新列表
+一个InnoDB内部的用来跟踪***buffer pool***中脏页(***dirty page***)数据结构体：就是已经被变更的并且需要被写回到磁盘的页(***pages***)。这个数据结构体被InnoDB内部的迷你事务(***mini-transactions***)频繁更新，所以被自身的互斥锁(***mutex***)保护来允许对buffer pool的并发访问。
+
+参见 [buffer pool], [dirty page], [LRU], [mini-transaction], [mutex], [page], [page cleaner].
+
+### <a name='glos_foreign_key'></a>foreign key: 外键
+不同InnoDB表的行之间的一种指针关系的类型。外键关系是在父表和子表的一个列上建立的。
+
+In addition to enabling fast lookup of related information, foreign keys help to enforce referential integrity, by preventing any of these pointers from becoming invalid as data is inserted, updated, and deleted. This enforcement mechanism is a type of constraint. A row that points to another table cannot be inserted if the associated foreign key value does not exist in the other table. If a row is deleted or its foreign key value changed, and rows in another table point to that foreign key value, the foreign key can be set up to prevent the deletion, cause the corresponding column values in the other table to become null, or automatically delete the corresponding rows in the other table.
+除了能快速查找相关相信外，外键可以防止指针因插入、更新和删除变得无效，有助于强制引用一致性。这种强制是一种约束。指向另一张表的一行在相关联的外键的值
+
+One of the stages in designing a normalized database is to identify data that is duplicated, separate that data into a new table, and set up a foreign key relationship so that the multiple tables can be queried like a single table, using a join operation.
+
+See Also child table, FOREIGN KEY constraint, join, normalized, NULL, parent table, referential integrity, relational.
+
 ### FOREIGN KEY constraint 外键约束
 ### .frm file 
 ### FTS 全文搜索
