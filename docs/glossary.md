@@ -828,20 +828,52 @@ hard disk drive的首字母缩写。指的是使用旋转盘片的存储媒介�
 ### <a name="glos_hot_backup"></a>hot backup: 热备
 种在数据库在运行且应用在读写它的情况下的备份。这种备份涉及的不是简单的拷贝文件：它必须包括任何在备份进行时插入或更新的数据；它必须排除掉任何在血仇进行时被删除的数据；它必须忽略任何没有提交的变更。
 
-fOrcale的产品用来备份InnoDB表尤其是MyISAM或其它存储引擎表的产品，是MySQL企业备份(***MySQL Enterprise Backup***)。
+Orcale的执行热备的产品，尤其是对InnoDB表，还有对MyISAM或其它存储引擎表，叫MySQL企业备份(***MySQL Enterprise Backup***)。
 
 热备过程由两个阶段组成。最初的拷贝数据生成一个原始备份(***raw backup***)。应用(***apply***)步骤合将任何在备份运行过程中发生的变更都合并到数据中。应用变更会生与一个一致备份(***prepared backup***)；这些文件已经为随时恢复做好准备。
 
 参见 [apply], [MySQL Enterprise Backup], [prepared backup], [raw backup].
 
 
-## I ##
-### I/O-bound I/O带宽
-### ib-file set ib文件集
-### ib_logfile ib_logfile redolog文件或不译
-### ibbackup_logfile 不译
-### .ibd file .ibd文件
+## <a name="I"></a>I ##
+### <a name="glos_io_bound"></a>I/O-bound: I/O带宽
+参见[disk-bound]
+
+### <a name="glos_ib_file_set"></a>ib-file set: ib文件集
+MySQL数据库内部由InnoDB管理的一组文件：系统表空间(***system tablespace***)、任何***file-per-table***表空间以及***redo log***文件(一般有两个)。为了避免不同DBMS产品之间对数据库(***database***)含义以及MySQL数据库中非InnoDB文件的部分产生歧义，有时用在InnoDB文件结构与格式的细节讨论上。
+
+参见 [database], [file-per-table], [redo log], [system tablespace].
+
+### <a name="glos_ib_logfile"></a>ib_logfile: redolog文件或不译
+构成***redo log***的一组文件，一般以`ib_logfile0`和`ib_logfile1`来命名。有时也被称为日志组(***log group***)。这些文件记录了尝试更改InnoDB表中数据的语句。在崩溃后的重启中，这些语句会自动重放到被未完成的事务写过的正确的数据中。
+
+这些数据不能被用来做手动恢复；对于这种情况，使用二进制日志(***binary log***)。
+
+参见 [binary log], [log group], [redo log].
+
+### <a name="glos_ibbackup_logfile"></a>ibbackup_logfile: 不译
+在热备(***hot bakcup***)操作中由MySQL企业备份(***MySQL Enterprise Backup***)产品创建的补充备份文件。它包含任何在备份运行时发生的变更的信息。这些包含`ibbackup_logfile`的初始备份文件叫做原始备份(***raw backup***)，因为在备份操作时间产生的变改尚未收入。当你向原始备份文件执行了应用(***apply***)步骤后，生成文件的确包含了那些最终的变量，这叫一执备份(***prepared backup***)。在这个阶段，`ibbackup_logfile`就没有用了。
+
+参见 [apply], [hot backup], [MySQL Enterprise Backup], [prepared backup], [raw backup].
+
+### <a name="glos_ibd_file"></a>.ibd file: .ibd文件
+每个使用***file-per-table***模式创建的InnoDB表(***table***)会进入到数据库目录下自己的表空间(***tablespace***)文中，以`.ibd`为后缀名。这个文件包含表的数据和表的任何索引。file-pre-table模式由***innodb_file_per_table***选项来控制，影响InnoDB存储的使用量与性能，在MySQL 5.6.7及更高版本中默认开启。
+
+这个后缀不适用于由ibdata文件(***ibdata files***)组成的系统表空间(***system tablespace***)。
+
+当一个`.ibd`文件包含在MySQL企业备份(***MySQL Enterprise Backup***)产生的压缩备份中时，对应的压缩文是一个`.ibz`文件。
+
+在MySQL 5.6或更高版本中，如果一个表使用DATA DIRECTORY ＝ 字句创建表时，.ibd文件会定位到正常数据库目录之外，并用一个.isl文件来指向它。
+
+参见 [database], [file-per-table], [ibdata file], [.ibz file][ibz file], [index], [innodb_file_per_table], [.isl file][isl file], [MySQL Enterprise Backup], [system tablespace], [table], [tablespace].
+
 ### ibdata file ibdata文件
+A set of files with names such as ibdata1, ibdata2, and so on, that make up the InnoDB system tablespace. These files contain metadata about InnoDB tables, (the data dictionary), and the storage areas for the undo log, the change buffer, and the doublewrite buffer. They also can contain some or all of the table data also (depending on whether the file-per-table mode is in effect when each table is created). When the innodb_file_per_table option is enabled, data and indexes for newly created tables are stored in separate .ibd files rather than in the system tablespace.
+
+The growth of the ibdata files is influenced by the innodb_autoextend_increment configuration option.
+
+See Also change buffer, data dictionary, doublewrite buffer, file-per-table, .ibd file, innodb_file_per_table, system tablespace, undo log.
+
 ### ibtmp file ibtmp文件
 ### .ibz file .ibz文件
 ### ilist 索引词链表
