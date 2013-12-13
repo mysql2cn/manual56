@@ -867,26 +867,96 @@ MySQL数据库内部由InnoDB管理的一组文件：系统表空间(***system t
 
 参见 [database], [file-per-table], [ibdata file], [.ibz file][ibz file], [index], [innodb_file_per_table], [.isl file][isl file], [MySQL Enterprise Backup], [system tablespace], [table], [tablespace].
 
-### ibdata file ibdata文件
-A set of files with names such as ibdata1, ibdata2, and so on, that make up the InnoDB system tablespace. These files contain metadata about InnoDB tables, (the data dictionary), and the storage areas for the undo log, the change buffer, and the doublewrite buffer. They also can contain some or all of the table data also (depending on whether the file-per-table mode is in effect when each table is created). When the innodb_file_per_table option is enabled, data and indexes for newly created tables are stored in separate .ibd files rather than in the system tablespace.
+### <a name="glos_ibdate_file"></a>ibdata file: ibdata文件
+像`ibdata1`、`ibdata2`等等这样命名的一组文件，它们组成InnoDB的系统表空间(***system tablespace***)。这些文件包含InnoDB表的元数据(***data dictionary***，数据字典)和为***undo log***、变更缓冲(***change buffer***)和双写缓冲(***doublewrite buffer***)等提供的存储区。它们也能包含一些或全部表的数据(取决于***file-per-table***模式是否开启)。当***innodb_file_per_table***选项生效，新为新表创建的数据和索引存储在单独的***.ibd***文件中，而不在系统表空间中。
 
-The growth of the ibdata files is influenced by the innodb_autoextend_increment configuration option.
+`ibdata`文件的增长受`innodb_autoextend_increment`配置选项的影响。
 
-See Also change buffer, data dictionary, doublewrite buffer, file-per-table, .ibd file, innodb_file_per_table, system tablespace, undo log.
+参见 [change buffer], [data dictionary], [doublewrite buffer], [file-per-table], [.ibd file][ibd file], [innodb_file_per_table], [system tablespace], [undo log].
 
-### ibtmp file ibtmp文件
-### .ibz file .ibz文件
-### ilist 索引词链表
-### implicit row lock 隐式行锁
-### in-memory database 内存数据库
-### incremental backup 增量备份
-### index 索引
-### index cache 索引缓存
-### index hint 索引提示
-### index prefix 索引前缀
-### index statistics 索引统计
-### infimum record 伪记录
-### INFORMATION_SCHEMA 系统信息库
+### <a name="glos_ibtmp_file"></a>ibtmp file: ibtmp文件
+为非压缩InnoDB临时长或相关对象提供的InnoDB临时表空间数据文件。配置文件选项`innodb_temp_data_file_path`允许用户为临时数据文件定义对应的目录。如果`innodb_temp_data_file_path`没有定义，默认行为是在数据目录下的`ibdata1`文件边上创建一个名为`ibtmp1`的单独的数据文件，以12MB的大小自动递增。
+
+参见 [temporary tablespace].
+
+### <a name="glos_ibz_file"></a>.ibz file: .ibz文件
+当MySQL企业备份产品(***MySQL Enterprise Backup***)执行一下压缩备份(***compressed backup***)时，它将每个由***file-per-table***选项产生的后缀为`.ibd`的表空间转换为后缀为`.ibz`的文件。
+
+在备份过程中应用的压缩与在正常操作中保持数据压缩的压缩行格式(***compressed row format***)是不一样的。一个压缩备份操作会忽略掉那些已经是压缩行格式表空间的压缩步骤，二次压缩会延缓备份却很少带来空间上的节省。
+
+参见 [compressed backup], [compressed row format], [file-per-table], [.ibd file][ibd file], [MySQL Enterprise Backup], tablespace.
+
+### <a name="glos_ilist"></a>ilist: 索引词链表
+InnoDB全文索引(***FULLTEXT index***)中，由文件编号和位置信息的标号(***token***)(也就是一个特定的词)组成的数据结构。
+
+参见 [FULLTEXT index].
+
+### <a name="glos_implicit_row_lock"></a>implicit row lock: 隐式行锁
+一个为了确保数据一致性的InnoDB的行级锁，你不需要特别地请求它。
+
+参见 [row lock].
+
+### <a name="glos_in_memory_database"></a>in-memory database: 内存数据库
+一种为了避免磁盘I/O负载和磁盘块与内存区之间传输负载而在内存中维护数据的一种数据库系统。一些内存数据库牺牲了持久性(ACID设计理念中的“D”)，易受硬件、电源和其它类型的故障的影响，使得它们更适合于只读操作。
+
+MySQL features that are address the same kinds of memory-intensive processing include the InnoDB buffer pool, adaptive hash index, and read-only transaction optimization, the MEMORY storage engine, the MyISAM key cache, and the MySQL query cache.
+
+MySQL处理内存密集型进程的特性包括InnoDB ***buffer pool***、自适应哈希索引(***adaptive hash index***)、只读事务(***read-only transaction***)优化、MEMORY存储引擎、MyISAM key cache以及MySQL查询缓存(***query cache***)。
+
+参见 [ACID], [adaptive hash index], [buffer pool], [disk-based], [read-only transaction].
+
+### <a name="glos_incremental_backup"></a>incremental backup: 增量备份
+一种热备(***hot backup***)，由MySQL企业备份(***MySQL Enterprise Backup***)执行，它只保存某个时间点后改变了的数据。一个全量备份和一连串的增量备份可以让你在一个很长的时间段里重构你的备份数据，而没少手头上要保留多个全备份的存储压力。你可以先恢复全备份，然后连续应用每个增量备份，也可以应用每个增量备份让全备份保持更新状态，然后再执行一个单独的恢复操作。
+
+The granularity of changed data is at the page level. A page might actually cover more than one row. Each changed page is included in the backup.
+
+变更了的数据的粒度在页(***page***)层级。一个页可能实际上覆盖不至一行。每个变更了的行都包含在备份中。
+
+参见 [hot backup], [MySQL Enterprise Backup], [page].
+
+### <a name="glos_index"></a>index: 索引
+一种数据结构，提供快速查找表(***table***)中行(***row***)的功能，通常是生成一棵树结构(***B-Tree***)，代表了一个特定列或一组列中的值。
+
+InnoDB表一直拥有一个相当于主键(***primary key***)的簇索引(***clustered index***)。它们可以拥有定义在一列或多列上的一个或多个二级索引(***secondary key***)。依据二级索引的结构，它们可以划分为部分索引(***partial index***)、单列索引(***column index***)和组合索引(***composite index***)。
+
+The ideal database design uses a covering index where practical;、
+
+索引是查询(***query***)性能的一个关键因素。数据库架构师设计表、查询和索引以允许快速查找应用程序所需要的数据。理想的数据库设计使用实用的覆盖索引(***covering index***)；查询结果可以完全从索引中计算出来，而不用读实际的表数据。为了高效地检查值是否在父表(***parent table***)和子表(***child table***)中存在，每个外键约束(***foreign key***)也需要索引。
+
+尽管B树索引最常用，但另一种数据结构被用来做哈希索引(***hash index***)，在`MEMORY`存储引擎和InnoDB自适应索引(***adaptive hash index***)中。
+
+参见 [adaptive hash index], [B-tree], [child table], [clustered index], [column index], [composite index], [covering index], [foreign key], [hash index], [parent table], [partial index], [primary key], [query], [row], [secondary index], [table].
+
+### <a name="glos_index_cache"></a>index cache: 索引缓存
+为InnoDB全文搜索(***full-text search***)保存令牌数据的内存区。它在当是全文索引(***FULLTEXT index***)列中的数据被删除或更新时将该数据缓冲起来以减小磁盘I/O。在索引缓存变满时令牌数据会被写到磁盘上。每个InnoDB的全文索引都有各自独立的索引缓存，它的大小由配置选项`innodb_ft_cache_size`控制。
+
+参见 [full-text search], [FULLTEXT index].
+
+### <a name="glos_index_hint"></a>index hint: 索引提示
+一个为了覆盖优化器推荐索引(***index***)使用的扩展SQL语法。例如，`FORCE INDEX`、`USE INDEX`和`IGNORE INDEX`字句。通常是在索引列上的值分布不均匀，导致基数(***cardinality***)评估不准确的情况下使用。
+
+参见 [cardinality], [index].
+
+### <a name="glos_index_prefix"></a>index prefix: 索引前缀
+在一个多列索引(***composite index***，组合索引)中，索引(***index***)的初始列或前导列。一个引用组合索引中最前面的1、2、3等等列的查询可以使用到索引，即使这个查询没有引用到索引中的所有列。
+
+参见 [composite index], [index].
+
+### <a name="glos_index_statistics"></a>index statistics: 索引统计
+参见 [statistics].
+
+### <a name="glos_infimum_record"></a>infimum record: 下确界记录
+索引(***index***)中假想的记录(***psesudo-index***)，代表这个索引中低于最小值的间隙(***gap***)。如果一个事务有一个诸如`SELECT ... FOR UPDATE ... WHERE col < 10;`的语句；并且这个列中最小值为5，它将锁住这个下确界记录以阻止其它事务插入更小的值，比如0啊、－10啊等等。
+
+参见 [gap], [index], [pseudo-record], [supremum record].
+
+### <a name="glos_information_schema"></a>INFORMATION_SCHEMA: 系统信息库
+为MySQL数据字典(***data dictionary***)提供查询接口的数据库的名字。(此名由ANSI SQL标准定义。)为了检查数据库的信息(元数据)，你可以查询诸如`INFOMATION_SCHEMA.TABLES`和`INFOMATION_SCHEMA.COLUMNS`的表，而不使用产生没有结构化输出的`SHOW`命令。
+
+信息系统库包含一些***InnoDB***特定的表，如`INNODB_LOCKS`和`INNODB_TRX`。你使用这些表不是用来看这个数据库是如何组织的，而是获取关系InnoDB表的实时信息来帮助做性能监控、调优和故障排除的。实际上，这些表提供了关于MySQL压缩(***compression***)、事务(***transaction***)以及它们对应锁(***lock***)的特性的数据。
+
+参见 [compression], [data dictionary], [database], [InnoDB], [lock], [transaction].
+
 ### InnoDB InnoDB
 ### innodb_autoinc_lock_mode innodb参数，不用译
 ### innodb_file_format innodb参数，不用译
@@ -1078,7 +1148,7 @@ See Also change buffer, data dictionary, doublewrite buffer, file-per-table, .ib
 ### storage engine 存储引擎
 ### strict mode 严格模式
 ### sublist 子列表
-### supremum record 最小上界记录
+### supremum record 上确界记录
 ### surrogate key 代理主键,区别于自主ID产生的自然键值
 ### system tablespace 系统表空间
 
