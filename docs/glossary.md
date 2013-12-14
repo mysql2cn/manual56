@@ -612,67 +612,351 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 ## <a name="E"></a>E ##
 
 ### <a name='glos_early_adopter'></a>early adopter: 测试版
-### error log 错误日志
-### eviction 替换出去
-### exclusive lock 排它锁
-### extent 区
+类似测试(***beta***)，是一个产品在非关键任务环境中通过了性能、功能和兼容性评估的阶段。InnoDB用***early adopter***来代替beta，通过一系列的更新版本，达到***GA***发布版本。
 
-## F ##
-### Fast Index Creation 快速创建索引
-### fast shutdown 快速关闭
-### file format 文件格式
-### file-per-table 独立表空间
-### fill factor 填充因子
-### fixed row format 定长行格式
-### flush 刷新
-### flush list 刷新列表
-### foreign key 外键
-### FOREIGN KEY constraint 外键约束
-### .frm file 
-### FTS 全文搜索
-### full backup 全备
-### full table scan 全表扫描
-### FULLTEXT index 全文索引
+参见 [beta], [GA].
+
+### <a name='glos_error_log'></a>error log: 错误日志
+一种展示MySQL启动、关键运行时错误及崩溃(***crash***)信息的日志(***log***)，细节请参考[5.2.2节，错误日志](05.02.02)。
+
+参见 [crash], [log].
+
+### <a name='glos_evition'></a>eviction: 替换出去
+一个将项目从缓存或其它临时存储区删除的过程，比如从InnoDB ***buffer pool***中。通常但不总时用***LRU***算法来判断将哪个项目删除。当一个脏页(***dirty page***)被替换出去，它的内容会被刷新(***flushed***)到磁盘，并且任何脏(***dirty***)的相邻(***neighbor***)页也可能会被刷新。
+
+参见 [buffer pool], [dirty page], [flush], [LRU].
+
+### <a name='glos_exclusion_lock'></a>exclusive lock: 排它锁
+一种阻止任何其它的事务(***transaction***)锁定相同行的锁(***lock***)。取决于事务隔离级别(***isolation level***)，这种类型的锁可能阻止其它事务写相同的行，也有可能阻止其它事务读取相册的行。InnoDB默认的隔离级别，可重复读(***REPEATABLE READ***)，通过允许事务读取加有排它锁的行获得更高的并发(***concurrency***)，这种技术叫做一致性读(***consistent read***)。
+
+参见 [concurrency], [consistent read], [isolation level], [lock], [REPEATABLE READ], [shared lock], [transaction].
+
+### <a name='glos_extent'></a>extent: 区
+表空间(***tablespace***)中总共1MB的一组页(***pages***)。默认的页大小(***page size***)为16KB，一个区包含64个页。在MySQL5.6中，页大小可以是4KB或8KB，这种情况下一个区可以包含更多的页，但总大小仍为1M。
+
+诸如段(***segments***)、预读(***read-ahead***)请求和双写缓冲(***doublewrite buffer***)等这样InnoDB的特性在使用读、写、申请或释放数据时，都是一次一个区来操作。
+
+参见 [doublewrite buffer], [neighbor page], [page], [page size], [read-ahead], [segment], [tablespace].
+
+## <a name="F"></a>F ##
+
+### <a name='glos_fast_index_creation'></a>Fast Index Creation: 快速索引创建
+一种通过避免完全重写对应的表而加速InnoDB二级索引(***secondary indexes***)创建速度的功能，在InnoDB Plugin中引入，一在是MySQL 5.5及更高版本的组成之一。加速同样适用于删除二级索引。
+
+因为索引的维护会增加性能上的开销来完成大量的数据传输操作，所以可以考虑在做诸如`ALTER TABLE ... ENGINE=INNODB`或`INSERT INTO ... SELECT FROM ...`的操作时不做二级索引，而在完成后再创建索引。
+
+在MySQL 5.6中，这个特性变得更加通用：你可以在索引正在被创建时读写这个表，并且更多类型ALTER TABLE操作可以在不拷贝表、不阻止***DML***操作或两者兼有的情况下执行。因此我们可以将这组特性叫做在线DDL而不是快速索引创建。
+
+参见 [DML], [index], [online DDL], [secondary index].
+
+### <a name='glos_fast_shutdown'></a>fast shutdown: 快速关闭
+InnoDB默认的关闭(***shutdown***)程序，基于配置设置`innodb_fast_shutdown=1`。为了节省时间，某些刷新(***flush***)操作被跳过。这类关闭在正常使用中是安全的，因为刷新操作会在下次启动时执行，使用了与崩溃恢复(***crash recovery***)相同的机制。在因为升级或降级而关闭数据库的情况下，做缓慢关机(***slow shutdown***)替代以确保关机过程中所有相关的变更都应用到数据文件(***data files***)中。
+
+参见 [crash recovery], [data files], [flush], [shutdown], [slow shutdown].
+
+### <a name='glos_file_format'></a>file format: 文件格式
+InnoDB为每个表所使用的格式，通常激活***file-per-table***设置来确保每张表都存储在单独的`.ibd`文件(***.ibd file***)中。目前，InnoDB中可用的格式是***Antelope***和***Barracuda***。每种文件格式都支持一种或多种行格式(***row format***)。Barracuda表中可用的行格式，压缩(***COMPRESSED***)与动态(***DYNAMIC***)，为InnoDB开启了重要的新的存储特性。
+
+参见 [Antelope], [Barracuda], [file-per-table], [.ibd file][ibd file], [ibdata file], [row format].
+
+### <a name='glos_file_per_table'></a>file-per-table: 独立表空间
+受`innodb_file_per_table`选项控制的设置的普通名。这是一个影响InnoDB文件存储、功能可用性及I/O好多方面的重要配置。在MySQL 5.6.7及更高版本中它默认开启。在MySQL 5.6.7之前的版本中它默认关闭。
+
+对于每一个在此选项生效时创建的表来说，数据是存储在一个单独的.ibd文件(***.ibd file***)中，而不是系统表空间(***system tablespace***)的ibdata文件(***ibdata file***)中。当表数据存储在独立的文件中时，你有更多选择非默认文件格式(***file format***)与行格式(***row format***)的灵活性，这些格式要求一些必须的特性，如数据压缩。`TRUNCATE TABLE`操作也会更快，并且回收了的空间可以为操作系统所用，而不是留给InnoDB。
+
+MySQL企业备份产品(***MySQL Enterprise Backup***)对它们自己文件中的表来说更具灵活性。比如，表在单独的文件中时，它可以从备份中排除掉。所以，这个选项适合那些备份频率降低或在不同的备份日程中的表。
+
+参见 [compressed row format], [compression], [file format], [.ibd file][ibd file], [ibdata file], [innodb_file_per_table], [row format], [system tablespace].
+
+### <a name='glos_fill_factor'></a>fill factor: 填充因子
+在InnoDB索引(***index***)中，在页(***page***)分裂前页中被索引数据占据的部分。在索引数据最初在页间划分时没有用到的空间允许那些用更长的字符串更新的行不再需要代价过高的索引维护操作。如果填充因子过小，索引需要消耗比所需更多的空间，导致在读索引时带来额外的I/O开销。如果填充因子过高，任何增加列值长度的更新都会导致因索引维护带来的额外的I/O负载。更多信息参考[第14.2.2.13.4节，InnoDB索引的物理结构]。
+
+参见 [index], [page].
+
+### <a name='glos_fixed_row_format'></a>fixed row format: 定长行格式
+MyISAM引擎使用的行格式，InnoDB不用。如果你使用`row_format=fixed`选项创建一张InnoDB表，InnoDB会把这个选项转化成精简行格式(***compact row format***)来替代，不过`fixed`变量可能仍然出现在诸如`SHOW TABLE STATUS`报表中。
+
+参见 [compact row format], [row format].
+
+### <a name='glos_flush'></a>flush: 刷新
+将变更写到数据库文件中，这些变量是已经缓冲在一个内存区或一个临时磁盘存储区。被定期刷新的InnoDB的存储结构体包括***redo log***、***undo log***和***buffer pool***。
+
+刷新会因为内存变满了和系统需要释放一些空间而发生，因为一个提交(***commit***)操作意味着来自事务的变更可以确定了，或因为一个缓慢关机(***slow shutdown***)操作意味着所有的未完成的工作应该确定了。在并不需要一次性将所有缓冲了的数据刷新时，`InnoDB`使用一种叫模糊检查点(***fuzzy checkpointing***)的技术刷新小批量的页来平滑I/O负载。
+
+参见 [buffer pool], [commit], [fuzzy checkpointing], [neighbor page], [redo log], [slow shutdown], [undo log].
+
+### <a name='glos_flush_list'></a>flush list: 刷新列表
+一个InnoDB内部的用来跟踪***buffer pool***中脏页(***dirty page***)数据结构体：就是已经被变更的并且需要被写回到磁盘的页(***pages***)。这个数据结构体被InnoDB内部的迷你事务(***mini-transactions***)频繁更新，所以被自身的互斥锁(***mutex***)保护来允许对buffer pool的并发访问。
+
+参见 [buffer pool], [dirty page], [LRU], [mini-transaction], [mutex], [page], [page cleaner].
+
+### <a name='glos_foreign_key'></a>foreign key: 外键
+不同InnoDB表的行之间的一种指针关系的类型。外键关系是在父表(***parent table***)和子表(***child table***)的一个列上建立的。
+
+除了能快速查找相关相信外，外键可以防止指针因插入、更新和删除变得无效，有助于强制引用一致性(***referential integrity***)。这种强制是一种约束(***constraint***)。如果相关联的外键值在其它表里不存在的话，指向它的行将不能插入。如果一行被删除了或它的外键值被修改了，并且其它表中的有行指向这个外键值，外键可以被设置为阻止删除、让其它表中相符的的列值变为空或自动删除其它表中相符的行。
+
+设计一个范式化(***normalized***)数据库的阶段之一是找出重复的数据，将这些数据分离到一个新表中，设置一个外键关系，使用关系操作，这样就可以像查询一张表一样来查询多张表了。
+
+参见 [child table], [FOREIGN KEY constraint], [join], [normalized], [NULL], [parent table], [referential integrity], relational.
+
+### <a name='glos_foreign_key_constraint'></a>FOREIGN KEY constraint: 外键约束
+通过一个外键关系(***foreign key***)来维护数据库一致性的约束类型。像其它约束一样，如果数据可能会变得不一致时，它可以阻止数据的插入与更新；在这种情况下，被阻止的不一致性是在多个表的数据之间的。或者说，当一个***DML***操作被执行了，基于在创建外键时指定的`ON CASECADE`选项，外键约束可以导致字表中的行(***child rows***)被删掉、变更为不同的值或设置为空。
+
+参见 [child table], [constraint], [DML], [foreign key], [NULL].
+
+### <a name='glos_frm_file'></a>.frm file: .frm file 
+一个包含MySQL表的诸如表定义等元数据的文件。
+
+对于备份来说，你得必须一直随着备份数据保存所有`.frm`文件的集合，这样可以恢复那些在备份后被修改或删掉的表。
+
+尽管每张InnoDB表都有一个`.frm`文件，但InnoDB在系统表空间中维护了自己表的元数据；对于InnoDB来说操作InnoDB表不再需要`.frm`文件了。
+
+这些文件会被MySQL企业备份产品(***MySQL Enterprise Backup***)备份。这些文件在正在备份时必须不被`ALTER TABLE`操作修改，这就是为什么包含非InnoDB表的备份要在备份.frm文件时执行一个`FLUSH TABLES WITH READ LOCK`操作来冻结这种活动的原因。
+
+参见 [MySQL Enterprise Backup].
+
+### <a name='glos_fts'></a>FTS: 全文搜索
+在大多数据情况下，是全文搜索(***full-text search***)的首字母缩写。有时在讨论性能问题时，也是全表扫描(***full table scan***)的缩写。
+
+参见 [full table scan], [full-text search].
+
+### <a name='glos_full_backup'></a>full backup: 全备
+包含一个MySQL实例(***instance***)中所有数据库，每个数据库(***database***)中所有表(***tables***)的备份(***backup**)。相对的是部分备份(***partial backup***)。
+
+参见 [backup], [database], [instance], [partial backup], [table].
+
+### <a name='glos_full_table_scan'></a>full table scan: 全表扫描
+一个没有使用索引选择部分数据，而是需要读取整表内容的操作。通常是在小的查询表中执行，或在数据仓库环境下的大表中执行，其中所有有效的数据都要被聚合和分析。这些操作出现的频繁程度，以及这些表大小所对对应的可用内存，对于查询优化与管理buffer pool都有影响。
+
+索引(***indexes***)的目录就是为了允许在大表中查找特定的值或一定范围的值，这样就避免了全表扫描。
+
+参见 [buffer pool], [index], [LRU].
+
+### <a name='glos_full_text_search'></a>full-text search: 全文搜索
+在表数据中查找单词、词组及单词布尔组合等的MySQL特性，比你使用SQL `LIKE`操作符或在自己应用层写搜索算法的方式要更快、更方便和更灵活的方式。它使用SQL的`MATCH()`函数和全文索引(***FULLTEXT indexes***)。
+
+参见 [FULLTEXT index].
+
+### <a name='glos_fulltext_index'></a>FULLTEXT index: 全文索引
+保存MySQL全文索引机制中搜索索引的特殊的索引类型。包含了列中删除停用词之后的单词。最早只在MyISAM表中可用，自MySQL 5.6.4起，InnoDB表中也可以使用了。
+
+参见 [full-text search], [index], [InnoDB], [search index], [stopword].
+
 ### fuzzy checkpointing 模糊检查点刷新
+一种从***buffer pool***中使用小批量刷新(***flush***)脏页(***dirty page***)，而不是使用可能会打断数据库进程的一次性刷新所有脏页的技术。
 
-## G ##
-### <a name="GA"/>GA 一般可用(建议直接用 GA)
-### gap 间隙
-### <a name="gap_lock"/>gap lock 间隙锁
-### general log 数据库日志
-### general query log 同general log 数据库日志
-### global_transaction 全局事务
-### group commit 组提交
+参见 [buffer pool], [dirty page], [flush].
 
-## H ##
-### hash index 哈希索引
-### HDD 机械磁盘或不译
-### heartbeat 心跳
-### high-water mark 上限
-### history list 清除链表
-### hot 热
-### hot backup 热备
+## <a name="G"></a>G ##
+### <a name="glos_ga"></a>GA: 一般可用(建议直接用 GA)
+“一般可用(Generally available)”，是软件产品离开测试版并且可供销售、官方支持及生产可用的阶段。
 
-## I ##
-### I/O-bound I/O带宽
-### ib-file set ib文件集
-### ib_logfile ib_logfile redolog文件或不译
-### ibbackup_logfile 不译
-### .ibd file .ibd文件
-### ibdata file ibdata文件
-### ibtmp file ibtmp文件
-### .ibz file .ibz文件
-### ilist 索引词链表
-### implicit row lock 隐式行锁
-### in-memory database 内存数据库
-### incremental backup 增量备份
-### index 索引
-### index cache 索引缓存
-### index hint 索引提示
-### index prefix 索引前缀
-### index statistics 索引统计
-### infimum record 伪记录
-### INFORMATION_SCHEMA 系统信息库
+参见 [beta], [early adopter].
+
+### <a name="glos_gap"></a>gap: 间隙
+InnoDB索引(***index***)数据结构中新值插入的地方。当你使用诸如`SELECT ... FOR UPDATE`这样的语句锁定一个行集时，InnoDB会创建应用到间隙和真实值的锁。比如，如果你选定了大于10的所有值来更新，间隙锁会阻止其它事务插入大于10的新值。上确界记录(***supremum record***)与下确界记录(***infimum record***)代表了包含所有大于或小于所有当前索引值的间隙。
+
+参见 [concurrency], [gap lock], [index], [infimum record], [isolation level], [supremum record].
+
+### <a name="gap_lock"></a>gap lock: 间隙锁
+索引记录之间间隙(***gap***)上的锁，或第一个索引前或最后一个索引后的间隙上的锁。比如，`SELECT c1 FOR UPDATE FROM t WHERE c1 BETWEEN 10 and 20`；阻止其它事务向t.c1列中插入15，不管列中是否有这样的值，因为在范围中存在的值之间的间隙被锁住了。对比记录锁(***record lock***)与行间隙锁(***next-key lock***)。
+
+间隙锁是性能与并发(***concurrency***)之间的取舍的一部分，在有些事务隔离级别(***isolation levels***)上是有用的，有些则不然。
+
+参见 [gap], [infimum record], [lock], [next-key lock], [record lock], [supremum record].
+
+### <a name="glos_general_log"></a>general log: 数据库日志
+
+参见 [general query log].
+
+### <a name="glos_general_query_log"></a>general query log: 数据库日志
+一种用来为MySQL服务处理过的SQL语句的诊断问题与排除故障的日志(***log***)。可以被存储在文件中或数据库表中。你必须通过`general_log`配置选项使其生效来使用它。你可以用`sql_log_off`配置选项为一个指定的连接禁用它。
+
+记录比慢查询(***slow log***)日志更广泛的查询。不像用来做镜像的二进制日志(***binary log***)，数据库日志包括`SELECT`语句并且不会维护严格的顺序。如需更多信息，参见[第5.2.3节，数据库日志][05.02.03]。
+
+参见 [binary log], [general query log], [log].
+
+### <a name="glos_global_transaction"></a>global_transaction: 全局事务
+分布式事务(***XA***)中的一种事务(***transactions***)。它由几个本身就是事务的动作组成，但这些事务又必须以一组的方式一起成功完成，或以一组的方式整体回滚。本质上来讲，这让***ACID***的属性拓展升级，为的是让多个ACID事务可以在做为一个全局的同时拥有ACID属性的事务来合作执行。对于这种分布式事务类型，你可以使用***SERIALIZABLE***隔离级别来获得ACID属性。
+
+See Also ACID, SERIALIZABLE, transaction, XA.
+
+### <a name="glos_group_commit"></a>group commit: 组提交
+一个***InnoDB***的优化，以一次一组提交的方式执行一些低级I/O操作(***log write***, 写日志)，而不是单独为每次提交都做刷新与同步。
+
+当二进制日志打开时，你一般也要设置`sync_binlog=0`，因为对二进制日志的组提交只有当它设置为0时才起作用。
+
+参见 [commit], [plugin], [XA].
+
+## <a name="H"></a>H ##
+### <a name="glos_hash_index"></a>hash index: 哈希索引
+一个用来做等于操作的索引类型，而不是用来做诸如大于或`BETWEEN`等范围操作的。它在MEMORY表中有效。尽管哈希索引因为历史原因成为了MEMORY表的默认索引，这种存储引擎也支持B树(***B-tree***)索引，B树索引在通用查询中常常是个不错的选择。
+
+MySQL中有一种这类索引的变体，自适应哈希索引(***apaptive has index***)，它是在运行时按需为***InnoDB***表自动生成的。
+
+参见 [adaptive hash index], [B-tree], [index], [InnoDB].
+
+### <a name="glos_hdd"></a>HDD: 机械磁盘或不译
+hard disk drive的首字母缩写。指的是使用旋转盘片的存储媒介，一般用来与固态硬盘(***SSD***)做比较与对照。它的性能特性会影响到基于磁盘(***disk-based***)工作的吞吐量。
+
+参见 [disk-based], [SSD].
+
+### <a name="glos_heartbeat"></a>heartbeat: 心跳
+一个为表示系统功能正常的而发出的周期性的信息。在镜像(***replication***)环境中，如果主库(***master***)停止发送此类信息，其中一个从库(***slave***)会替代它的位置。类似的技术可以被用到集群环境中的两台服务器之间，用来确保它们都正常运转。
+
+参见 [replication].
+
+### <a name="glos_high_water_mark"></a>high-water mark: 上限
+一个表示上限的值，要么是运行时不许超越的硬性限制，要么实际中到达的最大记录值。与之对应的是下限(low-water mark)。
+
+参见 [low-water mark].
+
+### <a name="glos_history_list"></a>history list: 清除链表
+含有被标为删除的记录的事务(***transaction***)列表，这些记录会被`InnoDB`清除(***purge***)操作有计划地处理。记录在***undo log***。清除链表的长度可以在`SHOW ENGINE INNODB STATUS`命令的报表中看到。如果清除链表增长到超过[innodb_max_purge_lag]配置选项的值，每个***DML***操作会被静默延迟，以让清除操作完成刷新(***flush***)删除的记录。
+
+也叫 ***purge lag***.
+
+参见 [flush], [purge], [purge lag], [rollback segment], [transaction], [undo log].
+
+### <a name="glos_hot"></a>hot: 热
+一行、一张表或内部数据结构被访问得非常频繁的一种情况，需要某些模式下的锁和互斥，它会带来性能与扩展性上的问题。
+
+虽然“热”一般指的是不受欢迎的情况，但热备(***hot backup***)却是备份中的较好的选择。
+
+参见 [hot backup].
+
+### <a name="glos_hot_backup"></a>hot backup: 热备
+种在数据库在运行且应用在读写它的情况下的备份。这种备份涉及的不是简单的拷贝文件：它必须包括任何在备份进行时插入或更新的数据；它必须排除掉任何在血仇进行时被删除的数据；它必须忽略任何没有提交的变更。
+
+Orcale的执行热备的产品，尤其是对InnoDB表，还有对MyISAM或其它存储引擎表，叫MySQL企业备份(***MySQL Enterprise Backup***)。
+
+热备过程由两个阶段组成。最初的拷贝数据生成一个原始备份(***raw backup***)。应用(***apply***)步骤合将任何在备份运行过程中发生的变更都合并到数据中。应用变更会生与一个一致备份(***prepared backup***)；这些文件已经为随时恢复做好准备。
+
+参见 [apply], [MySQL Enterprise Backup], [prepared backup], [raw backup].
+
+
+## <a name="I"></a>I ##
+### <a name="glos_io_bound"></a>I/O-bound: I/O带宽
+参见[disk-bound]
+
+### <a name="glos_ib_file_set"></a>ib-file set: ib文件集
+MySQL数据库内部由InnoDB管理的一组文件：系统表空间(***system tablespace***)、任何***file-per-table***表空间以及***redo log***文件(一般有两个)。为了避免不同DBMS产品之间对数据库(***database***)含义以及MySQL数据库中非InnoDB文件的部分产生歧义，有时用在InnoDB文件结构与格式的细节讨论上。
+
+参见 [database], [file-per-table], [redo log], [system tablespace].
+
+### <a name="glos_ib_logfile"></a>ib_logfile: redolog文件或不译
+构成***redo log***的一组文件，一般以`ib_logfile0`和`ib_logfile1`来命名。有时也被称为日志组(***log group***)。这些文件记录了尝试更改InnoDB表中数据的语句。在崩溃后的重启中，这些语句会自动重放到被未完成的事务写过的正确的数据中。
+
+这些数据不能被用来做手动恢复；对于这种情况，使用二进制日志(***binary log***)。
+
+参见 [binary log], [log group], [redo log].
+
+### <a name="glos_ibbackup_logfile"></a>ibbackup_logfile: 不译
+在热备(***hot bakcup***)操作中由MySQL企业备份(***MySQL Enterprise Backup***)产品创建的补充备份文件。它包含任何在备份运行时发生的变更的信息。这些包含`ibbackup_logfile`的初始备份文件叫做原始备份(***raw backup***)，因为在备份操作时间产生的变改尚未收入。当你向原始备份文件执行了应用(***apply***)步骤后，生成文件的确包含了那些最终的变量，这叫一执备份(***prepared backup***)。在这个阶段，`ibbackup_logfile`就没有用了。
+
+参见 [apply], [hot backup], [MySQL Enterprise Backup], [prepared backup], [raw backup].
+
+### <a name="glos_ibd_file"></a>.ibd file: .ibd文件
+每个使用***file-per-table***模式创建的InnoDB表(***table***)会进入到数据库目录下自己的表空间(***tablespace***)文中，以`.ibd`为后缀名。这个文件包含表的数据和表的任何索引。file-pre-table模式由***innodb_file_per_table***选项来控制，影响InnoDB存储的使用量与性能，在MySQL 5.6.7及更高版本中默认开启。
+
+这个后缀不适用于由ibdata文件(***ibdata files***)组成的系统表空间(***system tablespace***)。
+
+当一个`.ibd`文件包含在MySQL企业备份(***MySQL Enterprise Backup***)产生的压缩备份中时，对应的压缩文是一个`.ibz`文件。
+
+在MySQL 5.6或更高版本中，如果一个表使用DATA DIRECTORY ＝ 字句创建表时，.ibd文件会定位到正常数据库目录之外，并用一个.isl文件来指向它。
+
+参见 [database], [file-per-table], [ibdata file], [.ibz file][ibz file], [index], [innodb_file_per_table], [.isl file][isl file], [MySQL Enterprise Backup], [system tablespace], [table], [tablespace].
+
+### <a name="glos_ibdate_file"></a>ibdata file: ibdata文件
+像`ibdata1`、`ibdata2`等等这样命名的一组文件，它们组成InnoDB的系统表空间(***system tablespace***)。这些文件包含InnoDB表的元数据(***data dictionary***，数据字典)和为***undo log***、变更缓冲(***change buffer***)和双写缓冲(***doublewrite buffer***)等提供的存储区。它们也能包含一些或全部表的数据(取决于***file-per-table***模式是否开启)。当***innodb_file_per_table***选项生效，新为新表创建的数据和索引存储在单独的***.ibd***文件中，而不在系统表空间中。
+
+`ibdata`文件的增长受`innodb_autoextend_increment`配置选项的影响。
+
+参见 [change buffer], [data dictionary], [doublewrite buffer], [file-per-table], [.ibd file][ibd file], [innodb_file_per_table], [system tablespace], [undo log].
+
+### <a name="glos_ibtmp_file"></a>ibtmp file: ibtmp文件
+为非压缩InnoDB临时长或相关对象提供的InnoDB临时表空间数据文件。配置文件选项`innodb_temp_data_file_path`允许用户为临时数据文件定义对应的目录。如果`innodb_temp_data_file_path`没有定义，默认行为是在数据目录下的`ibdata1`文件边上创建一个名为`ibtmp1`的单独的数据文件，以12MB的大小自动递增。
+
+参见 [temporary tablespace].
+
+### <a name="glos_ibz_file"></a>.ibz file: .ibz文件
+当MySQL企业备份产品(***MySQL Enterprise Backup***)执行一下压缩备份(***compressed backup***)时，它将每个由***file-per-table***选项产生的后缀为`.ibd`的表空间转换为后缀为`.ibz`的文件。
+
+在备份过程中应用的压缩与在正常操作中保持数据压缩的压缩行格式(***compressed row format***)是不一样的。一个压缩备份操作会忽略掉那些已经是压缩行格式表空间的压缩步骤，二次压缩会延缓备份却很少带来空间上的节省。
+
+参见 [compressed backup], [compressed row format], [file-per-table], [.ibd file][ibd file], [MySQL Enterprise Backup], tablespace.
+
+### <a name="glos_ilist"></a>ilist: 索引词链表
+InnoDB全文索引(***FULLTEXT index***)中，由文件编号和位置信息的标号(***token***)(也就是一个特定的词)组成的数据结构。
+
+参见 [FULLTEXT index].
+
+### <a name="glos_implicit_row_lock"></a>implicit row lock: 隐式行锁
+一个为了确保数据一致性的InnoDB的行级锁，你不需要特别地请求它。
+
+参见 [row lock].
+
+### <a name="glos_in_memory_database"></a>in-memory database: 内存数据库
+一种为了避免磁盘I/O负载和磁盘块与内存区之间传输负载而在内存中维护数据的一种数据库系统。一些内存数据库牺牲了持久性(ACID设计理念中的“D”)，易受硬件、电源和其它类型的故障的影响，使得它们更适合于只读操作。
+
+MySQL features that are address the same kinds of memory-intensive processing include the InnoDB buffer pool, adaptive hash index, and read-only transaction optimization, the MEMORY storage engine, the MyISAM key cache, and the MySQL query cache.
+
+MySQL处理内存密集型进程的特性包括InnoDB ***buffer pool***、自适应哈希索引(***adaptive hash index***)、只读事务(***read-only transaction***)优化、MEMORY存储引擎、MyISAM key cache以及MySQL查询缓存(***query cache***)。
+
+参见 [ACID], [adaptive hash index], [buffer pool], [disk-based], [read-only transaction].
+
+### <a name="glos_incremental_backup"></a>incremental backup: 增量备份
+一种热备(***hot backup***)，由MySQL企业备份(***MySQL Enterprise Backup***)执行，它只保存某个时间点后改变了的数据。一个全量备份和一连串的增量备份可以让你在一个很长的时间段里重构你的备份数据，而没少手头上要保留多个全备份的存储压力。你可以先恢复全备份，然后连续应用每个增量备份，也可以应用每个增量备份让全备份保持更新状态，然后再执行一个单独的恢复操作。
+
+The granularity of changed data is at the page level. A page might actually cover more than one row. Each changed page is included in the backup.
+
+变更了的数据的粒度在页(***page***)层级。一个页可能实际上覆盖不至一行。每个变更了的行都包含在备份中。
+
+参见 [hot backup], [MySQL Enterprise Backup], [page].
+
+### <a name="glos_index"></a>index: 索引
+一种数据结构，提供快速查找表(***table***)中行(***row***)的功能，通常是生成一棵树结构(***B-Tree***)，代表了一个特定列或一组列中的值。
+
+InnoDB表一直拥有一个相当于主键(***primary key***)的簇索引(***clustered index***)。它们可以拥有定义在一列或多列上的一个或多个二级索引(***secondary key***)。依据二级索引的结构，它们可以划分为部分索引(***partial index***)、单列索引(***column index***)和组合索引(***composite index***)。
+
+The ideal database design uses a covering index where practical;、
+
+索引是查询(***query***)性能的一个关键因素。数据库架构师设计表、查询和索引以允许快速查找应用程序所需要的数据。理想的数据库设计使用实用的覆盖索引(***covering index***)；查询结果可以完全从索引中计算出来，而不用读实际的表数据。为了高效地检查值是否在父表(***parent table***)和子表(***child table***)中存在，每个外键约束(***foreign key***)也需要索引。
+
+尽管B树索引最常用，但另一种数据结构被用来做哈希索引(***hash index***)，在`MEMORY`存储引擎和InnoDB自适应索引(***adaptive hash index***)中。
+
+参见 [adaptive hash index], [B-tree], [child table], [clustered index], [column index], [composite index], [covering index], [foreign key], [hash index], [parent table], [partial index], [primary key], [query], [row], [secondary index], [table].
+
+### <a name="glos_index_cache"></a>index cache: 索引缓存
+为InnoDB全文搜索(***full-text search***)保存令牌数据的内存区。它在当是全文索引(***FULLTEXT index***)列中的数据被删除或更新时将该数据缓冲起来以减小磁盘I/O。在索引缓存变满时令牌数据会被写到磁盘上。每个InnoDB的全文索引都有各自独立的索引缓存，它的大小由配置选项`innodb_ft_cache_size`控制。
+
+参见 [full-text search], [FULLTEXT index].
+
+### <a name="glos_index_hint"></a>index hint: 索引提示
+一个为了覆盖优化器推荐索引(***index***)使用的扩展SQL语法。例如，`FORCE INDEX`、`USE INDEX`和`IGNORE INDEX`字句。通常是在索引列上的值分布不均匀，导致基数(***cardinality***)评估不准确的情况下使用。
+
+参见 [cardinality], [index].
+
+### <a name="glos_index_prefix"></a>index prefix: 索引前缀
+在一个多列索引(***composite index***，组合索引)中，索引(***index***)的初始列或前导列。一个引用组合索引中最前面的1、2、3等等列的查询可以使用到索引，即使这个查询没有引用到索引中的所有列。
+
+参见 [composite index], [index].
+
+### <a name="glos_index_statistics"></a>index statistics: 索引统计
+参见 [statistics].
+
+### <a name="glos_infimum_record"></a>infimum record: 下确界记录
+索引(***index***)中假想的记录(***psesudo-index***)，代表这个索引中低于最小值的间隙(***gap***)。如果一个事务有一个诸如`SELECT ... FOR UPDATE ... WHERE col < 10;`的语句；并且这个列中最小值为5，它将锁住这个下确界记录以阻止其它事务插入更小的值，比如0啊、－10啊等等。
+
+参见 [gap], [index], [pseudo-record], [supremum record].
+
+### <a name="glos_information_schema"></a>INFORMATION_SCHEMA: 系统信息库
+为MySQL数据字典(***data dictionary***)提供查询接口的数据库的名字。(此名由ANSI SQL标准定义。)为了检查数据库的信息(元数据)，你可以查询诸如`INFOMATION_SCHEMA.TABLES`和`INFOMATION_SCHEMA.COLUMNS`的表，而不使用产生没有结构化输出的`SHOW`命令。
+
+信息系统库包含一些***InnoDB***特定的表，如`INNODB_LOCKS`和`INNODB_TRX`。你使用这些表不是用来看这个数据库是如何组织的，而是获取关系InnoDB表的实时信息来帮助做性能监控、调优和故障排除的。实际上，这些表提供了关于MySQL压缩(***compression***)、事务(***transaction***)以及它们对应锁(***lock***)的特性的数据。
+
+参见 [compression], [data dictionary], [database], [InnoDB], [lock], [transaction].
+
 ### InnoDB InnoDB
 ### innodb_autoinc_lock_mode innodb参数，不用译
 ### innodb_file_format innodb参数，不用译
@@ -864,7 +1148,7 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 ### storage engine 存储引擎
 ### strict mode 严格模式
 ### sublist 子列表
-### supremum record 最小上界记录
+### supremum record 上确界记录
 ### surrogate key 代理主键,区别于自主ID产生的自然键值
 ### system tablespace 系统表空间
 
@@ -1163,6 +1447,7 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 [search index]: #glos_search_index
 [secondary index]: #glos_secondary_index
 [server]: #glos_server
+[shared lock]: #glos_shared_lock
 [shutdown]: #glos_shutdown
 [slave server]: #glos_slave_server
 [slow]: #glos_slow
@@ -1204,21 +1489,23 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 [workload]: #glos_workload
 
 
-[04.02.03.03]: ../Chapter_04/04.02.03_Specifying_Program_Options.md#04.02.03.03
-[05.02.04]: ./05.02.04_The_Binary_Log.md
-[14.02.02.04]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.04
-[14.02.02.10]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.10
-[14.02.02.11]: ../Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.11
-[14.02.08]: ../Chapter_14/14.02.08_InnoDB_Compressed_Tables.md
-[14.02.09]: ../Chapter_14/14.02.09_InnoDB_Integration_with_memcached.md
-[16.01.04.04]: ../Chapter_16/16.01.04_Replication_and_Binary_Logging_Options_and_Variables.md#16.01.04.04
-[binlog_checksum]: ../Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_binlog_checksum 
-[innochecksum]: ../Chapter_04/04.06.01_Innochecksum_Offline_InnoDB_File_Checksum_Utility.md
-[innodb_adaptive_hash_index]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_adaptive_hash_index
-[innodb_change_buffer_max_size]: ../Chapter_14/14.02.14_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_change_buffer_max_size
-[innodb_change_buffering]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md##sysvar_innodb_change_buffering
-[innodb_checksum]: ../Chapter_14/14.02.14_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_checksum
-[innodb_file_format]: ../Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_file_format
+[04.02.03.03]: ./Chapter_04/04.02.03_Specifying_Program_Options.md#04.02.03.03
+[05.02.02]: ./Chapter_05/05.02.02_The_Error_Log.md
+[05.02.03]: ./Chapter_05/05.02.03_The_General_Query_Log.md
+[05.02.04]: ./Chapter_05/05.02.04_The_Binary_Log.md
+[14.02.02.04]: ./Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.04
+[14.02.02.10]: ./Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.10
+[14.02.02.11]: ./Chpater_14/14.02.02_InnoDB_Concepts_and_Architecture.md#14.02.02.11
+[14.02.08]: ./Chapter_14/14.02.08_InnoDB_Compressed_Tables.md
+[14.02.09]: ./Chapter_14/14.02.09_InnoDB_Integration_with_memcached.md
+[16.01.04.04]: ./Chapter_16/16.01.04_Replication_and_Binary_Logging_Options_and_Variables.md#16.01.04.04
+[binlog_checksum]: ./Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_binlog_checksum 
+[innochecksum]: ./Chapter_04/04.06.01_Innochecksum_Offline_InnoDB_File_Checksum_Utility.md
+[innodb_adaptive_hash_index]: ./Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_adaptive_hash_index
+[innodb_change_buffer_max_size]: ./Chapter_14/14.02.14_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_change_buffer_max_size
+[innodb_change_buffering]: ./Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md##sysvar_innodb_change_buffering
+[innodb_checksum]: ./Chapter_14/14.02.14_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_checksum
+[innodb_file_format]: ./Chpater_14/14.02.06_InnoDB_Startup_Options_and_System_Variables.md#sysvar_innodb_file_format
 [master_verify_checksum]: ./Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_master_verify_checksum: 
-[SHOW ENGINE INNODB STATUS]: ../Chapter_15/13.07.05_SHOW_Syntax.md#13.07.05.16
+[SHOW ENGINE INNODB STATUS]: ./Chapter_15/13.07.05_SHOW_Syntax.md#13.07.05.16
 [slave_sql_verify_checksum]: ./Chapter_16/16.01.04_Replication_And_Binary_Logging_Options_And_Variables.md#sysvar_slave_sql_verify_checksum
