@@ -527,7 +527,7 @@ InnoDB相关的DDL方面有`CREATE INDEX`和`DROP INDEX`的速度提高和***fil
 
 参考 [drop], [purge], [truncate].
 
-### <a name='glos_delete_buffering'></a>delete buffering 删除缓冲
+### <a name='glos_delete_buffering'></a>delete buffering 删除缓冲技术。
 将因删除操作而发生的索引变更在插入缓冲(***insert buffer***)中存储而不是立马写入它们的技术，这么做是为了将物理写操作的随机I/O降到最小。(因为删除操作有两步处理，这个操作将正常标记索引记录为删的写操作缓冲下来。)它是变更缓冲(***change buffering***)的一种类型；其它的为插入缓冲(***insert buffering***)和清除缓冲(***purge buffering***)。
 
 参见 [change buffer], [change buffering], [insert buffer], [insert buffering], [purge buffering].
@@ -957,16 +957,73 @@ The ideal database design uses a covering index where practical;、
 
 参见 [compression], [data dictionary], [database], [InnoDB], [lock], [transaction].
 
-### InnoDB InnoDB
-### innodb_autoinc_lock_mode innodb参数，不用译
-### innodb_file_format innodb参数，不用译
-### innodb_file_per_table innodb参数，不用译
-### innodb_lock_wait_timeout innodb参数，不用译
-### innodb_strict_mode innodb参数，不用译
-### insert 插入
-### insert buffer change buffer以前的叫法
-### insert buffering 插入缓存技术
-### instance 实例
+### <a name="glos_innodb"></a>InnoDB: InnoDB
+一个MySQL组件，它高性能与事务(***transaction***)功能结合起来，提供可靠性、鲁棒性与并发访问。它体现了***ACID***的设计理念。表示一个存储引擎(***storage engine***)；它可以用`ENGINE=INNODB`子句来处理表的创建与更改。架构细节和管理程序参见[第14.2节，InnoDB存储引擎][14.02.00]，性能建议参见[第8.5节，优化InnoDB表][08.05.00]。
+
+在MySQL 5.5或更高版本中，InnoDB是新创建表的默认存储引擎，`ENGINE=INNODB`子句不是必需的了。仅在MySQL 5.1中，InnoDB的很多优势特性需要启用InnoDB Plugin组件。要考虑过渡到InnoDB表是默认的最近的版本，请参见[第14.2.1.1节，InnoDB作为默认的存储引擎][14.02.01.01]。
+
+InnoDB表非常适合热备(***hot backup***)。要了解MySQL企业备份产品(***MySQL Enterprise Backup***)在不打断正常进程的情况下备份MySQL服务的信息，请参见[第24.2节，MySQL企业备份][24.02.00]。
+
+参见 [ACID], [hot backup], [storage engine], [transaction].
+
+### <a name="glos_innodb_autoinc_lock_mode"></a>innodb_autoinc_lock_mode: innodb参数，不用译
+`innodb_autoinc_lock_mode`控制自增锁(***auto-increment locking***)所使用的算法。当你有一个自增主键(***primary key***)时，在设置`innodb_autoinc_lock_mode=1`的情况下，你只能使用基于语句的复制。这个设置也叫连续锁模式，因为一个事务中的多行插入会接收到连续的自增值。如果你使用了允许更高并发的插入操作`innodb_autoinc_lock_mode=2`，就要使用基于行的复制，而不是基于语句的复制。这个设计叫交错(***interleaved***)锁模式，因为同一时间运行的多个多行插入可以接到交错的自增值。设置`innodb_autoinc_lock_mode=0`是之前的(传统)的默认设置，在处理兼容时可能会被用到。
+
+参见 [auto-increment locking], [mixed-mode insert], [primary key].
+### <a name="glos_innodb_file_format"></a>innodb_file_format: innodb参数，不用译
+在你指定了`innodb_file_format`选项的一个值以后，所有创建InnoDB表空间的文件格式(***file format***)都取决于这个选项。要创建不同于系统表空间(***system tablespace***)的表空间(***tablespace***)，你也必须使用***file-per-table***选项。目前，你可以指定***Antelope***和***Barracuda***文件格式。
+
+参见 [Antelope], [Barracuda], [file format], [file-per-table], [innodb_file_per_table], [system tablespace], [tablespace].
+
+### <a name="glos_innodb_file_per_table"></a>innodb_file_per_table: innodb参数，不用译
+这是一个影响InnoDB文件存储、功能可用性及I/O好多方面的非常重要的配置。在MySQL 5.6.7之前，它是默认关闭的。`innodb_file_per_table`选项打开了file-per-table模式，它将每个新创建的InnoDB表和关联的索引存储在系统表空间(***system tablespace***)之外自己的.ibd文件(***.ibd file***)中。
+
+这个选项会影响到一些SQL语句的性能与存储方面的考虑，比如`DROP TABLE`和`TRUNCATE TABLE`。
+
+很多InnoDB的其它特性也需要它来充分发挥优势，比如表压缩(***compression***)或用MySQL企业备份(***MySQL Enterprise Backup***)来备份指定的表。
+
+这个选项曾经是静态的，不过现在可以用`SET GLOBAL`命令来设置了。
+
+如需参考信息，参考[innodb_file_per_table]。如需使用信息，参见[第14.2.6.2节，InnoDB File-Per-Table模式][14.02.06.02]。
+
+参见 [compression], [file-per-table], [.ibd file][ibd file], [MySQL Enterprise Backup], [system tablespace].
+
+### <a name="glos_innodb_lock_wait_timeout"></a>innodb_lock_wait_timeout: innodb参数，不用译
+innodb_lock_wait_timeout选项在等待被共享的资源变得可用与放弃并在你的应用中处理错误、重试或做替代处理二者之间设置一个平衡。任何等待获取锁超过指定时间的InnoDB事务都会被回滚。这在处理由更新多个不同存储引擎表时引起的死锁时非常有用；这类死锁是没法自动检测的。
+
+参见 [deadlock], [deadlock detection], [lock], [wait].
+
+### <a name="glos_innodb_strict_mode"></a>innodb_strict_mode: innodb参数，不用译
+The innodb_strict_mode option controls whether InnoDB operates in strict mode, where conditions that are normally treated as warnings, cause errors instead (and the underlying statements fail).
+innodb_strict_mode选项控制InnoDB的操作是否在严格模式下，那些在普通模式下被视为警告的问，在严格模式下都会用错误来代替(及相关的语句错误)。
+
+This mode is the default setting in MySQL 5.5.5 and higher.
+该模式在MySQL 5.5.5及更高版本中是默认设置。
+
+参见 [strict mode].
+
+### <a name="glos_insert"></a>insert: 插入
+SQL中一个主要的DML操作。将百万行数据加载进表中的数据仓库系统和很多可能向同一张表中插入无序行的并发连接的OLTP系统中，插入性能是一个关键因素。如果插入性能对于很重要，你可能要学习InnoDB诸如变量缓冲中所用到的插入缓冲和自增列等特性。
+
+参见 [auto-increment], [change buffering], [data warehouse], [DML], [InnoDB], [insert buffer], [OLTP], [SQL].
+
+### <a name="glos_insert_buffer"></a>insert buffer: 插入缓冲，变更缓冲以前的叫法
+变更缓冲(***change buffer***)以前的叫法。现在变更缓冲技术(***change buffering***)包括删除缓冲、更新缓冲以及插入缓冲，“变更缓冲”是首选术语。
+
+参见 [change buffer], [change buffering].
+
+### <a name="glos_insert_buffering"></a>insert buffering: 插入缓存技术
+一种技术，将由`INSERT`操作引起的二级索引的变更存储在插入缓冲(***insert buffer***)中，而不是直接写它们，这样物理写就可以以最小的随机I/O来执行了。它是变更缓冲技术(***change buffering***)的一种；其它的为删除缓冲技术(***delete buffering***)与清除缓冲技术(***purge buffering***)。
+
+如果二级索引为唯一(***unique***)索引，插入缓冲技术是无用的，因为新值的唯一性在新的实体写入之前是无法验证的。其它变更缓冲技术对唯一索引有效。
+
+参见 [change buffer], [change buffering], [delete buffering], [insert buffer], [purge buffering], [unique index].
+
+### <a name="glos_instance"></a>instance: 实例
+一个单独的***mysqld***后台驻留程序(***daemon***)，管理代表一个或多个数据库的一个数据目录(***data directory***)，每个数据库都包括一组表(***table***)。在开发、测试和一些复制(***replication***)场景下，一台机器上有多个实例是很正常的事，每个管理自己的数据目录，监听各自的端口或套接字。在有一个实例运行在基于磁盘(disk-bound)性能的情况下，服务器应该还有额外的CPU和内存能力来运行更多的实例。
+
+参见 [data directory], [database], [disk-bound], [mysqld], [replication], [server].
+
 ### instrumentation 监测
 ### intention exclusive lock 意向排它锁
 ### intention lock 意向锁
