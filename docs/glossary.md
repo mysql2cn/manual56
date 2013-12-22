@@ -1078,16 +1078,41 @@ SQL中一个主要的DML操作。将百万行数据加载进表中的数据仓�
 
 
 ## <a name="L"></a>L ##
-### <a name="glos_latch"></a>latch: 读写锁
-A lightweight structure used by InnoDB to implement a lock for its own internal memory structures, typically held for a brief time measured in milliseconds or microseconds. A general term that includes both mutexes (for exclusive access) and rw-locks (for shared access). Certain latches are the focus of InnoDB performance tuning, such as the data dictionary mutex. Statistics about latch use and contention are available through the Performance Schema interface.
 
-See Also data dictionary, lock, locking, mutex, Performance Schema, rw-lock.
+### <a name="glos_latch"></a>latch: 不译
+InnoDB针对自己内部内存结构体实现锁(***lock***)的一个轻量级的结构体，通常保持毫秒或微秒级的短暂的时间。包含互斥(***mutex***，对于排它访问)和读写锁(***rw-lock***，对于共享访问)一般术语。某些latch的重点在性能调优上，比如数据字典(***data dictionary***)互斥。对于锁使用和竞争的统计可以通过Performance数据库(***Performance Schema***)接口获得。
 
-### list buffer 页面lru链表
-### lock 锁
-### lock escalation 锁升级
-### lock mode 锁模式
-### locking 锁机制
+参见 [data dictionary], [lock], [locking], [mutex], [Performance Schema], [rw-lock].
+
+### <a name="glos_list"></a>list: buffer页面lru链表
+InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被访问或进入buffer pool、buffer pool中的页被再次访问和认为更新些以及长时间非被访问的页从buffer pool被逐出等情况下会被重新排序。buffer pool实际上被划分为子列表，并且替换策略是LRU机制的一个变种。
+
+参见 [buffer pool], [eviction], [LRU], [sublist].
+
+### <a name="glos_lock"></a>lock: 锁
+控制访问诸如表、行或内部数据结构等资源的对象的高级的概念，是锁(***locking***)机制中的一部分。针对进一步的性能调优，你可以探索实现了锁的真正的结构体，如互斥锁和latch。
+
+参见 [latch], [lock mode], [locking], [mutex].
+
+### <a name="glos_lock_escalation"></a>lock escalation 锁晋级
+某些数据库系统使用的一种操作，将多行的锁合并为一个单独的表锁，节省内存空间，但降低对表的并发访问。InnoDB针对行锁使用一个空间高效的方式，所以不需要锁晋级。
+
+参见 [locking], [row lock], [table lock].
+
+### <a name="glos_lock_mode"></a>lock mode: 锁模式
+一个共享锁(S)允许事务读一行。多个事务可以在同一时间在同一行上获取一个S锁。
+
+一个排它锁允许事务更新或删除一行。其它的事务在同一时刻不再能获得任何类型的锁。
+
+意向锁适用于表级，并且常常指的是事务试图在表行上获取的那种锁。不同在事务可以在同一张表上获取到不同的意向锁，但第一个事务在表上获取一个意向排它锁(***intention exclusive***)以阻止其它事务再在该表上获取任何共享锁或排它锁。相反地，第一个事务在表上获取一个意向共享锁(***intention shared***)以阻止其它事务再在该表上获取任何排它锁。两阶段进程允许锁请求按序解决，而不用阻塞锁和兼容的相应的操作。
+
+参见 [intention lock], [lock], [locking].
+
+### <a name="glos_locking"></a>locking: 锁机制
+The system of protecting a transaction from seeing or changing data that is being queried or changed by other transactions. The locking strategy must balance reliability and consistency of database operations (the principles of the ACID philosophy) against the performance needed for good concurrency. Fine-tuning the locking strategy often involves choosing an isolation level and ensuring all your database operations are safe and reliable for that isolation level.
+
+See Also ACID, concurrency, isolation level, latch, lock, mutex, transaction.
+
 ### locking read 加锁读
 ### log 日志
 ### log buffer 日志缓冲
