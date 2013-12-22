@@ -566,12 +566,12 @@ See Also adaptive hash index, buffer pool, in-memory database.
 
 参见 [adaptive hash index], [buffer pool], [in-memory database].
 
-### <a name='glos_cpu_bound'></a>cpu-bound: CPU带宽
+### <a name='glos_cpu_bound'></a>cpu-bound: CPU受限
 一种瓶颈(***bottleneck***)主要是内存中CPU操作的负载类型。通常来说会包括读密集型的操作，其中的结果可以全部缓存中***buffer pool***中。
 
 参见 [bottleneck], [buffer pool], [disk-bound], [workload].
 
-### <a name='glos_disk_bound'></a>disk-bound: 磁盘带宽
+### <a name='glos_disk_bound'></a>disk-bound: 磁盘受限
 一种瓶颈(***bottleneck***)主要是磁盘I/O的负载类型。(也叫I/O带宽,***I/O-bound***。)一般包括频繁写盘或随机读取更多不适合放在***buffer pool***中的数据。
 
 参见 [bottleneck], [buffer pool], [cpu-bound], [workload].
@@ -1024,23 +1024,65 @@ SQL中一个主要的DML操作。将百万行数据加载进表中的数据仓�
 
 参见 [data directory], [database], [disk-bound], [mysqld], [replication], [server].
 
-### instrumentation 监测
-### intention exclusive lock 意向排它锁
-### intention lock 意向锁
-### intention shared lock 意向共享锁
-### inverted index 反向索引
-### IOPS 每秒读写次数，可不译
-### .isl file .isl文件
-### isolation level 事务隔离级别
+### <a name="glos_instrumentation"></a>instrumentation: 监测
+为调优与调试收集性能数据而在源码级做的修改，通过监测收集到的数据使用`INFORMATION_SCHEMA`和`PERFORMANCE_SCHEMA`数据库通过SQL接口暴露出来。
 
-## J ##
-### join 关联
+参见 [INFORMATION_SCHEMA], [Performance Schema].
 
-## K ##
-### KEY_BLOCK_SIZE InnoDB表选项
+### <a name="glos_intention_exclusive_lock"></a>intention exclusive lock: 意向排它锁
+参见 [intention lock].
 
-## L ##
-### latch 读写锁
+### <a name="glos_intention_lock"></a>intention lock 意向锁
+一种表级锁，常常指的是那种事务试图在表行上获取的锁。不同在事务可以在同一张表上获取到不同的意向锁，但第一个事务在表上获取一个意向排它锁(***intention exclusive***)以阻止其它事务再在该表上获取任何共享锁或排它锁。相反地，第一个事务在表上获取一个意向共享锁(***intention shared***)以阻止其它事务再在该表上获取任何排它锁。两阶段进程允许锁请求按序解决，而不用阻塞锁和兼容的相应的操作。如需各多此类锁机制的详情，请参考[第14.2.2.3节，InnoDB锁模式][14.02.02.03]。
+
+参见 [lock], [lock mode], [locking].
+
+### <a name="glos_intention_shared_lock"></a>intention shared lock: 意向共享锁
+参见 [intention lock].
+
+### <a name="glos_intention_inverted_index"></a>inverted index: 倒排索引
+为文档索引系统优化的数据结构，用在InnoDB全文检索(***full-text search***)实现中。InnoDB全文索引(***FULLTEXT index***)，以倒排索引的方式实现，记录每个词在文档中的位置，而不是表中行的位置。单列的值(做为字符串存储的一个文档)可以由多个反向索引中的多个实体所表示。
+
+参见 [full-text search], [FULLTEXT index], [ilist].
+
+### <a name="glos_iops"></a>IOPS: 每秒读写次数，可不译
+每次读写次数(***I/O operations per second***)的首字母缩写。繁忙系统，特别是***OLTP***应用的一个通用测量值。如果这个值接近存储设备可以处理的最大值，该应用会变成磁盘受限(***disk-bound***)，扩展性(***scalability***)也受到限制。
+
+参见 [disk-bound], [OLTP], [scalability].
+
+### <a name="glos_isl_file"></a>.isl file: .isl文件
+在MySQL 5.6及更高版本中，一个用来指定由用`DATA DICRECTORY = `字句创建的InnoDB表的.ibd文件(***.ibd file***)位置的文件。它的作用就像符号链接，只是没有实际符号链接机制中平台限制。你可以在数据库(***database***)目录之外存储InnoDB表空间(***tablespace***)，例如，根据表的用途，可以放在特别大或特别快的存储设备上。如需更多详情，参参[第14.2.6.4节，指定表空间的位置][14.02.06.04]。
+
+参见 [database], [.ibd file][ibd file], [table], [tablespace].
+
+### <a name="glos_isolation_level"></a>isolation level: 事务隔离级别
+数据库进程基础之一。隔离性是缩写***ACID***中的I；隔离级别是在多个事务(***transaction***)在同一时间产生变更与执行查询的情竞下，对性能与可靠性、一致性和结果再生性之间进行微调的设置。
+
+一致性与保护制度从高到低，InnoDB所支持的隔离级别为：***SERIALIZABLE***、***REPEATABLE READ***、***READ COMMITTED***和***READ UNCOMMITTED***。
+
+对于InnoDB表，很多用户可以为所有的操作保留默认的隔离级别(***REPEATABLE READ***)。专家用户可以选择***read committed***级别，因为他们追求OLTP进程的扩展性极限，或在数据仓库操作中较小的不一致不会影响到大量数据的聚合结果。两头的级别(***SERIALIZABLE***和***READ UNCOMMITTED***)改变处理的行为的程度很大，所以很少用它们。
+
+参见 [ACID], [READ COMMITTED], [READ UNCOMMITTED], [REPEATABLE READ], [SERIALIZABLE], [transaction].
+
+## <a name="J"></a>J ##
+### <a name="glos_join"></a>join: 关联
+通过引用表中保存相同值的列，从超过一个表中取回数据的查询(***query***)。理想情况下，这些列是InnoDB外键(***foreign key***)关系中的一部分，它们确保引用完整性(***referential intgrity***)，并且关联的列上是有索引(***index***)的。经常用来节省空间和在范式(***normalized***)设计通过将重复的字符串用数据ID替换来提高性能。
+
+参见 [foreign key], [index], [normalized], [query], [referential integrity].
+
+## <a name="K"></a>K ##
+### KEY_BLOCK_SIZE: InnoDB表选项
+用来指定使用了压缩行格式(***compressed row format***)的InnoDB表中数据页大小的选项。默值为8KB。越小的值有达到内部限制的风险，该限制依赖于行大小和压缩比的组合。
+
+参见 [compressed row format].
+
+
+## <a name="L"></a>L ##
+### <a name="glos_latch"></a>latch: 读写锁
+A lightweight structure used by InnoDB to implement a lock for its own internal memory structures, typically held for a brief time measured in milliseconds or microseconds. A general term that includes both mutexes (for exclusive access) and rw-locks (for shared access). Certain latches are the focus of InnoDB performance tuning, such as the data dictionary mutex. Statistics about latch use and contention are available through the Performance Schema interface.
+
+See Also data dictionary, lock, locking, mutex, Performance Schema, rw-lock.
+
 ### list buffer 页面lru链表
 ### lock 锁
 ### lock escalation 锁升级
