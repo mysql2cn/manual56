@@ -1109,21 +1109,72 @@ InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被�
 参见 [intention lock], [lock], [locking].
 
 ### <a name="glos_locking"></a>locking: 锁机制
-The system of protecting a transaction from seeing or changing data that is being queried or changed by other transactions. The locking strategy must balance reliability and consistency of database operations (the principles of the ACID philosophy) against the performance needed for good concurrency. Fine-tuning the locking strategy often involves choosing an isolation level and ensuring all your database operations are safe and reliable for that isolation level.
+防止一个事务(***transaction***)查询或变更正在被其它事务查询或变更的数据的系统。锁策略一定要衡量数据库操作的可靠性及一致性(***ACID***理念的原则)与良好的并发(***concurrency***)所需的性能之间关系。微调锁策略往往会涉及选择一个隔离级别(***isolation level***)并保证你所有的数据库操作对于该隔离级别都是安全的和可靠的。
 
-See Also ACID, concurrency, isolation level, latch, lock, mutex, transaction.
+参见 [ACID], [concurrency], [isolation level], [latch], [lock], [mutex], [transaction].
 
-### locking read 加锁读
-### log 日志
-### log buffer 日志缓冲
-### log file 日志文件
-### log group 日志组
-### logical 逻辑
-### logic backup 逻辑备份
-### loose_ 一个前缀，不译
-### low-water mark 下限
-### LRU 最近最少使用
+### <a name="glos_locking_read"></a>locking read: 加锁读
+在一个InnoDB表上同时执行了加锁(***locking***)操作的`SELECT`语句。无论是`SELECT ... FOR UPDATE`或是`SELECT LOCK IN SHARE MODE`。取决于事务的隔离级别(***isolation level***)，它有产生死锁(***deadlock***)的潜在可能性。与它对应的是无锁读(***non-locking read***)。在只读事务中不允许对全局表做此类操作。
+
+参见 [deadlock], [isolation level], [locking], [non-locking read], [read-only transaction].
+
+### <a name="glos_log"></a>log: 日志
+在InnoDB语境中，“log”和“log files”通常指的是表示为ib_logfile*文件的redo日志(***redo log***)。另一个log区是undo日志(***undo log***)，它是物理系统表空间(***system tablespace***)的一部分。
+
+其它MySQL很重要的日志就是错误日志(***error log***，用来诊断启动与运行时错误)、二进制日志(***binary log***，用来做复制和执行定点恢复)、数据库常规日志(***general query log***，用来诊断应用错误)和慢查询日志(***slow query log***，用来诊断性能问题)。
+
+参见 [binary log], [error log], [general query log], [ib_logfile], [redo log], [slow query log], [system tablespace], [undo log].
+
+### <a name="glos_log_buffer"></a>log buffer: 日志缓冲
+一个内存区，保存要写到由redo日志(***redo log***)组成的日志文件(***log file***)中的数据。由配置选项[innodb_log_buffer_size]控制。
+
+参见 [log file], [redo log].
+
+### <a name="glos_log_file"></a>log file: 日志文件
+组成redo日志的ib_logfileN中的一个文件。数据从日志缓冲内存区写入到这些文件中。
+
+参见 [ib_logfile], [log buffer], [redo log].
+
+### <a name="glos_log_group"></a>log group: 日志组
+组成redo日志(***redo log***)的文件集合，通常以`ib_logfile1`和`ib_logfile2`。(由于这个原因，有是统称为***ib_logfile***。)
+
+参见 [ib_logfile], [redo log].
+
+### <a name="glos_logical"></a>logical: 逻辑
+涉及高层的、诸如表、查询、索引以及其它SQL概念的抽象角度的操作。通常地，逻辑角度对于数据库管理和应用部署的易用性与实用性都是非常重要的。与它对应的是物理(***physical***)。
+
+参见 [logical backup], [physical].
+
+### <a name="glos_logical_backup"></a>logic backup: 逻辑备份
+一个不用拷贝实际的数据文件，重新生成表结构与数据的备份(***backup***)。例如，`mysqldump`命令会产生一个逻辑备份，因为它的输出包含诸如可以重建表的`CREATE TABLE`和`INSERT`语句。与它相应的是物理备份(***physical backup***)。逻辑备份提供了灵活性(比如，你可以在恢复前修改表的定义或插入语句)，但要比物理备份花销更长的时间。
+
+参见 [backup], [mysqldump], [physical backup], [restore].
+
+### <a name="glos_loose"></a>loose_: 一个前缀，不译
+在MySQL 5.1中，在服务启动后安装InnoDB Plugin时，加在InnoDB配置选项前的一个前缀，这样避免了任何当前版本中没有注册过的新配置选项所导致的启动失败。如果该前缀后面的部分不是一个注册过的选项，MySQL在处理此前缀开始的配置选项时，会给出一个警告，而不是启动失败。
+
+参见 [plugin].
+
+### <a name="glos_low_water_mark"></a>low-water mark: 下限
+一个代表着低值的限制的数值.一般来说,是一个阈值,该阈值的作用是一旦达到这个阈值,一些纠错动作会开始或者变得更活跃。与它对应的是上限(***high-water mark***)。
+
+参见 [high-water mark].
+
+### <a name="glos_lru"></a>LRU: 最近最少使用
+最近最少使用(***least recently used***)的首字母缩写，一个管理存储空间的常用方法。当空间中需要缓存新的项目时，那些最近没有被使用到的项目会被驱逐出去。InnoDB默认使用LRU机制管理***buffer pool***中的页(***page***)，但在一个页可能只读一次的情况下会有个例外，比如在一次全表扫描(***full table scan***)过程中。LRU算法的变体叫中值插入策略。buffer pool的管理方法与传统的LRU算法不同之处在于它是通过[innodb_old_blocks_pct]、[innodb_old_blocks_time]和MySQL 5.6中的选项[innodb_lru_scan_depth]及[innodb_flush_neighbors]来微调的。
+
+参见 [buffer pool], [eviction], [full table scan], [midpoint insertion strategy], [page].
+
 ### LSN 日志序号
+日志序列号的首字母缩写。这个单调递增的值代表了redo日志中所记录的操作所对应的时间点。(这个时间点不会理会事务边界；它可以落在一个或多个事务的中间。)它用在InnoDB内部的崩溃恢复和管理buffer pool中。
+
+
+在MySQL 5.6.3之前，LSN是一个4字节无符号整型值，在MySQL 5.6.3中，当redo日志的大小限制从4GB变到512GB时，LSN变成8字节无符号整型值，附加的字节被用来存储额外的大小信息。在MySQL 5.6.3或更晚的版本上编译的应用可能会用到64位，而不是32位变更来存储和比较LSN的值。
+
+在MySQL企业备份产品中，你可以指定一个相当于时间点的LSN来生成一个增量备份。相关的LSN会在mysqlbackup命令的输出中显示。一旦你有了一个全备的相当于时间点的LSN，你就可以指定一个值来生成一个后续的增量备份，它的输入中包含另一个下次增量备份的所需的LSN。
+
+参见 [crash recovery], [incremental backup], [MySQL Enterprise Backup], [redo log], [transaction].
+
 
 ## M ##
 ### master server 主服务器
