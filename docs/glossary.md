@@ -527,7 +527,7 @@ InnoDB相关的DDL方面有`CREATE INDEX`和`DROP INDEX`的速度提高和***fil
 
 参考 [drop], [purge], [truncate].
 
-### <a name='glos_delete_buffering'></a>delete buffering 删除缓冲
+### <a name='glos_delete_buffering'></a>delete buffering 删除缓冲技术。
 将因删除操作而发生的索引变更在插入缓冲(***insert buffer***)中存储而不是立马写入它们的技术，这么做是为了将物理写操作的随机I/O降到最小。(因为删除操作有两步处理，这个操作将正常标记索引记录为删的写操作缓冲下来。)它是变更缓冲(***change buffering***)的一种类型；其它的为插入缓冲(***insert buffering***)和清除缓冲(***purge buffering***)。
 
 参见 [change buffer], [change buffering], [insert buffer], [insert buffering], [purge buffering].
@@ -566,12 +566,12 @@ See Also adaptive hash index, buffer pool, in-memory database.
 
 参见 [adaptive hash index], [buffer pool], [in-memory database].
 
-### <a name='glos_cpu_bound'></a>cpu-bound: CPU带宽
+### <a name='glos_cpu_bound'></a>cpu-bound: CPU受限
 一种瓶颈(***bottleneck***)主要是内存中CPU操作的负载类型。通常来说会包括读密集型的操作，其中的结果可以全部缓存中***buffer pool***中。
 
 参见 [bottleneck], [buffer pool], [disk-bound], [workload].
 
-### <a name='glos_disk_bound'></a>disk-bound: 磁盘带宽
+### <a name='glos_disk_bound'></a>disk-bound: 磁盘受限
 一种瓶颈(***bottleneck***)主要是磁盘I/O的负载类型。(也叫I/O带宽,***I/O-bound***。)一般包括频繁写盘或随机读取更多不适合放在***buffer pool***中的数据。
 
 参见 [bottleneck], [buffer pool], [cpu-bound], [workload].
@@ -957,49 +957,224 @@ The ideal database design uses a covering index where practical;、
 
 参见 [compression], [data dictionary], [database], [InnoDB], [lock], [transaction].
 
-### InnoDB InnoDB
-### innodb_autoinc_lock_mode innodb参数，不用译
-### innodb_file_format innodb参数，不用译
-### innodb_file_per_table innodb参数，不用译
-### innodb_lock_wait_timeout innodb参数，不用译
-### innodb_strict_mode innodb参数，不用译
-### insert 插入
-### insert buffer change buffer以前的叫法
-### insert buffering 插入缓存技术
-### instance 实例
-### instrumentation 监测
-### intention exclusive lock 意向排它锁
-### intention lock 意向锁
-### intention shared lock 意向共享锁
-### inverted index 反向索引
-### IOPS 每秒读写次数，可不译
-### .isl file .isl文件
-### isolation level 事务隔离级别
+### <a name="glos_innodb"></a>InnoDB: InnoDB
+一个MySQL组件，它高性能与事务(***transaction***)功能结合起来，提供可靠性、鲁棒性与并发访问。它体现了***ACID***的设计理念。表示一个存储引擎(***storage engine***)；它可以用`ENGINE=INNODB`子句来处理表的创建与更改。架构细节和管理程序参见[第14.2节，InnoDB存储引擎][14.02.00]，性能建议参见[第8.5节，优化InnoDB表][08.05.00]。
 
-## J ##
-### join 关联
+在MySQL 5.5或更高版本中，InnoDB是新创建表的默认存储引擎，`ENGINE=INNODB`子句不是必需的了。仅在MySQL 5.1中，InnoDB的很多优势特性需要启用InnoDB Plugin组件。要考虑过渡到InnoDB表是默认的最近的版本，请参见[第14.2.1.1节，InnoDB作为默认的存储引擎][14.02.01.01]。
 
-## K ##
-### KEY_BLOCK_SIZE InnoDB表选项
+InnoDB表非常适合热备(***hot backup***)。要了解MySQL企业备份产品(***MySQL Enterprise Backup***)在不打断正常进程的情况下备份MySQL服务的信息，请参见[第24.2节，MySQL企业备份][24.02.00]。
 
-## L ##
-### latch 读写锁
-### list buffer 页面lru链表
-### lock 锁
-### lock escalation 锁升级
-### lock mode 锁模式
-### locking 锁机制
-### locking read 加锁读
-### log 日志
-### log buffer 日志缓冲
-### log file 日志文件
-### log group 日志组
-### logical 逻辑
-### logic backup 逻辑备份
-### loose_ 一个前缀，不译
-### low-water mark 下限
-### LRU 最近最少使用
+参见 [ACID], [hot backup], [storage engine], [transaction].
+
+### <a name="glos_innodb_autoinc_lock_mode"></a>innodb_autoinc_lock_mode: innodb参数，不用译
+`innodb_autoinc_lock_mode`控制自增锁(***auto-increment locking***)所使用的算法。当你有一个自增主键(***primary key***)时，在设置`innodb_autoinc_lock_mode=1`的情况下，你只能使用基于语句的复制。这个设置也叫连续锁模式，因为一个事务中的多行插入会接收到连续的自增值。如果你使用了允许更高并发的插入操作`innodb_autoinc_lock_mode=2`，就要使用基于行的复制，而不是基于语句的复制。这个设计叫交错(***interleaved***)锁模式，因为同一时间运行的多个多行插入可以接到交错的自增值。设置`innodb_autoinc_lock_mode=0`是之前的(传统)的默认设置，在处理兼容时可能会被用到。
+
+参见 [auto-increment locking], [mixed-mode insert], [primary key].
+### <a name="glos_innodb_file_format"></a>innodb_file_format: innodb参数，不用译
+在你指定了`innodb_file_format`选项的一个值以后，所有创建InnoDB表空间的文件格式(***file format***)都取决于这个选项。要创建不同于系统表空间(***system tablespace***)的表空间(***tablespace***)，你也必须使用***file-per-table***选项。目前，你可以指定***Antelope***和***Barracuda***文件格式。
+
+参见 [Antelope], [Barracuda], [file format], [file-per-table], [innodb_file_per_table], [system tablespace], [tablespace].
+
+### <a name="glos_innodb_file_per_table"></a>innodb_file_per_table: innodb参数，不用译
+这是一个影响InnoDB文件存储、功能可用性及I/O好多方面的非常重要的配置。在MySQL 5.6.7之前，它是默认关闭的。`innodb_file_per_table`选项打开了file-per-table模式，它将每个新创建的InnoDB表和关联的索引存储在系统表空间(***system tablespace***)之外自己的.ibd文件(***.ibd file***)中。
+
+这个选项会影响到一些SQL语句的性能与存储方面的考虑，比如`DROP TABLE`和`TRUNCATE TABLE`。
+
+很多InnoDB的其它特性也需要它来充分发挥优势，比如表压缩(***compression***)或用MySQL企业备份(***MySQL Enterprise Backup***)来备份指定的表。
+
+这个选项曾经是静态的，不过现在可以用`SET GLOBAL`命令来设置了。
+
+如需参考信息，参考[innodb_file_per_table]。如需使用信息，参见[第14.2.6.2节，InnoDB File-Per-Table模式][14.02.06.02]。
+
+参见 [compression], [file-per-table], [.ibd file][ibd file], [MySQL Enterprise Backup], [system tablespace].
+
+### <a name="glos_innodb_lock_wait_timeout"></a>innodb_lock_wait_timeout: innodb参数，不用译
+innodb_lock_wait_timeout选项在等待被共享的资源变得可用与放弃并在你的应用中处理错误、重试或做替代处理二者之间设置一个平衡。任何等待获取锁超过指定时间的InnoDB事务都会被回滚。这在处理由更新多个不同存储引擎表时引起的死锁时非常有用；这类死锁是没法自动检测的。
+
+参见 [deadlock], [deadlock detection], [lock], [wait].
+
+### <a name="glos_innodb_strict_mode"></a>innodb_strict_mode: innodb参数，不用译
+The innodb_strict_mode option controls whether InnoDB operates in strict mode, where conditions that are normally treated as warnings, cause errors instead (and the underlying statements fail).
+innodb_strict_mode选项控制InnoDB的操作是否在严格模式下，那些在普通模式下被视为警告的问，在严格模式下都会用错误来代替(及相关的语句错误)。
+
+This mode is the default setting in MySQL 5.5.5 and higher.
+该模式在MySQL 5.5.5及更高版本中是默认设置。
+
+参见 [strict mode].
+
+### <a name="glos_insert"></a>insert: 插入
+SQL中一个主要的DML操作。将百万行数据加载进表中的数据仓库系统和很多可能向同一张表中插入无序行的并发连接的OLTP系统中，插入性能是一个关键因素。如果插入性能对于很重要，你可能要学习InnoDB诸如变量缓冲中所用到的插入缓冲和自增列等特性。
+
+参见 [auto-increment], [change buffering], [data warehouse], [DML], [InnoDB], [insert buffer], [OLTP], [SQL].
+
+### <a name="glos_insert_buffer"></a>insert buffer: 插入缓冲，变更缓冲以前的叫法
+变更缓冲(***change buffer***)以前的叫法。现在变更缓冲技术(***change buffering***)包括删除缓冲、更新缓冲以及插入缓冲，“变更缓冲”是首选术语。
+
+参见 [change buffer], [change buffering].
+
+### <a name="glos_insert_buffering"></a>insert buffering: 插入缓存技术
+一种技术，将由`INSERT`操作引起的二级索引的变更存储在插入缓冲(***insert buffer***)中，而不是直接写它们，这样物理写就可以以最小的随机I/O来执行了。它是变更缓冲技术(***change buffering***)的一种；其它的为删除缓冲技术(***delete buffering***)与清除缓冲技术(***purge buffering***)。
+
+如果二级索引为唯一(***unique***)索引，插入缓冲技术是无用的，因为新值的唯一性在新的实体写入之前是无法验证的。其它变更缓冲技术对唯一索引有效。
+
+参见 [change buffer], [change buffering], [delete buffering], [insert buffer], [purge buffering], [unique index].
+
+### <a name="glos_instance"></a>instance: 实例
+一个单独的***mysqld***后台驻留程序(***daemon***)，管理代表一个或多个数据库的一个数据目录(***data directory***)，每个数据库都包括一组表(***table***)。在开发、测试和一些复制(***replication***)场景下，一台机器上有多个实例是很正常的事，每个管理自己的数据目录，监听各自的端口或套接字。在有一个实例运行在基于磁盘(disk-bound)性能的情况下，服务器应该还有额外的CPU和内存能力来运行更多的实例。
+
+参见 [data directory], [database], [disk-bound], [mysqld], [replication], [server].
+
+### <a name="glos_instrumentation"></a>instrumentation: 监测
+为调优与调试收集性能数据而在源码级做的修改，通过监测收集到的数据使用`INFORMATION_SCHEMA`和`PERFORMANCE_SCHEMA`数据库通过SQL接口暴露出来。
+
+参见 [INFORMATION_SCHEMA], [Performance Schema].
+
+### <a name="glos_intention_exclusive_lock"></a>intention exclusive lock: 意向排它锁
+参见 [intention lock].
+
+### <a name="glos_intention_lock"></a>intention lock 意向锁
+一种表级锁，常常指的是那种事务试图在表行上获取的锁。不同在事务可以在同一张表上获取到不同的意向锁，但第一个事务在表上获取一个意向排它锁(***intention exclusive***)以阻止其它事务再在该表上获取任何共享锁或排它锁。相反地，第一个事务在表上获取一个意向共享锁(***intention shared***)以阻止其它事务再在该表上获取任何排它锁。两阶段进程允许锁请求按序解决，而不用阻塞锁和兼容的相应的操作。如需各多此类锁机制的详情，请参考[第14.2.2.3节，InnoDB锁模式][14.02.02.03]。
+
+参见 [lock], [lock mode], [locking].
+
+### <a name="glos_intention_shared_lock"></a>intention shared lock: 意向共享锁
+参见 [intention lock].
+
+### <a name="glos_intention_inverted_index"></a>inverted index: 倒排索引
+为文档索引系统优化的数据结构，用在InnoDB全文检索(***full-text search***)实现中。InnoDB全文索引(***FULLTEXT index***)，以倒排索引的方式实现，记录每个词在文档中的位置，而不是表中行的位置。单列的值(做为字符串存储的一个文档)可以由多个反向索引中的多个实体所表示。
+
+参见 [full-text search], [FULLTEXT index], [ilist].
+
+### <a name="glos_iops"></a>IOPS: 每秒读写次数，可不译
+每次读写次数(***I/O operations per second***)的首字母缩写。繁忙系统，特别是***OLTP***应用的一个通用测量值。如果这个值接近存储设备可以处理的最大值，该应用会变成磁盘受限(***disk-bound***)，扩展性(***scalability***)也受到限制。
+
+参见 [disk-bound], [OLTP], [scalability].
+
+### <a name="glos_isl_file"></a>.isl file: .isl文件
+在MySQL 5.6及更高版本中，一个用来指定由用`DATA DICRECTORY = `字句创建的InnoDB表的.ibd文件(***.ibd file***)位置的文件。它的作用就像符号链接，只是没有实际符号链接机制中平台限制。你可以在数据库(***database***)目录之外存储InnoDB表空间(***tablespace***)，例如，根据表的用途，可以放在特别大或特别快的存储设备上。如需更多详情，参参[第14.2.6.4节，指定表空间的位置][14.02.06.04]。
+
+参见 [database], [.ibd file][ibd file], [table], [tablespace].
+
+### <a name="glos_isolation_level"></a>isolation level: 事务隔离级别
+数据库进程基础之一。隔离性是缩写***ACID***中的I；隔离级别是在多个事务(***transaction***)在同一时间产生变更与执行查询的情竞下，对性能与可靠性、一致性和结果再生性之间进行微调的设置。
+
+一致性与保护制度从高到低，InnoDB所支持的隔离级别为：***SERIALIZABLE***、***REPEATABLE READ***、***READ COMMITTED***和***READ UNCOMMITTED***。
+
+对于InnoDB表，很多用户可以为所有的操作保留默认的隔离级别(***REPEATABLE READ***)。专家用户可以选择***read committed***级别，因为他们追求OLTP进程的扩展性极限，或在数据仓库操作中较小的不一致不会影响到大量数据的聚合结果。两头的级别(***SERIALIZABLE***和***READ UNCOMMITTED***)改变处理的行为的程度很大，所以很少用它们。
+
+参见 [ACID], [READ COMMITTED], [READ UNCOMMITTED], [REPEATABLE READ], [SERIALIZABLE], [transaction].
+
+## <a name="J"></a>J ##
+### <a name="glos_join"></a>join: 关联
+通过引用表中保存相同值的列，从超过一个表中取回数据的查询(***query***)。理想情况下，这些列是InnoDB外键(***foreign key***)关系中的一部分，它们确保引用完整性(***referential intgrity***)，并且关联的列上是有索引(***index***)的。经常用来节省空间和在范式(***normalized***)设计通过将重复的字符串用数据ID替换来提高性能。
+
+参见 [foreign key], [index], [normalized], [query], [referential integrity].
+
+## <a name="K"></a>K ##
+### KEY_BLOCK_SIZE: InnoDB表选项
+用来指定使用了压缩行格式(***compressed row format***)的InnoDB表中数据页大小的选项。默值为8KB。越小的值有达到内部限制的风险，该限制依赖于行大小和压缩比的组合。
+
+参见 [compressed row format].
+
+
+## <a name="L"></a>L ##
+
+### <a name="glos_latch"></a>latch: 不译
+InnoDB针对自己内部内存结构体实现锁(***lock***)的一个轻量级的结构体，通常保持毫秒或微秒级的短暂的时间。包含互斥(***mutex***，对于排它访问)和读写锁(***rw-lock***，对于共享访问)一般术语。某些latch的重点在性能调优上，比如数据字典(***data dictionary***)互斥。对于锁使用和竞争的统计可以通过Performance数据库(***Performance Schema***)接口获得。
+
+参见 [data dictionary], [lock], [locking], [mutex], [Performance Schema], [rw-lock].
+
+### <a name="glos_list"></a>list: buffer页面lru链表
+InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被访问或进入buffer pool、buffer pool中的页被再次访问和认为更新些以及长时间非被访问的页从buffer pool被逐出等情况下会被重新排序。buffer pool实际上被划分为子列表，并且替换策略是LRU机制的一个变种。
+
+参见 [buffer pool], [eviction], [LRU], [sublist].
+
+### <a name="glos_lock"></a>lock: 锁
+控制访问诸如表、行或内部数据结构等资源的对象的高级的概念，是锁(***locking***)机制中的一部分。针对进一步的性能调优，你可以探索实现了锁的真正的结构体，如互斥锁和latch。
+
+参见 [latch], [lock mode], [locking], [mutex].
+
+### <a name="glos_lock_escalation"></a>lock escalation 锁晋级
+某些数据库系统使用的一种操作，将多行的锁合并为一个单独的表锁，节省内存空间，但降低对表的并发访问。InnoDB针对行锁使用一个空间高效的方式，所以不需要锁晋级。
+
+参见 [locking], [row lock], [table lock].
+
+### <a name="glos_lock_mode"></a>lock mode: 锁模式
+一个共享锁(S)允许事务读一行。多个事务可以在同一时间在同一行上获取一个S锁。
+
+一个排它锁允许事务更新或删除一行。其它的事务在同一时刻不再能获得任何类型的锁。
+
+意向锁适用于表级，并且常常指的是事务试图在表行上获取的那种锁。不同在事务可以在同一张表上获取到不同的意向锁，但第一个事务在表上获取一个意向排它锁(***intention exclusive***)以阻止其它事务再在该表上获取任何共享锁或排它锁。相反地，第一个事务在表上获取一个意向共享锁(***intention shared***)以阻止其它事务再在该表上获取任何排它锁。两阶段进程允许锁请求按序解决，而不用阻塞锁和兼容的相应的操作。
+
+参见 [intention lock], [lock], [locking].
+
+### <a name="glos_locking"></a>locking: 锁机制
+防止一个事务(***transaction***)查询或变更正在被其它事务查询或变更的数据的系统。锁策略一定要衡量数据库操作的可靠性及一致性(***ACID***理念的原则)与良好的并发(***concurrency***)所需的性能之间关系。微调锁策略往往会涉及选择一个隔离级别(***isolation level***)并保证你所有的数据库操作对于该隔离级别都是安全的和可靠的。
+
+参见 [ACID], [concurrency], [isolation level], [latch], [lock], [mutex], [transaction].
+
+### <a name="glos_locking_read"></a>locking read: 加锁读
+在一个InnoDB表上同时执行了加锁(***locking***)操作的`SELECT`语句。无论是`SELECT ... FOR UPDATE`或是`SELECT LOCK IN SHARE MODE`。取决于事务的隔离级别(***isolation level***)，它有产生死锁(***deadlock***)的潜在可能性。与它对应的是无锁读(***non-locking read***)。在只读事务中不允许对全局表做此类操作。
+
+参见 [deadlock], [isolation level], [locking], [non-locking read], [read-only transaction].
+
+### <a name="glos_log"></a>log: 日志
+在InnoDB语境中，“log”和“log files”通常指的是表示为ib_logfile*文件的redo日志(***redo log***)。另一个log区是undo日志(***undo log***)，它是物理系统表空间(***system tablespace***)的一部分。
+
+其它MySQL很重要的日志就是错误日志(***error log***，用来诊断启动与运行时错误)、二进制日志(***binary log***，用来做复制和执行定点恢复)、数据库常规日志(***general query log***，用来诊断应用错误)和慢查询日志(***slow query log***，用来诊断性能问题)。
+
+参见 [binary log], [error log], [general query log], [ib_logfile], [redo log], [slow query log], [system tablespace], [undo log].
+
+### <a name="glos_log_buffer"></a>log buffer: 日志缓冲
+一个内存区，保存要写到由redo日志(***redo log***)组成的日志文件(***log file***)中的数据。由配置选项[innodb_log_buffer_size]控制。
+
+参见 [log file], [redo log].
+
+### <a name="glos_log_file"></a>log file: 日志文件
+组成redo日志的ib_logfileN中的一个文件。数据从日志缓冲内存区写入到这些文件中。
+
+参见 [ib_logfile], [log buffer], [redo log].
+
+### <a name="glos_log_group"></a>log group: 日志组
+组成redo日志(***redo log***)的文件集合，通常以`ib_logfile1`和`ib_logfile2`。(由于这个原因，有是统称为***ib_logfile***。)
+
+参见 [ib_logfile], [redo log].
+
+### <a name="glos_logical"></a>logical: 逻辑
+涉及高层的、诸如表、查询、索引以及其它SQL概念的抽象角度的操作。通常地，逻辑角度对于数据库管理和应用部署的易用性与实用性都是非常重要的。与它对应的是物理(***physical***)。
+
+参见 [logical backup], [physical].
+
+### <a name="glos_logical_backup"></a>logic backup: 逻辑备份
+一个不用拷贝实际的数据文件，重新生成表结构与数据的备份(***backup***)。例如，`mysqldump`命令会产生一个逻辑备份，因为它的输出包含诸如可以重建表的`CREATE TABLE`和`INSERT`语句。与它相应的是物理备份(***physical backup***)。逻辑备份提供了灵活性(比如，你可以在恢复前修改表的定义或插入语句)，但要比物理备份花销更长的时间。
+
+参见 [backup], [mysqldump], [physical backup], [restore].
+
+### <a name="glos_loose"></a>loose_: 一个前缀，不译
+在MySQL 5.1中，在服务启动后安装InnoDB Plugin时，加在InnoDB配置选项前的一个前缀，这样避免了任何当前版本中没有注册过的新配置选项所导致的启动失败。如果该前缀后面的部分不是一个注册过的选项，MySQL在处理此前缀开始的配置选项时，会给出一个警告，而不是启动失败。
+
+参见 [plugin].
+
+### <a name="glos_low_water_mark"></a>low-water mark: 下限
+一个代表着低值的限制的数值.一般来说,是一个阈值,该阈值的作用是一旦达到这个阈值,一些纠错动作会开始或者变得更活跃。与它对应的是上限(***high-water mark***)。
+
+参见 [high-water mark].
+
+### <a name="glos_lru"></a>LRU: 最近最少使用
+最近最少使用(***least recently used***)的首字母缩写，一个管理存储空间的常用方法。当空间中需要缓存新的项目时，那些最近没有被使用到的项目会被驱逐出去。InnoDB默认使用LRU机制管理***buffer pool***中的页(***page***)，但在一个页可能只读一次的情况下会有个例外，比如在一次全表扫描(***full table scan***)过程中。LRU算法的变体叫中值插入策略。buffer pool的管理方法与传统的LRU算法不同之处在于它是通过[innodb_old_blocks_pct]、[innodb_old_blocks_time]和MySQL 5.6中的选项[innodb_lru_scan_depth]及[innodb_flush_neighbors]来微调的。
+
+参见 [buffer pool], [eviction], [full table scan], [midpoint insertion strategy], [page].
+
 ### LSN 日志序号
+日志序列号的首字母缩写。这个单调递增的值代表了redo日志中所记录的操作所对应的时间点。(这个时间点不会理会事务边界；它可以落在一个或多个事务的中间。)它用在InnoDB内部的崩溃恢复和管理buffer pool中。
+
+
+在MySQL 5.6.3之前，LSN是一个4字节无符号整型值，在MySQL 5.6.3中，当redo日志的大小限制从4GB变到512GB时，LSN变成8字节无符号整型值，附加的字节被用来存储额外的大小信息。在MySQL 5.6.3或更晚的版本上编译的应用可能会用到64位，而不是32位变更来存储和比较LSN的值。
+
+在MySQL企业备份产品中，你可以指定一个相当于时间点的LSN来生成一个增量备份。相关的LSN会在mysqlbackup命令的输出中显示。一旦你有了一个全备的相当于时间点的LSN，你就可以指定一个值来生成一个后续的增量备份，它的输入中包含另一个下次增量备份的所需的LSN。
+
+参见 [crash recovery], [incremental backup], [MySQL Enterprise Backup], [redo log], [transaction].
+
 
 ## M ##
 ### master server 主服务器
