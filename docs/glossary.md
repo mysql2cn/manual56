@@ -1165,9 +1165,8 @@ InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被�
 
 参见 [buffer pool], [eviction], [full table scan], [midpoint insertion strategy], [page].
 
-### LSN 日志序号
+### <a name="glos_lsn"></a>LSN: 日志序号
 日志序列号的首字母缩写。这个单调递增的值代表了redo日志中所记录的操作所对应的时间点。(这个时间点不会理会事务边界；它可以落在一个或多个事务的中间。)它用在InnoDB内部的崩溃恢复和管理buffer pool中。
-
 
 在MySQL 5.6.3之前，LSN是一个4字节无符号整型值，在MySQL 5.6.3中，当redo日志的大小限制从4GB变到512GB时，LSN变成8字节无符号整型值，附加的字节被用来存储额外的大小信息。在MySQL 5.6.3或更晚的版本上编译的应用可能会用到64位，而不是32位变更来存储和比较LSN的值。
 
@@ -1176,31 +1175,134 @@ InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被�
 参见 [crash recovery], [incremental backup], [MySQL Enterprise Backup], [redo log], [transaction].
 
 
-## M ##
-### master server 主服务器
-### master thread 主线程
-### MDL 元数据锁
-### memcached 不译
-### merge 合并
-### metadata lock 元数据锁
-### metrics counter 计数器
-### midpoint insertion strategy 一种缓存算法，不译
-### mini-transaction 迷你事务
-### mixed-mode insert 混合模式插入
-### .MRG file .MRG文件
-### multi-core 多核
-### multiversion concurrency control 多版本并发控制
-### mutex 互斥
-### MVCC 多版本并发控制
-### my.cnf 配置文件(Unix/Linux)
-### my.ini 配置文件(Windows)
-### .MYD file .MYD文件
-### .MYI file .MYI文件
-### mysql mysql(客户端)
-### MySQL Enterprise Backup MySQL企业备份
-### mysqlbackup command mysqlbackup命令
-### mysqld MySQL daemon(Unix)或MySQL service(Windows)
+## <a name="M"></a>M ##
+
+### <a name="glos_master_server"></a>master server: 主服务器
+经常简称为“master”。复制(***replication***)环境中的一个数据库服务机器，用来处理对数据的最初的插入、更新和删除请求。这些数据被传送到并在其上重复执行的其它服务器叫做从服务器(***slave servers***)。
+
+参见 [replication], [slave server].
+
+### <a name="glos_master_thread"></a>master thread: 主线程
+一个在后台执行各种任务的InnoDB线程(***thread***)。大多数情况是I/O相关的，比如从插入缓冲(***insert buffer***)中往相关的二级索引中写入变更。
+
+为了提高并发(***concurrency***)，有时候行为会从主线程转移到单独的后台线程中。比如，在InnoDB 5.6及更高版本中，脏页(***dirty pages***)会由页清理器(***page cleaner***)从***buffer pool***中刷新，而不是由主线程执行。
+
+参见 [buffer pool], [dirty page], [flush], [insert buffer], [page cleaner], [thread].
+
+### <a name="glos_mdl"></a>MDL: 元数据锁
+metadata lock的简称。
+
+参见 [metadata lock].
+
+### <a name="glos_memcached"></a>memcached: 不译
+一个众多MySQL和***NoSQL***软件栈中流行的组件，允许快速读写单值并将结果完整地缓存在内存中。传统上，应用需要额外的逻辑往MySQL数据库中写入相同的数据来达到持久化，或者在数据还没有在内存中缓存时需要从MySQL数据库中读取数据。现在，应用可以使用简单的**memcached**协议来直接使用***InnoDB***或MySQL集群的表来与MySQL服务通信了，大多数据语言都有支付该协议的客户端。这些MySQL表的NoSQL接口允许应用达到比直接使用SQL命令更高的读写性能，并且可以简化那些已经为内部缓存收纳了**memcached**的系统的应用逻辑与部署配置。
+
+InnoDB表的memcached接口在MySQL 5.6及更高版本中可能；参考[第14.2.17节，InnoDB集成memcached][14.02.17]；细节参考[http://dev.mysql.com/doc/ndbapi/en/ndbmemcache.html]。
+
+参见 [InnoDB], [NoSQL].
+
+### <a name="glos_merge"></a>merge: 合并
+将变更应用到内存中缓存的数据上，比如当一个页被加载到***buffer pool***中时，以及任何在变更缓冲(***change buffer***)中记录的可应用的变更纳入进buffer pool中。更变过的数据最终由刷新(***flush***)机制写入到表空间(***tablespace***)中。
+
+参见 [buffer pool], [change buffer], [flush], [tablespace].
+
+### <a name="glos_metadata_lock"></a>metadata lock: 元数据锁
+一种锁(***lock***)类型，为了防止同一时间另一事务(***transaction***)正在使用表时的***DDL***操作。如需更多细节，参考[第8.10.4节，元数据锁][08.10.04]。
+
+特别是在MySQL 5.6及更高版本中，对在线(***online***)操作的改进都集中在减少元数据锁的量上。目的是当某表被其它事务查询以及更新等时，对于不改变表结构的DDL操作(诸如针对InnoDB表的`CREATE INDEX`和`DROP INDEX`操作)可以继续。
+
+参见 [DDL], [lock], [online], [transaction].
+
+### <a name="glos_metrics_counter"></a>metrics counter: 计数器
+在MySQL 5.6及更高版本中，一个由information_schema库中`innodb_metrics`实现的特性。你可以查询低级别的InnoDB操作的次数(***counts***)和总数，以及使用这些结果结合***performance_schema***库中的数据来进行性能调优。
+
+参见 [counter], [INFORMATION_SCHEMA], [Performance Schema].
+
+### <a name="glos_midpoint_insertion_strategy"></a>midpoint insertion strategy: 中间插入策略
+是将最初的页不加载到InnoDB ***buffer pool***中“最新”列表的最后，而是放在中间某个位置的技术。具体的位置点可以不同，基于[innodb_old_blocks_pct]选项的设定。意图是只读
+一次的块，诸如在全表扫描(***full table scan***)过程中，可以比根据严格的***LRU***算法更快地老化出buffer pool。
+
+参见 [buffer pool], [full table scan], [LRU], [page].
+
+### <a name="glos_mini_transaction"></a>mini-transaction: 迷你事务
+在***DML***操作中，在物理(***physical***)层对内部数据结构进行变更时InnoDB所处理的一个内部阶段。迷你事务没有回滚(***roll back***)的概念；多个迷你事务可以发生在一个事务(***transaction***)中。迷你事务的信息写入到崩溃恢复(***crash recovery***)期间使用的redo日志(***redo log***)中。迷你事务也可以发生在常事务环境之外，例如在后台线程所处理的清除(***purge***)操作期间。
+
+参见 [commit], [crash recovery], [DML], [physical], [purge], [redo log], [rollback], [transaction].
+
+### <a name="glos_mixed_mode_insert"></a>mixed-mode insert: 混合模式插入
+一个对新行指定了部分但没有指定所有自增(***auto-increment***)值的`INSERT`语句。例如，一个多值`INSERT`可能在一些情况下为自增列指定值，在别的情况下为`NULL`值。`InnoDB`在自增列被指定为`NULL`时会生成自增值。另一个例子是`INSERT ... ON DUPLICATE KEY UPDATE`语句，其中自增值可以生成但用不到，任何重复的行都会以`UPDATE`语句来处理，而不是以`INSERT`语句。
+
+可以导致复制配置中的主库和从部数据不一致。可以要求调整innodb_autoinc_lock_mode配置选项的值。
+
+参见 [auto-increment], [innodb_autoinc_lock_mode], [master server], [replication], [slave server].
+
+### <a name="glos_mrg_file"></a>.MRG file: .MRG文件
+MERGE存储引擎使用的一个文件，包含对其它表的引用情况。此后缀的文件总是包含在由MySQL企业备份产品(***MySQL Enterprise backup***)中mysqlbackup命令(***mysqlbackup command***)所生成的备份中。
+
+参见 [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_multi_core"></a>multi-core: 多核
+可以利用多线程程序(如MySQL服务)优势的一种处理器。
+
+### <a name="glos_multiversion_concurrency_control"></a>multiversion concurrency control: 多版本并发控制
+见 [MVCC].
+
+### <a name="glos_mutex"></a>mutex: 互斥
+“互斥量(***mutex variable***)”的非式缩写。(Mutex自身是mutual exclusion的缩写。)是InnoDB对内部内存中的数据结构体用来表示或强制排它访问锁(***lock***)的低级对象。当这个锁被获取，任何其它的进程、线程以及其它都被阻止获取相同的锁。与之相对的读写锁(***rw-lock***)，是允许共享访问的。互斥与读写锁一并称为latches。
+
+参见 [latch], [lock,] [Performance Schema], [Pthreads], [rw-lock].
+
+### <a name="glos_mvcc"></a>MVCC: 多版本并发控制
+“multiversion concurrency control”的首字母缩写。这种技术让InnoDB事务可以在一定的隔离级别(***isolation levels***)写执行一致性读(***consistent read***)操作；也就是说，查询那些正在被其它事务更新的行，并且能看到那些更新发生前的值。这对于提高并发来说是一个强大的功能，它在不用等待其它事务持有的锁的情况下允许查询继续执行。
+
+这种技术在数据库界并不常见。一些数据库产品，以及一些其它的MySQL存储引擎都不支持它。
+
+参见 [ACID], [concurrency], [consistent read], [isolation level], [lock], [transaction].
+
+### <a name="glos_my_cnf"></a>my.cnf: 配置文件(Unix/Linux)
+Unix或Linuxt系统下MySQL配置文件名。
+
+参见 [my.ini], [option file].
+
+### <a name="glos_my_ini"></a>my.ini: 配置文件(Windows)
+Windows系统下MySQL配置文件名。
+
+参见 [my.cnf], [option file].
+
+### <a name="glos_myd_file"></a>.MYD file: .MYD文件
+MySQL用来存储MyISAM表数据的文件。
+
+参见 [.MYI file][myi file], [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_myi_file"></a>.MYI file: .MYI文件
+MySQL用来存储MyISAM表索引的文件。
+
+参见 [.MYD file][myd file], [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_mysql"></a>mysql: mysql(客户端)
+`mysql`程序是MySQL数据库的命令行解释器。它通过请求***mysqld***后台驻留程序来处理***SQL***语句和一些MySQL特定的命令，诸如`SHOW TABLES`。
+
+参见 [mysqld], [SQL].
+
+### <a name="glos_mysql_enterprise_backup"></a>MySQL Enterprise Backup: MySQL企业备份
+一个执行MySQL数据库热备(***hot backup***)的授权产品。它提供最高效可靠的***InnoDB***表备份，但也能备份MyISAM和其它类型的表。
+
+参见 [hot backup], [InnoDB].
+
+### <a name="glos_mysqlbackup_command"></a>mysqlbackup command: mysqlbackup命令
+一个MySQL企业备份(***MySQL Enterprise Backup***)的命令行工具。它对InnoDB表执行热备(***hot backup***)操作，并对MyISAM和其它类型表执行温备(***warm backup***)操作。如需更多关于该命令行的信息，请参考[第24.2节，MySQL企业备份][24.02.00]。
+
+参见 [hot backup], [MySQL Enterprise Backup], [warm backup].
+
+### <a name="glos_mysqld"></a>mysqld: MySQL daemon(Unix)或MySQL service(Windows)
+`mysqld`程序是MySQL数据库的数据库引擎。它以Unix后台驻留程序或Windows服务的型式运行，在后台持续等待请求并执行维护工作。
+
+参见 [mysql].
+
 ### mysqldump mysqldump命令
+一个执行数据库、表和表数据混合体逻辑备份(***logical backup***)的命令。结果是可以重现原始结构对象、数据或两都的SQL语句。对于大量的数据，像MySQL企业备份(***MySQL Enterprise Backup***)这样的物理备份(***physical backup***)解决方案是非常快速的，特别是对于恢复(***restore***)操作来说。
+
+参见 [logical backup], [MySQL Enterprise Backup], [physical backup], [restore].
 
 ## N ##
 ### natural key 自然主键
