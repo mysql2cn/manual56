@@ -1299,14 +1299,28 @@ MySQL用来存储MyISAM表索引的文件。
 
 参见 [mysql].
 
-### mysqldump mysqldump命令
+### <a name="glos_mysqldump"></a>mysqldump: mysqldump命令
 一个执行数据库、表和表数据混合体逻辑备份(***logical backup***)的命令。结果是可以重现原始结构对象、数据或两都的SQL语句。对于大量的数据，像MySQL企业备份(***MySQL Enterprise Backup***)这样的物理备份(***physical backup***)解决方案是非常快速的，特别是对于恢复(***restore***)操作来说。
 
 参见 [logical backup], [MySQL Enterprise Backup], [physical backup], [restore].
 
-## N ##
-### natural key 自然主键
-### neighbor page 相邻页
+## <a name="N"></a>N ##
+### <a name="glos_natural_key"></a>natural key: 自然主键
+一个索引列，通常是主键(***primary key***)，其中的值是有现实意义的。通常不建议这么做，因为：
+
+* 如果值万一变了，会有许多潜在的索引维护工作来重排簇索引(***clustered index***)，并且更新在每一个二级索引(***secondary index***)里重复出现的主键拷贝。
+
+* 即使看似稳定的值也会以一种不可预测的方式改变，很难在数据库中正确地表示改变。举个例子，一个国家可以变成两个或更多，这会让之前的国家码过时。或者，唯一值的规则可能发生异常。举个例子，即使纳税人的身份证号的初衷是一人一个，但数据库可能需要处理违犯规则的记录，如身份证被盗这种事儿。纳税人的身份证和其它敏感ID也很少做为主键，因为它们需要被保护、加密以及其它不同于它列的对待。
+
+因此，使用任意数字来组成一个人造(***synthetic key***)的键通常来说是更好的选择，比如使用自增列(***auto-increment***)。
+
+参见 [auto-increment], [primary key], [secondary index], [synthetic key].
+
+### <a name="glos_neighbor_page"></a>neighbor page: 相邻页
+相同区(***extend***)中的任何一个页。当一个页(***page***)被选中用来刷新(***flush***)时，作为传统硬盘的I/O优化器会将任何相邻的脏页(***dirty page***)通常也被刷新。在MySQL 5.6及更高版本中，该行为可以被配置变量[innodb_flush_neighbors]所控制；你可以为SSD磁盘关掉该选项，它在写更小批量数据的随机查找上不会产生相同的负载。
+
+参见 [dirty page], [extent], [flush], [page].
+
 ### next-key lock 行间隙锁
 ### non-blocking I/O 同AIO
 ### non-locking read 不加锁读
