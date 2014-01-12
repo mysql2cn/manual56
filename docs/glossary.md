@@ -1380,9 +1380,26 @@ Among different isolation levels, non-repeatable reads are prevented by the seri
 参见 [index], [primary key], [SQL].
 
 ## <a name="O"></a>O ##
-### off-page column 跨页列
-### OLTP 在线联机查询
-### online 在线
+### <a name="glos_off_page_column"></a>off-page column 跨页列
+一个包含变长数据(诸如BLOB和VARCHAR)的列，其中数据太长而不能适用于B树(***B-tree***)页。数据存储在溢出页(***overflow page***)中。InnoDB ***Barracuda***文件格式中的动态(`DYNAMIC`)行格式对于这种存储来说，会比老的精简(`COMPACT`)行格式更有效。
+
+参见 [B-tree], [Barracuda], [overflow page].
+
+
+### <a name="glos_oltp"></a>OLTP: 在线联机查询
+“在线联机查询(***Online Transaction processing***)”的简写。一个数据库系统，或一个数据库应用，运行很多事务(***transaction***)，伴随频繁的读写，通常一次只影响小部的数据。举个例子，一个航线预订系统或一个处理银行存款的应用。考虑到***DML***(insert/update/delete)效率和查询(***query***)效率的平衡，数据可能会以范式(***normalized***)形式组织。与之相对的是数据仓库(***data warehouse***)。
+
+凭借其行级锁与事务能力，InnoDB是在应用中使用MySQL表的理想存储引擎。
+
+参见 [data warehouse], [DML], [InnoDB], [query], [row lock], [transaction].
+
+### <a name="glos_online"></a>online: 在线
+一类不会引起宕机、阻塞或限制操作数据库的操作。通常适用于***DDL***。缩短限制操作的操作，诸如快速索引创建(***fast index creation***)，在MySQL 5.6中已经大量引入了在线DDL操作(***online DDL***)。
+
+在备份环境中，热备(***hot backup***)是一个在线操作，温备(***warm backup***)的一部分是在线操作。
+
+参见 [DDL], [Fast Index Creation], [hot backup], [online DDL], [warm backup].
+
 ### online DDL 在线DDL
 ### .OPT file .OPT文件
 ### optimistic 乐观锁
