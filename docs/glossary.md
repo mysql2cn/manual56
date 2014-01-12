@@ -1321,16 +1321,65 @@ MySQL用来存储MyISAM表索引的文件。
 
 参见 [dirty page], [extent], [flush], [page].
 
-### next-key lock 行间隙锁
-### non-blocking I/O 同AIO
-### non-locking read 不加锁读
-### non-repeatable read 非重复读
-### normalized (符合)范式的
-### NoSQL 不译
-### NOT NULL constraint 非空约束
-### NULL 空
+### <a name="glos_next_key_lock"></a>next-key lock: 行间隙锁
+一个索引记录(***index record***)上记录锁和索引记录前间隙上间隙锁(***gap lock***)的组合。
 
-## O ##
+参见 [gap lock], [locking], [record lock].
+
+### <a name="glos_non_blocking_io"></a>non-blocking I/O: 同AIO
+专业术语，异步I/O(***asynchronous I/O***)的同义词。
+
+参见  [asynchronous I/O].
+
+### <a name="glos_non_blocking_read"></a>non-locking read: 不加锁读
+没有使用`SELECT ... FROM UPDATE`或`SELECT ... LOCK IN SHARE MODE`子句的查询(***query***)。在只读事务(***read-only transaction***)中全局表所允许的唯一的查询类型。与之相对的是加锁读(***locking read***)。
+
+参见 [locking read], [query], [read-only transaction].
+
+### <a name="glos_non_repeatable_read"></a>non-repeatable read: 非重复读
+这种情况下，一个查询检索了数据，随后一个查询在同一个事务(***transaction***)中检打算检索相同的数据，但是却返回了不同的结果(期间被另一个事务的提交所变更)。
+
+这种操作类型与数据库设计的***ACID***理念相违背。在一个事务中，数据应该是一致的，有可预知和稳定的关系。
+
+Among different isolation levels, non-repeatable reads are prevented by the serializable read and repeatable read levels, and allowed by the consistent read, and read uncommitted levels.
+
+在不同的隔离级别(***isolation levels***)中，非重复读可以通过可序列化读(***serializable read***)和可重复读(***repeatable read***)来避免，在一致性读(***consistent read***)，也就是未提交读(***read uncommitted***)级别中是允许的。
+
+参见 [ACID], [consistent read], [isolation level], [READ UNCOMMITTED], [REPEATABLE READ], [SERIALIZABLE], [transaction].
+
+### <a name="glos_normalized"></a>normalized: (符合)范式的
+一个数据库设计策略，其中数据分拆到多个表中，并且重复的值简化为由一个ID代表的行，来避免存储、查询和更新冗余或冗长的值。它通常用联机事务处理(***OLTP***)应用中。
+
+举个例子，一个地址可能会给定一个唯一ID，这样一个普查的数据库可以通过将一个家庭中的每个成员与地址ID关联在一起来表现住在该地址下(***lives at this address***)的关系，而不用存储一个复杂值的多个拷贝，如中国北京前门外大街皮条胡同(***123 Main Street, Anytown, USA***)。
+
+再举个例子，虽然一个电话本应用会把每个人的名字和地址连同电话号码存到同一张表中，但一个电话公司的数据库可能会给每个电话号码一个指定的ID，并将号码和ID存到一个独立的表中。这种范式的表现方式可以简化在区号分拆时的大范围的更新。
+
+范式化也不总是推荐使用。主要用来查询且只在完全删除和加载时被更新的数据常常保存在更少、更大的表中，重复的值存在冗余拷贝。这种数据表现方式叫反范式(***denormalized***)，在数据仓库应用中十分常见。
+
+参见 [denormalized], [foreign key], [OLTP], [relational].
+
+### <a name="glos_nosql"></a>NoSQL: NoSQL
+表示一组数据访问技术的广泛的术语，它不使用***SQL***语句作为它们读写数据的主要途径。一些NoSQL技术是键-值存储，只接受单值的读写；一些放松了***ACID***方法的限制；还有一些不需要预先认定的结构(***schema***)。MySQL用户可以通过使用***memcached*** API直接访问一些类型的MySQL表，将NoSQL风格进程的快速与简单和SQL操作的灵活与方便结合起来。针对InnoDB表的***memcached***接口在MySQL 5.6及更高版本中可能；如需更多细节，参考[第14.2.16节，InnoDB集成***memcached***][14.02.16]。针对MySQL Cluster的memached接口在MySQL CLuster 7.2版中可用，如果更多细节，请参考[http://dev.mysql.com/doc/ndbapi/en/ndbmemcache.html]。
+
+参见 [ACID], [InnoDB], [memcached], [schema], [SQL].
+
+### <a name="glos_not_null_constraint"></a>NOT NULL constraint: 非空约束
+具体指定一列(***column***)不能包含任何空(***NULL***)值的一类约束(***constraint***)。它有助于保护引用一致性(***referential integrity***)，数据库服务器可以识别错误遗漏值的数据。它也可以让优化器来预计一个列上索引中实体的数目，而有助于查询优化器中的算法。
+
+参见 [column], [constraint], [NULL], [primary key], [referential integrity].
+
+### <a name="glos_null"></a>NULL: 空
+一个***SQL***中特殊的值，用来指代数据的缺失。任何算术运算或等于测试都会引起一个空值，反过来会产生一个空的结果。(因此它类似于IEEE浮点原则中的NaN，“不是一个数据(***not a number***)”。)任何诸如`AVG()`这样的聚集计算在决定多少行需要做除数时会忽略掉含有空值的行。唯一可以测试空值的SQL语句是`IS NULL`或`IS NOT NULL`。
+
+空值在索引操作中发挥作用，因为对于性能来说，一个数据库必须最小化为了保持跟踪缺失值的负载。通常地，空值不存在索引中，因为在一个在索引列上使用标准比较操作查询是不可能匹配到该列上含有空值的行。因为同样的原因，唯一索引不阻止空值；那些值根本不在索引中。在一个列上定义一个非空约束提供了一个没有行从索引中漏掉的保证，可以更好地查询优化(行的精确行数和评估是否使用索引)。
+
+因为主键(***primary key***)必须能唯一地标识表中的每一行，一个单列主键不能包含任何空值，多列主键在所有列中都不能包含空值。
+
+虽然Orcale数据库允许一个空值可以和字符串连结，但是InnoDB会把这样的操作结果视为空。
+
+参见 [index], [primary key], [SQL].
+
+## <a name="O"></a>O ##
 ### off-page column 跨页列
 ### OLTP 在线联机查询
 ### online 在线
