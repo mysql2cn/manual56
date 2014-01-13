@@ -1400,13 +1400,50 @@ Among different isolation levels, non-repeatable reads are prevented by the seri
 
 参见 [DDL], [Fast Index Creation], [hot backup], [online DDL], [warm backup].
 
-### online DDL 在线DDL
-### .OPT file .OPT文件
-### optimistic 乐观锁
-### optimizer 优化器
-### option 选项
-### option file 选项文件
-### overflow page 溢出页
+### <a name="glos_online_ddl"></a>online DDL: 在线DDL
+一个在***DDL***(主要是`ALTER TABLE`)期间提高InnoDB表性能、并发和可用性的特性。更多细节请参考[第14.2.11节，`InnoDB`和在线DDL]。
+
+具体细节因操作类型的不同而不同。在某些情况下，表可以在ALTER TABLE运行的同时被并发修改。操作可能可以在不做表拷贝的情况下执行，或使用一个特殊优化类型的表拷贝。空间使用量由配置选项[innodb_online_alter_log_max_size]控制。
+
+这个特征是MySQL 5.5和MySQL 5.1 InnoDB Plugin中快速索引创建(***Fast Index Creation***)的加强版。
+
+参见 [DDL], [Fast Index Creation], [online].
+
+### <a name="glos_opt_file"></a>.OPT file: .OPT文件
+一个多包含数据库配置信息的文件。带有这个后缀名的文件总是包含在MySQL企业备份产品(***MySQL Enterprise Backup***)的mysqlbackup命令(***mysqlbackup command***)生成的备份中。
+
+参见 [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_optimistic"></a>optimistic: 乐观的
+一个引导关系型数据库系统低层实现决策的方法。在一个关系型数据库中对性能和并发(***concurrency***)的要求意味着操作必须快速启动或调度。对一致性和引用完整性(***referential integrity***)的要求意味着任何操作都有可能失败：一个事务可能回滚，一个***DML***操作可能违反约束，一个对锁的请求可能导致死锁，一个网络错误可能导致超时。乐观策略假设大多数请求或尝试都会成功，所以只做相对来说很小的工作来对付失败的情况。当这个假设为真时，数据库做少许不必要的操作；当请求失败了时，必须要额外的工作来清理和撤消变更。
+
+InnoDB为锁(***locking***)和提交等操作采用乐观策略。例如，事务产生的数据变更会在提交(***commit***)发生前就写到数据文件中，使得提交本身非常快，但如果事务回滚时需要做更多的荏来撤消变更。
+
+与乐观策略相对的是悲观(***pessimistic***)策略，其中的系统优化为处理不可靠靠或频繁失败的操作。这种方法在数据库系统中很罕见，因为在选择可靠的硬件、网络和算法方面加入了非常多的关心。
+
+参见 [commit], [concurrency], [DML], [locking], [pessimistic].
+
+### <a name="glos_optimizer"></a>optimizer: 优化器
+MySQL基于相关表(***table***)的特点与数据分布用，来决定为查询(***query***)采用最优索引(***index***)和关联(***join***)顺序的组件。
+
+参见 [index], [join], [query], [table].
+
+### <a name="glos_option"></a>option: 选项
+一个MySQL的配置参数，既存在配置文件(***option file***)中，又可以通过命令行命令传递。
+
+对于应用到(***InnoDB***)表上的选项，每个选项名都以前缀`innodb_`开头。
+
+参见 [InnoDB], [option file].
+
+### <a name="glos_option_file"></a>option file: 选项文件
+保存MySQL实例配置选项(***option***)的文件，一般来说，在Linux和UNIX上，这个文件叫`my.cnf`，在Windows上，这个文件叫`my.ini`。
+
+参见 [configuration file], [my.cnf], [option].
+
+### <a name="glos_overflow_page"></a>overflow page 溢出页
+单独申请用来存储因太长而不能适用B树(***B-tree***)页(***page***)的变长列(如`BLOB`和`VARCHAR`)的磁盘页。这些相关的列也叫页外列(***off-page column***)。
+
+参见 [B-tree], [off-page column], [page].
 
 ## P ##
 ### page 数据页
