@@ -1419,7 +1419,7 @@ Among different isolation levels, non-repeatable reads are prevented by the seri
 
 InnoDB为锁(***locking***)和提交等操作采用乐观策略。例如，事务产生的数据变更会在提交(***commit***)发生前就写到数据文件中，使得提交本身非常快，但如果事务回滚时需要做更多的荏来撤消变更。
 
-与乐观策略相对的是悲观(***pessimistic***)策略，其中的系统优化为处理不可靠靠或频繁失败的操作。这种方法在数据库系统中很罕见，因为在选择可靠的硬件、网络和算法方面加入了非常多的关心。
+与乐观策略相对的是悲观(***pessimistic***)策略，其中的系统优化为处理不可靠靠或频繁失败的操作。这种方法在数据库系统中很罕见，因为更多关注选择可靠的硬件、网络和算法。
 
 参见 [commit], [concurrency], [DML], [locking], [pessimistic].
 
@@ -1441,14 +1441,28 @@ MySQL基于相关表(***table***)的特点与数据分布用，来决定为查�
 参见 [configuration file], [my.cnf], [option].
 
 ### <a name="glos_overflow_page"></a>overflow page 溢出页
-单独申请用来存储因太长而不能适用B树(***B-tree***)页(***page***)的变长列(如`BLOB`和`VARCHAR`)的磁盘页。这些相关的列也叫页外列(***off-page column***)。
+单独申请用来存储因太长而不能放置B树(***B-tree***)页(***page***)的变长列(如`BLOB`和`VARCHAR`)的磁盘页。这些相关的列也叫页外列(***off-page column***)。
 
 参见 [B-tree], [off-page column], [page].
 
-## P ##
-### page 数据页
+## <name="P"></a>P ##
+### <a name="glos_page"></a>page: 页
+一个数据单元，表示InnoDB任何时刻在磁盘(数据文件，***data files***)与内存(***buffer pool***)之间传输的数据量。一个页可以包含一行或多行，取决于每行有多少数据。如果一行不能完整放到单个页中，InnoDB会设置一个指针类型数据结构，这样行的信息能存到一个页中。
+
+让每行中可以放置更多数据的一种方法是使用压缩行格式(***compressed row format***)。对于使用BLOB或大文本段列的表，精简行格式(***compact row format***)可以让这些大列跟行中的其它内容分开来存储，针对那些没有引用到那些列的查询降低I/O负载和内存使用。
+
+当InnoDB为了提高吞吐量而批量读写一组页时，它会一次读写一个区(***extend***)。
+
+一个MySQL实例中所有的InnoDB磁盘数据结构都使用同样的页大小(***page size***)。
+
+参见 [buffer pool], [compact row format], [compressed row format], [data files], [extent], [page size], [row].
+
 ### page cleaner 页清理器(页清理线程)
-### page size 数据页大小
+An InnoDB background thread that flushes dirty pages from the buffer pool. Prior to MySQL 5.6, this activity was performed by the master thread
+一个InnoDB后台线程，用来从buffer pool中刷新脏页。在MySQL 5.6之前的版本中，由主线程激。
+See Also buffer pool, dirty page, flush, master thread, thread.
+
+### <a name="glos_page_size"></a>page size: 数据页大小
 ### .PAR file .PAR文件
 ### parent table 父表
 ### partial backup 部分备份
