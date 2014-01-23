@@ -1079,8 +1079,8 @@ SQL中一个主要的DML操作。将百万行数据加载进表中的数据仓�
 
 ## <a name="L"></a>L ##
 
-### <a name="glos_latch"></a>latch: 不译
-InnoDB针对自己内部内存结构体实现锁(***lock***)的一个轻量级的结构体，通常保持毫秒或微秒级的短暂的时间。包含互斥(***mutex***，对于排它访问)和读写锁(***rw-lock***，对于共享访问)一般术语。某些latch的重点在性能调优上，比如数据字典(***data dictionary***)互斥。对于锁使用和竞争的统计可以通过Performance数据库(***Performance Schema***)接口获得。
+### <a name="glos_latch"></a>latch: 闩锁
+InnoDB针对自己内部内存结构体实现锁(***lock***)的一个轻量级的结构体，通常保持毫秒或微秒级的短暂的时间。包含互斥(***mutex***，对于排它访问)和读写锁(***rw-lock***，对于共享访问)一般术语。某些闩锁的重点在性能调优上，比如数据字典(***data dictionary***)互斥。对于锁使用和竞争的统计可以通过Performance数据库(***Performance Schema***)接口获得。
 
 参见 [data dictionary], [lock], [locking], [mutex], [Performance Schema], [rw-lock].
 
@@ -1090,7 +1090,7 @@ InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被�
 参见 [buffer pool], [eviction], [LRU], [sublist].
 
 ### <a name="glos_lock"></a>lock: 锁
-控制访问诸如表、行或内部数据结构等资源的对象的高级的概念，是锁(***locking***)机制中的一部分。针对进一步的性能调优，你可以探索实现了锁的真正的结构体，如互斥锁和latch。
+控制访问诸如表、行或内部数据结构等资源的对象的高级的概念，是锁(***locking***)机制中的一部分。针对进一步的性能调优，你可以探索实现了锁的真正的结构体，如互斥锁和闩锁(***latch***)。
 
 参见 [latch], [lock mode], [locking], [mutex].
 
@@ -1248,7 +1248,7 @@ MERGE存储引擎使用的一个文件，包含对其它表的引用情况。此
 见 [MVCC].
 
 ### <a name="glos_mutex"></a>mutex: 互斥
-“互斥量(***mutex variable***)”的非式缩写。(Mutex自身是mutual exclusion的缩写。)是InnoDB对内部内存中的数据结构体用来表示或强制排它访问锁(***lock***)的低级对象。当这个锁被获取，任何其它的进程、线程以及其它都被阻止获取相同的锁。与之相对的读写锁(***rw-lock***)，是允许共享访问的。互斥与读写锁一并称为latches。
+“互斥量(***mutex variable***)”的非式缩写。(Mutex自身是mutual exclusion的缩写。)是InnoDB对内部内存中的数据结构体用来表示或强制排它访问锁(***lock***)的低级对象。当这个锁被获取，任何其它的进程、线程以及其它都被阻止获取相同的锁。与之相对的读写锁(***rw-lock***)，是允许共享访问的。互斥与读写锁一并称为闩锁(***latch***)。
 
 参见 [latch], [lock,] [Performance Schema], [Pthreads], [rw-lock].
 
@@ -1458,28 +1458,110 @@ MySQL基于相关表(***table***)的特点与数据分布用，来决定为查�
 参见 [buffer pool], [compact row format], [compressed row format], [data files], [extent], [page size], [row].
 
 ### page cleaner 页清理器(页清理线程)
-An InnoDB background thread that flushes dirty pages from the buffer pool. Prior to MySQL 5.6, this activity was performed by the master thread
-一个InnoDB后台线程，用来从buffer pool中刷新脏页。在MySQL 5.6之前的版本中，由主线程激。
-See Also buffer pool, dirty page, flush, master thread, thread.
+一个InnoDB后台线程(***thread***)，用来从***buffer pool***中刷新脏页(***dirty page***)。在MySQL 5.6之前的版本中，该行为由主线程(***master thread***)执行。
 
-### <a name="glos_page_size"></a>page size: 数据页大小
-### .PAR file .PAR文件
-### parent table 父表
-### partial backup 部分备份
-### partial index 部分索引
-### Performace Schema 性能库
-### persistent statistic 持久统计
-### pessimistic 悲观锁
-### phantom 幻(读)
-### physical 物理
-### physical backup 物理备份
-### PITR 定点恢复
-### plan stability 执等计划稳定性
-### plugin 插件
-### point-in-time recovery 定点恢复
-### prefix 前缀
-### prepared backup 一致备份
+参见 [buffer pool], [dirty page], [flush], [master thread], [thread].
+
+### <a name="glos_page_size"></a>page size: 页大小
+对于发布到MySQL 5.5版本，包括MySQL 5.5，每个InnoDB页(***page***)固定为16KB。这个值代表一个平衡：对于保存绝大多数行来说足够大，对减小加载不必要的数据到内存中的性能开销来说也足够小。其它值未经测试或不支持。
+
+从MySQL 5.6开始，InnoDB实例(***instance***)的页大小可以是4KB、8KB或16KB，由[innodb_page_size]配置选项控制。你在创建MySQL实例的时候设置这个值，之后它会一直保持不变。相同的页大小会应用到所有的InnoDB表空间(***tablespace***)中，无论是系统表空间(***system tablespace***)还是在***file-per-table***模式下创建的任何独立表空间。
+
+更小的页大小有助于提升使用比较小的块大小的存储设备，特别是对磁盘受限系统(***disk-bound***)中的***SSD***设备来说，比如***OLTP***应用。当单独的行被更新时，更少的数据被拷贝到内存中、写到磁盘、重组及锁定等等。
+
+参见 [disk-bound], [file-per-table], [instance], [OLTP], [page], [SSD], [system tablespace], [tablespace].
+
+### <a name="glos_par_file"></a>.PAR file: .PAR文件
+分区定义表。此后缀命的文件常常包含在由MySQL企业备份(***MySQL Enterprise Backup***)中mysqlbackup命令(***mysqlbackup command***)生产的备份中。
+
+参见 [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_parent_table"></a>parent table: 父表
+外键(***foreign key***)关系中保存从子表(***child table***)中指向初始列的值的表。在父表中删除或更新行的结果依赖于外键定义中的`ON UPDATE`和`ON DELETE`子句。子表中符合条件的值会被自动依次删除或更新，或这些列被设置为`NULL`，或操作被拒绝。
+
+参见 [child table], [foreign key].
+
+### <a name="glos_partial_backup"></a>partial backup: 部分备份
+一个包含MySQL数据库中部分表(***table***)、或包含MySQL实例中部分数据库的备份。与之相对的是全备份(***full backup***)。
+
+参见 [backup], [full backup], [table].
+
+### <a name="glos_partial_index"></a>ppartial index: 部分索引
+只一部分表示列值的索引，一般来说是长VARCHAR值的前N个字符(前缀，***prefix***)。
+
+参见 [index], [index prefix].
+
+### <a name="glos_performance_schema"></a>Performace Schema: 性能库
+在MySQL 5.5及以上版本中，性能库(***performance_schema***)提供一组表，你通过它们可以查询到很多MySQL服务内部性能特性。
+
+参见  [latch], [mutex], [rw-lock].
+
+### <a name="glos_persistent_statistic"></a>persistent statistic: 持久统计
+MySQL 5.6的特性，将InnoDB表(***table***)的索引(***index***)统计存储到磁盘上，为查询(***query***)提供更好的执行计划稳定性(***plan stability***)。
+
+参见 [index], [optimizer], [plan stability], [query], [table].
+
+### <a name="glos_pessimistic"></a>pessimistic: 悲观
+一种牺牲性能或并发来获得安全的方法。它适用等请求或尝试可能失败的占比很高或失败请求的后果很严重的情况。InnoDB使用悲观锁(***locking***)机制来最小化死锁(***deadlock***)的机会。在应用层，你可以在通过在一开始就申请事务所需要的所有锁的悲观策略来避免死锁。
+
+很多内置的数据库机制使用与它相对的乐观(***optimistic***)方法。
+
+参见 [deadlock], [locking], [optimistic].
+
+### <a name="glos_phantom"></a>phantom: 幻(读)
+一个出现在查询结果集中，却没有在之前该查询结果集中出现的行。例如，如果一个查询在一个事务(***transaction***)中运行了两次，期间，另一个事务在新插入一行或更新一行后提交了所以在这个查询的`WHERE`子句中匹配到了。
+
+这种情况叫幻读。这要比非重复读(***non-repeatable read***)要更难防御一些，因为锁住第一次查询结果集中的所有行并不能阻止导致幻读出现的变更。
+
+在不同的隔离级别(***isolation level***)中，幻读在可序列化读(***serializable read***)级别是被阻止的，但在可重复读(***repeatable read***)、一致性读(***consistent read***)和未提交读(***read uncommitted***)级别是允许的。
+
+参见 [consistent read], [isolation level], [non-repeatable read], [READ UNCOMMITTED], [REPEATABLE READ], [SERIALIZABLE], [transaction].
+
+### <a name="glos_physical"></a>physical: 物理
+涉及硬件相关方面的一类操作，如磁盘块、内存页、文件、位及读盘等等。一般情况下，物理层面在专家级性能调优和问题诊断中是很重要的。与之相对的是逻辑(***logical***)。
+
+参见 [logical], [physical backup].
+
+### <a name="glos_physical_backup"></a>physical backup: 物理备份
+一个拷贝实际数据文件的备份(***backup***)。例如，MySQL企业备份(***MySQL Enterprise Backup***)产品的mysqldump命令生成的就是物理备份，因为它的输出包含可以被mysqld直接使用的数据文件，这让恢复(***restore***)操作变得更快。与之相对的是逻辑备份(***logical backup***)。
+
+参见 [backup], [logical backup], [MySQL Enterprise Backup], [restore].
+
+### <a name="glos_pitr"></a>PITR: 定点恢复
+定点恢复(***point-in-time recovery***)的简写。
+
+参见 [point-in-time recovery].
+
+### <a name="glos_plan_stability"></a>plan stability: 执行计划稳定性
+一个查询执行计划(***query execution plan***)的属性，其中优化器对于给定的查询(***query***)总是做出相同的选择，这样性能就是不变的和可预知的了。
+
+参见 [query], [query execution plan].
+
+### <a name="glos_plugin"></a>plugin: 插件
+在MySQL 5.1及更早的版本中，一个包含了对InnoDB存储引擎的特性与性能改善的独立可安装形式，这些改善在那些发行版中的内置InnoDB中并未包括。
+
+在MySQL 5.5及更高版本中，MySQL分发版包含最新的InnoDB特性与性能的改善，即InnoDB 1.1，它不再是一个单独的InnoDB插件了。
+
+差别主要在MySQL 5.1中，其中一个特性或bug修复可能要应用到InnoDB插件中，但不是内置的InnoDB中，反之亦然。
+
+参见 [built-in], [InnoDB].
+
+### <a name="glos_point_in_time_recovery"></a>point-in-time recovery: 定点恢复
+通过恢复备份(***backup***)将数据库的状态重建到一个指定的日期与时间点的进程。通常简写为***PITR***。因为指定的时间点不太可能恰好就是备份的时间点，所以这项技术常常需要一个物理备份(***physical backup***)和一个逻辑备份(***logical backup***)的组合。例如，利用MySQL企业备份(***MySQL Enterprise Backup***)产品，你恢复了指定时间点前的最近一个备份，然后重放备份时间点与定点恢复时间点之间的二进制日志(***binary log***)中的变更。
+
+参见 [backup], [logical backup], [MySQL Enterprise Backup], [physical backup], [PITR].
+
+### <a name="glos_prefix"></a>prefix: 前缀
+
+参见 [index prefix].
+
+### <a name="glos_prepared_backup"></a>prepared backup: 一致备份
+在所有二进制日志(***binary log***)与增量备份(***incremental backup***)应用阶段都完成后的一组备份文件，由MySQL企业备份(***MySQL Enterprise Backup***)产品生成。结果文件已为恢复(***restore***)做好准备。在应用步骤之前，这些文件叫原始备份(***raw backup***)。
+
+参见 [binary log], [hot backup], [incremental backup], [MySQL Enterprise Backup], [raw backup], [restore].
+
 ### primary key 主键
+
 ### process 进程
 ### pseudo-record 伪记录
 ### Pthread Posix threads 不译
