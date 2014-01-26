@@ -1560,17 +1560,51 @@ MySQL 5.6的特性，将InnoDB表(***table***)的索引(***index***)统计存储
 
 参见 [binary log], [hot backup], [incremental backup], [MySQL Enterprise Backup], [raw backup], [restore].
 
-### primary key 主键
+### <a name="glos_primary_key"></a>primary key: 主键
+可以在表中唯一确定每一行的一组列(注：基于这组列的索引)。因此，它必须是一个不含`NULL`值的唯一索引。
 
-### process 进程
-### pseudo-record 伪记录
-### Pthread Posix threads 不译
-### purge 清除
-### purge buffering 清除缓冲
-### purge lag 清除链表
-### purge thread 清除线程
+InnoDB要求每张表都有这样一个索引(也叫簇索引，***clustered index***或***cluster index***)，并且基于主键的列值组织表存储。
 
-## Q ##
+当选择一个主键值时，考虑使用任意值(人造键，***synthetic key***)，而依靠其它来源得出的值(自然键，***natural key***)。
+
+参见 [clustered index], [index], [natural key], [synthetic key].
+
+### <a name="glos_process"></a>process: 进程
+一个正在执行的程序的实例。操作系统在多个运行的进程之间切换，允许一定级别的并发(***concurrency***)。在大多数据操作系统上，进程可以包含多个执行共享资源的线程(***thread***)。线程之间的上下文切换要快于进程之间的等效切换。
+
+参见[concurrency], [thread].
+
+### <a name="glos_pseudo_record"></a>pseudo-record: 伪记录
+一个索引中人造的记录，用来锁定(***locking***)当前不存在的键值或范围。
+
+参见 [infimum record], [locking], [supremum record].
+
+### <a name="glos_pthread"></a>Pthread: 不译
+POSIX线程标准，定义了UNIX和Linux系统上线程和锁操作API。在UNIX和Linux系统上，InnoDB使用为互斥(***mutex***)的使用它的实现。
+
+参见 [mutex].
+
+### <a name="glos_purge"></a>purge: 清除
+由独立线程执行的一类垃圾回收，按周期表运行。清除包含这些动作：从索引中删去过期的值；物理删除被之前的`DELETE`语句标记为删除的行。
+
+参见 [crash recovery], [delete], [doublewrite buffer].
+
+### <a name="glos_purge_buffering"></a>purge buffering: 清除缓冲
+在将在`DELETE`操作中的索引变更存储到插入缓冲(***insert buffer***)中而不是直接写盘的技术，这样物理写可以最小化随机I/O。(因为删除是两步操作，所以这个操作缓冲了正常清除之前标记为删除的索引记录的写操作。)它是变更缓冲(***change buffering***)的一种类型；其它类型为插入缓冲(***insert buffering***)和删除缓冲(***delete buffering***)。
+
+参见 [change buffer], [change buffering], [delete buffering], [insert buffer], insert buffering.
+
+### <a name="glos_purge_lag"></a>purge lag: 清除链表
+InnoDB清除链表(***history list***)的另一种叫法。与[innodb_max_purge_lag]配置选项有关。
+
+参见 [history list], [purge].
+
+### <a name="glos_purge_thread"></a>purge thread: 清除线程
+InnoDB进程中一个专门用来定期执行清除操作的线程。在MySQL 5.6及更高版本中，多清除线程可以用innodb_purge_thread配置选项来使其生效。
+
+参见 [purge], [thread].
+
+## <a name="Q"></a>Q ##
 ### query 查询
 ### query execution plan 查询执行计划 
 ### query log 查询日志
