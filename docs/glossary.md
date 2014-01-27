@@ -1630,13 +1630,46 @@ InnoDB进程中一个专门用来定期执行清除操作的线程。在MySQL 5.
 
 ## <a name="R"></a>R ##
 ### <a name="glos_raid"></a>RAID: 磁盘阵列
+“廉价冗余磁盘阵列(Redundant Array of Inexpensive Drives)”的首字母缩写。通过在多个磁盘上分散I/O操作在硬件层获得更大的并发，并且改善低层写操作，否则它们将以顺序执行。
 
-### random dive 随机取样
-### raw backup 原始备份
-### READ COMMITTED 隔离级别，不译 
-### READ UNCOMMITTED 隔离级别，不译
-### read view MVCC在内核中用到的一个快照模式 
-### read-ahead 预读
+参见 [concurrency].
+
+### <a name="glos_random_dive"></a>random dive: 随机取样
+一种用来快速估计一列中不同值个数(列的基数，***cardinality***)的技术。InnoDB从索引中随机取样页，并且使用这些数据来估算不同值的个数据。这个操作在每张表首词打开时发生。
+
+起初，取样的页数固定为8；现在，此值取决于设置[innodb_stats_sample_pages]参数。
+
+如何随机取页的方法取决于设置innodb_use_legacy_cardinality_algorithm参数。默认设置(OFF)比老版本拥有更优的随机性。
+
+参见 [cardinality].
+
+### <a name="glos_raw_backup"></a>raw backup: 原始备份
+在二进制日志(***binary log***)与任何增量备份(***incremental backup***)中的变更被应用之前，MySQL企业备份(***MySQL Enterprise Backup***)产品生成的初始的备份文件集。在这个阶段，文件尚未为恢复(***restore***)做好准备。当这些变更被应用后，文件就叫一致性备份(***prepared backup***)。
+
+参见 [binary log], [hot backup], [ibbackup_logfile], [incremental backup], [MySQL Enterprise Backup], [prepared backup], [restore].
+
+### <a name="glos_read_committed"></a>READ COMMITTED: 隔离级别，不译 
+为了性能，使用放宽事务(***transaction***)之间部分保护的锁(***locking***)策略的一种隔离级别(***isolation level***)。事务不能看到其它事务未提交的数据，但他们可以看到当前事务之后启动的另一个事务所提交的数据。所以，事务从来看不到任何坏的数据，但数据能不能看到，一定程度上取决于其它事务的时间。
+
+在这个隔离级别下，当一个事务执行`UPDATE ... WHERE`或`DELETE ... WHERE`操作，其它事务可能需要等待。事务可以执行`SELECT ... FOR UPDATE`和不会造成其它事务等待的`LOCK IN SHARE MODE`操作。
+
+参见 [ACID], [isolation level], [locking], [REPEATABLE READ], [SERIALIZABLE], [transaction].
+
+### <a name="glos_read_uncommitted"></a>READ UNCOMMITTED: 隔离级别，不译
+提供事务之间最小量保护的隔离级别(***isolation level***)。查询使用的锁(***locking***)策略使它们能够在通常会等待另一个事务的情况下继续。尽管如此，额外的性能是用不可靠结果的代价换来的，包括其它其它更正了但尚未提交的数据(被称为脏读，***dirty read***)。使用这个隔离级别要格外小心，要注意结果集可能会不一致或不能重现，取决于同一时刻其它事务在做什么。一般来说，这个隔离级别下的事务只做查询，没有插入、更新或删除操作。
+
+参见 [ACID], [dirty read], [isolation level], [locking], [transaction].
+
+### <a name="glos_read_view"></a>read view: 读视图
+InnoDB的***MVCC***机制所使用的一个内部快照。取决于其隔离级别(***isolation***)，某些事务(***transaction***)可以看到那些在事务(某些情况下是语句)启动时刻可以看到的数据值。使用读视图的隔离级别有***REPEATABLE READ***、***READ COMMITTED***和***READ UNCOMMITTED***。
+
+参见 [isolation level], [MVCC], [READ COMMITTED], [READ UNCOMMITTED], [REPEATABLE READ], [transaction].
+
+### <a name="glos_read_ahead"></a>read-ahead: 预读
+A type of I/O request that pre fetches a group of pages (an entire extent) into the buffer pool asynchronously, in anticipation that these pages will be needed soon. The linear read-ahead technique prefetches all the pages of one extent based on access patterns for pages in the preceding extent, and is part of all MySQL versions starting with the InnoDB Plugin for MySQL 5.1. The random read-ahead technique prefetches all the pages for an extent once a certain number of pages from the same extent are in the buffer pool. Random read-ahead is not part of MySQL 5.5, but is re-introduced in MySQL 5.6 under the control of the innodb_random_read_ahead configuration option.
+提前异步获取一组页(一整个区)到buffer pool中的一种I/O请求，在预期中这些页很快就被需要。
+See Also buffer pool, extent, page.
+
 ### read-only transaction 只读事务
 ### record lock 行锁
 ### redo 重做，不译
