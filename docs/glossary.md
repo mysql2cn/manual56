@@ -1605,13 +1605,32 @@ InnoDB进程中一个专门用来定期执行清除操作的线程。在MySQL 5.
 参见 [purge], [thread].
 
 ## <a name="Q"></a>Q ##
-### query 查询
-### query execution plan 查询执行计划 
-### query log 查询日志
-### quiesce 系统静默
+### <a name="glos_query"></a>query: 查询
+在***SQL***中，一个从一张或多张表(***table***)中读取信息的操作。根据数据的组织和查询的参数不同，查找可能会通过查询(***index***)索引而优化。如果涉及多表，这个查询就叫做关联(***join***)。
 
-## R ##
-### RAID 磁盘阵列
+因为历史原因，有时“查询”在更广义上被用作内部进程讨论的语句上，包括其它类型的MySQL语句，读如***DDL***和***DML***语句。
+
+参见 [DDL], [DML], [index], [join], [SQL], [table].
+
+### <a name="glos_query_execution_plan"></a>query execution plan: 查询执行计划
+优化器关于如何最有效执行一个查询(***query***)的决策集，包括使用哪个或哪些索引(***index***)，以及其中表的关联(***join***)顺序。执行计划稳定性(***plan stability***)使得对于一个给定的查询，一直会选择相同的计划。
+
+参见 [index], [join], [plan stability], [query].
+
+### query log 查询日志
+
+参见 [general query log].
+
+### <a name="glos_quiesce"></a>quiesce: 系统静默状态
+为了减少数据库的活动量，常常为诸如`ALTER TABLE`、备份(***backup***)或关机(***shutdown***)而准备。有可能会也有可能不会引起很多刷新(***flush***)，因此InnoDB不能继续做后台I/O操作。
+
+在MySQL 5.6及更高版本中，语法`FLUSH TABLES ... FOR EXPORT`为`InnoDB`表往磁盘写一些数据，确保易于通过拷贝数据来备份那些表。
+
+参见 [backup], [flush], [InnoDB], [shutdown].
+
+## <a name="R"></a>R ##
+### <a name="glos_raid"></a>RAID: 磁盘阵列
+
 ### random dive 随机取样
 ### raw backup 原始备份
 ### READ COMMITTED 隔离级别，不译 
