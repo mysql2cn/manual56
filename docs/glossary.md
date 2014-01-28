@@ -1066,7 +1066,7 @@ SQL中一个主要的DML操作。将百万行数据加载进表中的数据仓�
 
 ## <a name="J"></a>J ##
 ### <a name="glos_join"></a>join: 关联
-通过引用表中保存相同值的列，从超过一个表中取回数据的查询(***query***)。理想情况下，这些列是InnoDB外键(***foreign key***)关系中的一部分，它们确保引用完整性(***referential intgrity***)，并且关联的列上是有索引(***index***)的。经常用来节省空间和在范式(***normalized***)设计通过将重复的字符串用数据ID替换来提高性能。
+通过引用表中保存相同值的列，从超过一个表中取回数据的查询(***query***)。理想情况下，这些列是InnoDB外键(***foreign key***)关系中的一部分，它们确保参照完整性(***referential intgrity***)，并且关联的列上是有索引(***index***)的。经常用来节省空间和在范式(***normalized***)设计通过将重复的字符串用数据ID替换来提高性能。
 
 参见 [foreign key], [index], [normalized], [query], [referential integrity].
 
@@ -1415,7 +1415,7 @@ Among different isolation levels, non-repeatable reads are prevented by the seri
 参见 [MySQL Enterprise Backup], [mysqlbackup command].
 
 ### <a name="glos_optimistic"></a>optimistic: 乐观的
-一个引导关系型数据库系统低层实现决策的方法。在一个关系型数据库中对性能和并发(***concurrency***)的要求意味着操作必须快速启动或调度。对一致性和引用完整性(***referential integrity***)的要求意味着任何操作都有可能失败：一个事务可能回滚，一个***DML***操作可能违反约束，一个对锁的请求可能导致死锁，一个网络错误可能导致超时。乐观策略假设大多数请求或尝试都会成功，所以只做相对来说很小的工作来对付失败的情况。当这个假设为真时，数据库做少许不必要的操作；当请求失败了时，必须要额外的工作来清理和撤消变更。
+一个引导关系型数据库系统低层实现决策的方法。在一个关系型数据库中对性能和并发(***concurrency***)的要求意味着操作必须快速启动或调度。对一致性和参照完整性(***referential integrity***)的要求意味着任何操作都有可能失败：一个事务可能回滚，一个***DML***操作可能违反约束，一个对锁的请求可能导致死锁，一个网络错误可能导致超时。乐观策略假设大多数请求或尝试都会成功，所以只做相对来说很小的工作来对付失败的情况。当这个假设为真时，数据库做少许不必要的操作；当请求失败了时，必须要额外的工作来清理和撤消变更。
 
 InnoDB为锁(***locking***)和提交等操作采用乐观策略。例如，事务产生的数据变更会在提交(***commit***)发生前就写到数据文件中，使得提交本身非常快，但如果事务回滚时需要做更多的荏来撤消变更。
 
@@ -1622,7 +1622,7 @@ InnoDB进程中一个专门用来定期执行清除操作的线程。在MySQL 5.
 参见 [general query log].
 
 ### <a name="glos_quiesce"></a>quiesce: 系统静默状态
-为了减少数据库的活动量，常常为诸如`ALTER TABLE`、备份(***backup***)或关机(***shutdown***)而准备。有可能会也有可能不会引起很多刷新(***flush***)，因此InnoDB不能继续做后台I/O操作。
+为了减少数据库的活动量，常常为诸如`ALTER TABLE`、备份(***backup***)或关机(***shutdown***)而准备。有可能会引起尽可能多刷新(***flush***)，也有可能不会，因此InnoDB不能继续做后台I/O操作。
 
 在MySQL 5.6及更高版本中，语法`FLUSH TABLES ... FOR EXPORT`为`InnoDB`表往磁盘写一些数据，确保易于通过拷贝数据来备份那些表。
 
@@ -1649,9 +1649,9 @@ InnoDB进程中一个专门用来定期执行清除操作的线程。在MySQL 5.
 参见 [binary log], [hot backup], [ibbackup_logfile], [incremental backup], [MySQL Enterprise Backup], [prepared backup], [restore].
 
 ### <a name="glos_read_committed"></a>READ COMMITTED: 隔离级别，不译 
-为了性能，使用放宽事务(***transaction***)之间部分保护的锁(***locking***)策略的一种隔离级别(***isolation level***)。事务不能看到其它事务未提交的数据，但他们可以看到当前事务之后启动的另一个事务所提交的数据。所以，事务从来看不到任何坏的数据，但数据能不能看到，一定程度上取决于其它事务的时间。
+为了性能，使用放宽事务(***transaction***)之间部分保护的锁(***locking***)策略的一种隔离级别(***isolation level***)。事务不能看到其它事务未提交的数据，但他们可以看到当前事务之后启动的另一个事务所提交的数据。所以，事务从来看不到任何错误数据，但数据能不能看到，一定程度上取决于其它事务的时间。
 
-在这个隔离级别下，当一个事务执行`UPDATE ... WHERE`或`DELETE ... WHERE`操作，其它事务可能需要等待。事务可以执行`SELECT ... FOR UPDATE`和不会造成其它事务等待的`LOCK IN SHARE MODE`操作。
+在这个隔离级别下，当一个事务执行`UPDATE ... WHERE`或`DELETE ... WHERE`操作，其它事务可能不得不等待。事务可以执行`SELECT ... FOR UPDATE`和不会造成其它事务等待的`LOCK IN SHARE MODE`操作。
 
 参见 [ACID], [isolation level], [locking], [REPEATABLE READ], [SERIALIZABLE], [transaction].
 
@@ -1666,17 +1666,57 @@ InnoDB的***MVCC***机制所使用的一个内部快照。取决于其隔离级�
 参见 [isolation level], [MVCC], [READ COMMITTED], [READ UNCOMMITTED], [REPEATABLE READ], [transaction].
 
 ### <a name="glos_read_ahead"></a>read-ahead: 预读
-A type of I/O request that pre fetches a group of pages (an entire extent) into the buffer pool asynchronously, in anticipation that these pages will be needed soon. The linear read-ahead technique prefetches all the pages of one extent based on access patterns for pages in the preceding extent, and is part of all MySQL versions starting with the InnoDB Plugin for MySQL 5.1. The random read-ahead technique prefetches all the pages for an extent once a certain number of pages from the same extent are in the buffer pool. Random read-ahead is not part of MySQL 5.5, but is re-introduced in MySQL 5.6 under the control of the innodb_random_read_ahead configuration option.
-提前异步获取一组页(一整个区)到buffer pool中的一种I/O请求，在预期中这些页很快就被需要。
-See Also buffer pool, extent, page.
+异步提前获取一组页(***pages***)(一整个区，***extend***)到***buffer pool***中的一种I/O请求，在预期中这些页很快就被用到。线性预读技术基于上一个区中对页访问的模式，提前获取区中的所有页，并且这是自MySQL 5.1 InnoDB Plugin始的所有MySQL版本的一部分。随机预读技术在同一个区中有一定数量的页存在于buffer pool的情况下，将提前获取该区中的所有页。随机预读不是MySQL 5.5的一部分，但在MySQL 5.6中由配置选项[innodb_random_read_ahead]重新引入。
 
-### read-only transaction 只读事务
-### record lock 行锁
-### redo 重做，不译
-### redo log 重做日志，不译
-### redundant row format 冗余行格式，innodb的一种行的存储格式，不译
-### referential integrity 参照完整性 
-### relational 关系
+参见 [buffer pool], [extent], [page].
+
+### <a name="glos_read_only_transaction"></a>read-only transaction: 只读事务
+一类事务，可以通过排除一些涉及为每个事务(***transaction***)创建一个读视图(***read view***)的簿记来达到为InnoDB表的优化。只能执行无锁读(***non-locking read***)的查询。它可以明确地用使用语法s`TART TRANSACTION READ ONLY`来启动，或在某些条件下自动完成。更多细节参考[第14.2.12.2.3，优化只读事务][14.02.12.02.03]。
+
+参考 [non-locking read], [read view], [transaction].
+
+### <a name="glos_record_lock"></a>record lock: 索引记录锁
+一个索引记录上的锁(***lock***)。例如，`SELECT C1 FROM UPDATE FROM T WHERE C1=10;` 阻止其它事务的插入、更新或删除那些`tc.1`是10的行。与之对应的是间隙锁(***gap lock***)和行记录锁(***next-key lock***)。
+
+参见 [gap lock], [lock], [next-key lock].
+
+### <a name="glos_redo"></a>redo: 重做，不译
+当***DML***语句对InnoDB表产生变更时记录在redo日志(***redo log***)中的以记录为单位的数据。它在崩溃恢复(***crash recovery***)中用于校正于不完整的事务(***transaction***)写入的数据。单调递增的***LSN***值代表通过redo日志的redo数据的积累量。
+
+参见 [crash recovery], [DML], [LSN], [redo log], [transaction].
+
+### <a name="glos_redo_log"></a>redo log: 重做日志，不译
+崩溃恢复(***crash recovery***)过程中使用一种基于磁盘的数据结构，用于校正由不完整事务(***transaction***)写入的数据。在正常操作过程中，它将变更InnoDB表数据的请求编码，这些请求由SQL语句或低层的API调用NoSQL接口产生。在异常关机(***shutdown***)之前完有完成更新数据文件(***data files***)的修改会被自动重放。
+
+redo log在物理上表现为一组文件，通常命名为`ib_logfile0`和`iblogfile1`。redo日志中的数据根据受影响的记录编码；这些数据统称为***redo***。redo日志中通过的数据表现为单调递增的***LSN***值。在MySQL 5.6.3中，之前redo日志大小4GB的上限升至512G。
+
+redo log在磁盘上的布局取决于配置选项[innodb_log_file_size]、[innodb_log_group_home_dir]及[innodb_log_files_in_group](基本不用)。redo日志操作的性能也受日志缓冲的影响，由配置选项[innodb_log_buffer_size]控制。
+
+参见 [crash recovery], [data files], [ib_logfile], [log buffer], [LSN], [redo], [shutdown], [transaction].
+
+### <a name="glos_redundant_row_format"></a>redundant row format: 冗余行格式
+最早的InnoDB行格式，对于使用Antelope文件格式的表有效。在MySQL 5.0.3之前，它是InnoDB中唯一有效的行格式。在MySQL 5.0.3及更高版本中，默认为精简行格式。你仍然可以指定冗余行格式以兼容较老的InnoDB表。
+
+如需更多关于InnoDB冗余行格式的信息，请参考[第14.2.9.4节，精简与冗余行格式][14.02.09.04]。
+
+参见 [Antelope], [compact row format], [file format], [row format].
+
+### <a name="glos_referential_integrity"></a>referential integrity: 参照完整性 
+维护数据一直处于一致格式的技术，***ACID***理念的一部分。实际上，不同表中的数据通过使用外键约束(***FOREIGN KEY constraint***)来保持一致，它能阻止变更发生或自动像变更传递到关联的表中。关联机制包括阻止即将误插入重复值的唯一约束(***unique constraint***)和阻止即将误插入空白值的非空约束(***NOT NULL constraint***)。
+
+参见 [ACID], [FOREIGN KEY constraint], [NOT NULL constraint], [unique constraint].
+
+### <a name="glos_relational"></a>relational: 关系
+现代数据库系统很重要的一部分。数据库服务编码并强制实施关系，如一对一、一对多和唯一性。例如，一个人在一个地址本数据库中可能拥有零个、一个或多个手机号；单个电话号码可能与多个家庭成员关联。在财务数据库中，一个人可能要求刚好拥有一个纳税人ID，并且任何纳税人ID只能与一个人关联。
+
+数据库服务可以利用这些关系来阻止错误数据被插入，并且找到高效查询信息的方法。例如，如果一个值被定义为唯一，那么服务可以在找到第一个匹配项之后就停止搜索，并且他可以拒绝试图插入相同值的第二份拷贝。
+
+在数据库层面，这些关系通过SQL特性来表示，诸如表中的列(***column***)、唯一约束、非空约束(***NOT NULL constarnts***)、外键(***foreign key***)及不同类型的关联操作等。复杂的关系一般会引用数据分拆到多个表中。通常，数据是范式化(***normalized***)的，所以一对多关系中的重复的值只被存储一次。
+
+在数学语境中，数据库中的关系起源于集合论。比如，`WHERE`子句中的`OR`和`AND`操作表现为并集和交集的概念。
+
+参见 [ACID], [constraint], [foreign key], [normalized].
+
 ### relevance 相关性
 ### REPEATABLE READ 隔离级别，不译
 ### replication 复制
