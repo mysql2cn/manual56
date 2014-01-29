@@ -1066,7 +1066,7 @@ SQL中一个主要的DML操作。将百万行数据加载进表中的数据仓�
 
 ## <a name="J"></a>J ##
 ### <a name="glos_join"></a>join: 关联
-通过引用表中保存相同值的列，从超过一个表中取回数据的查询(***query***)。理想情况下，这些列是InnoDB外键(***foreign key***)关系中的一部分，它们确保引用完整性(***referential intgrity***)，并且关联的列上是有索引(***index***)的。经常用来节省空间和在范式(***normalized***)设计通过将重复的字符串用数据ID替换来提高性能。
+通过引用表中保存相同值的列，从超过一个表中取回数据的查询(***query***)。理想情况下，这些列是InnoDB外键(***foreign key***)关系中的一部分，它们确保参照完整性(***referential intgrity***)，并且关联的列上是有索引(***index***)的。经常用来节省空间和在范式(***normalized***)设计通过将重复的字符串用数据ID替换来提高性能。
 
 参见 [foreign key], [index], [normalized], [query], [referential integrity].
 
@@ -1079,8 +1079,8 @@ SQL中一个主要的DML操作。将百万行数据加载进表中的数据仓�
 
 ## <a name="L"></a>L ##
 
-### <a name="glos_latch"></a>latch: 不译
-InnoDB针对自己内部内存结构体实现锁(***lock***)的一个轻量级的结构体，通常保持毫秒或微秒级的短暂的时间。包含互斥(***mutex***，对于排它访问)和读写锁(***rw-lock***，对于共享访问)一般术语。某些latch的重点在性能调优上，比如数据字典(***data dictionary***)互斥。对于锁使用和竞争的统计可以通过Performance数据库(***Performance Schema***)接口获得。
+### <a name="glos_latch"></a>latch: 闩锁
+InnoDB针对自己内部内存结构体实现锁(***lock***)的一个轻量级的结构体，通常保持毫秒或微秒级的短暂的时间。包含互斥(***mutex***，对于排它访问)和读写锁(***rw-lock***，对于共享访问)一般术语。某些闩锁的重点在性能调优上，比如数据字典(***data dictionary***)互斥。对于锁使用和竞争的统计可以通过Performance数据库(***Performance Schema***)接口获得。
 
 参见 [data dictionary], [lock], [locking], [mutex], [Performance Schema], [rw-lock].
 
@@ -1090,7 +1090,7 @@ InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被�
 参见 [buffer pool], [eviction], [LRU], [sublist].
 
 ### <a name="glos_lock"></a>lock: 锁
-控制访问诸如表、行或内部数据结构等资源的对象的高级的概念，是锁(***locking***)机制中的一部分。针对进一步的性能调优，你可以探索实现了锁的真正的结构体，如互斥锁和latch。
+控制访问诸如表、行或内部数据结构等资源的对象的高级的概念，是锁(***locking***)机制中的一部分。针对进一步的性能调优，你可以探索实现了锁的真正的结构体，如互斥锁和闩锁(***latch***)。
 
 参见 [latch], [lock mode], [locking], [mutex].
 
@@ -1165,9 +1165,8 @@ InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被�
 
 参见 [buffer pool], [eviction], [full table scan], [midpoint insertion strategy], [page].
 
-### LSN 日志序号
+### <a name="glos_lsn"></a>LSN: 日志序号
 日志序列号的首字母缩写。这个单调递增的值代表了redo日志中所记录的操作所对应的时间点。(这个时间点不会理会事务边界；它可以落在一个或多个事务的中间。)它用在InnoDB内部的崩溃恢复和管理buffer pool中。
-
 
 在MySQL 5.6.3之前，LSN是一个4字节无符号整型值，在MySQL 5.6.3中，当redo日志的大小限制从4GB变到512GB时，LSN变成8字节无符号整型值，附加的字节被用来存储额外的大小信息。在MySQL 5.6.3或更晚的版本上编译的应用可能会用到64位，而不是32位变更来存储和比较LSN的值。
 
@@ -1176,118 +1175,617 @@ InnoDB buffer pool相当于一个内部页的链表。这个链表在新页被�
 参见 [crash recovery], [incremental backup], [MySQL Enterprise Backup], [redo log], [transaction].
 
 
-## M ##
-### master server 主服务器
-### master thread 主线程
-### MDL 元数据锁
-### memcached 不译
-### merge 合并
-### metadata lock 元数据锁
-### metrics counter 计数器
-### midpoint insertion strategy 一种缓存算法，不译
-### mini-transaction 迷你事务
-### mixed-mode insert 混合模式插入
-### .MRG file .MRG文件
-### multi-core 多核
-### multiversion concurrency control 多版本并发控制
-### mutex 互斥
-### MVCC 多版本并发控制
-### my.cnf 配置文件(Unix/Linux)
-### my.ini 配置文件(Windows)
-### .MYD file .MYD文件
-### .MYI file .MYI文件
-### mysql mysql(客户端)
-### MySQL Enterprise Backup MySQL企业备份
-### mysqlbackup command mysqlbackup命令
-### mysqld MySQL daemon(Unix)或MySQL service(Windows)
-### mysqldump mysqldump命令
+## <a name="M"></a>M ##
 
-## N ##
-### natural key 自然主键
-### neighbor page 相邻页
-### next-key lock 行间隙锁
-### non-blocking I/O 同AIO
-### non-locking read 不加锁读
-### non-repeatable read 非重复读
-### normalized (符合)范式的
-### NoSQL 不译
-### NOT NULL constraint 非空约束
-### NULL 空
+### <a name="glos_master_server"></a>master server: 主服务器
+经常简称为“master”。复制(***replication***)环境中的一个数据库服务机器，用来处理对数据的最初的插入、更新和删除请求。这些数据被传送到并在其上重复执行的其它服务器叫做从服务器(***slave servers***)。
 
-## O ##
-### off-page column 跨页列
-### OLTP 在线联机查询
-### online 在线
-### online DDL 在线DDL
-### .OPT file .OPT文件
-### optimistic 乐观锁
-### optimizer 优化器
-### option 选项
-### option file 选项文件
-### overflow page 溢出页
+参见 [replication], [slave server].
 
-## P ##
-### page 数据页
+### <a name="glos_master_thread"></a>master thread: 主线程
+一个在后台执行各种任务的InnoDB线程(***thread***)。大多数情况是I/O相关的，比如从插入缓冲(***insert buffer***)中往相关的二级索引中写入变更。
+
+为了提高并发(***concurrency***)，有时候行为会从主线程转移到单独的后台线程中。比如，在InnoDB 5.6及更高版本中，脏页(***dirty pages***)会由页清理器(***page cleaner***)从***buffer pool***中刷新，而不是由主线程执行。
+
+参见 [buffer pool], [dirty page], [flush], [insert buffer], [page cleaner], [thread].
+
+### <a name="glos_mdl"></a>MDL: 元数据锁
+metadata lock的简称。
+
+参见 [metadata lock].
+
+### <a name="glos_memcached"></a>memcached: 不译
+一个众多MySQL和***NoSQL***软件栈中流行的组件，允许快速读写单值并将结果完整地缓存在内存中。传统上，应用需要额外的逻辑往MySQL数据库中写入相同的数据来达到持久化，或者在数据还没有在内存中缓存时需要从MySQL数据库中读取数据。现在，应用可以使用简单的**memcached**协议来直接使用***InnoDB***或MySQL集群的表来与MySQL服务通信了，大多数据语言都有支付该协议的客户端。这些MySQL表的NoSQL接口允许应用达到比直接使用SQL命令更高的读写性能，并且可以简化那些已经为内部缓存收纳了**memcached**的系统的应用逻辑与部署配置。
+
+InnoDB表的memcached接口在MySQL 5.6及更高版本中可能；参考[第14.2.17节，InnoDB集成memcached][14.02.17]；细节参考[http://dev.mysql.com/doc/ndbapi/en/ndbmemcache.html]。
+
+参见 [InnoDB], [NoSQL].
+
+### <a name="glos_merge"></a>merge: 合并
+将变更应用到内存中缓存的数据上，比如当一个页被加载到***buffer pool***中时，以及任何在变更缓冲(***change buffer***)中记录的可应用的变更纳入进buffer pool中。更变过的数据最终由刷新(***flush***)机制写入到表空间(***tablespace***)中。
+
+参见 [buffer pool], [change buffer], [flush], [tablespace].
+
+### <a name="glos_metadata_lock"></a>metadata lock: 元数据锁
+一种锁(***lock***)类型，为了防止同一时间另一事务(***transaction***)正在使用表时的***DDL***操作。如需更多细节，参考[第8.10.4节，元数据锁][08.10.04]。
+
+特别是在MySQL 5.6及更高版本中，对在线(***online***)操作的改进都集中在减少元数据锁的量上。目的是当某表被其它事务查询以及更新等时，对于不改变表结构的DDL操作(诸如针对InnoDB表的`CREATE INDEX`和`DROP INDEX`操作)可以继续。
+
+参见 [DDL], [lock], [online], [transaction].
+
+### <a name="glos_metrics_counter"></a>metrics counter: 计数器
+在MySQL 5.6及更高版本中，一个由information_schema库中`innodb_metrics`实现的特性。你可以查询低级别的InnoDB操作的次数(***counts***)和总数，以及使用这些结果结合***performance_schema***库中的数据来进行性能调优。
+
+参见 [counter], [INFORMATION_SCHEMA], [Performance Schema].
+
+### <a name="glos_midpoint_insertion_strategy"></a>midpoint insertion strategy: 中间插入策略
+是将最初的页不加载到InnoDB ***buffer pool***中“最新”列表的最后，而是放在中间某个位置的技术。具体的位置点可以不同，基于[innodb_old_blocks_pct]选项的设定。意图是只读
+一次的块，诸如在全表扫描(***full table scan***)过程中，可以比根据严格的***LRU***算法更快地老化出buffer pool。
+
+参见 [buffer pool], [full table scan], [LRU], [page].
+
+### <a name="glos_mini_transaction"></a>mini-transaction: 迷你事务
+在***DML***操作中，在物理(***physical***)层对内部数据结构进行变更时InnoDB所处理的一个内部阶段。迷你事务没有回滚(***roll back***)的概念；多个迷你事务可以发生在一个事务(***transaction***)中。迷你事务的信息写入到崩溃恢复(***crash recovery***)期间使用的redo日志(***redo log***)中。迷你事务也可以发生在常事务环境之外，例如在后台线程所处理的清除(***purge***)操作期间。
+
+参见 [commit], [crash recovery], [DML], [physical], [purge], [redo log], [rollback], [transaction].
+
+### <a name="glos_mixed_mode_insert"></a>mixed-mode insert: 混合模式插入
+一个对新行指定了部分但没有指定所有自增(***auto-increment***)值的`INSERT`语句。例如，一个多值`INSERT`可能在一些情况下为自增列指定值，在别的情况下为`NULL`值。`InnoDB`在自增列被指定为`NULL`时会生成自增值。另一个例子是`INSERT ... ON DUPLICATE KEY UPDATE`语句，其中自增值可以生成但用不到，任何重复的行都会以`UPDATE`语句来处理，而不是以`INSERT`语句。
+
+可以导致复制配置中的主库和从部数据不一致。可以要求调整innodb_autoinc_lock_mode配置选项的值。
+
+参见 [auto-increment], [innodb_autoinc_lock_mode], [master server], [replication], [slave server].
+
+### <a name="glos_mrg_file"></a>.MRG file: .MRG文件
+MERGE存储引擎使用的一个文件，包含对其它表的引用情况。此后缀的文件总是包含在由MySQL企业备份产品(***MySQL Enterprise backup***)中mysqlbackup命令(***mysqlbackup command***)所生成的备份中。
+
+参见 [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_multi_core"></a>multi-core: 多核
+可以利用多线程程序(如MySQL服务)优势的一种处理器。
+
+### <a name="glos_multiversion_concurrency_control"></a>multiversion concurrency control: 多版本并发控制
+见 [MVCC].
+
+### <a name="glos_mutex"></a>mutex: 互斥
+“互斥量(***mutex variable***)”的非式缩写。(Mutex自身是mutual exclusion的缩写。)是InnoDB对内部内存中的数据结构体用来表示或强制排它访问锁(***lock***)的低级对象。当这个锁被获取，任何其它的进程、线程以及其它都被阻止获取相同的锁。与之相对的读写锁(***rw-lock***)，是允许共享访问的。互斥与读写锁一并称为闩锁(***latch***)。
+
+参见 [latch], [lock,] [Performance Schema], [Pthreads], [rw-lock].
+
+### <a name="glos_mvcc"></a>MVCC: 多版本并发控制
+“multiversion concurrency control”的首字母缩写。这种技术让InnoDB事务可以在一定的隔离级别(***isolation levels***)写执行一致性读(***consistent read***)操作；也就是说，查询那些正在被其它事务更新的行，并且能看到那些更新发生前的值。这对于提高并发来说是一个强大的功能，它在不用等待其它事务持有的锁的情况下允许查询继续执行。
+
+这种技术在数据库界并不常见。一些数据库产品，以及一些其它的MySQL存储引擎都不支持它。
+
+参见 [ACID], [concurrency], [consistent read], [isolation level], [lock], [transaction].
+
+### <a name="glos_my_cnf"></a>my.cnf: 配置文件(Unix/Linux)
+Unix或Linuxt系统下MySQL配置文件名。
+
+参见 [my.ini], [option file].
+
+### <a name="glos_my_ini"></a>my.ini: 配置文件(Windows)
+Windows系统下MySQL配置文件名。
+
+参见 [my.cnf], [option file].
+
+### <a name="glos_myd_file"></a>.MYD file: .MYD文件
+MySQL用来存储MyISAM表数据的文件。
+
+参见 [.MYI file][myi file], [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_myi_file"></a>.MYI file: .MYI文件
+MySQL用来存储MyISAM表索引的文件。
+
+参见 [.MYD file][myd file], [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_mysql"></a>mysql: mysql(客户端)
+`mysql`程序是MySQL数据库的命令行解释器。它通过请求***mysqld***后台驻留程序来处理***SQL***语句和一些MySQL特定的命令，诸如`SHOW TABLES`。
+
+参见 [mysqld], [SQL].
+
+### <a name="glos_mysql_enterprise_backup"></a>MySQL Enterprise Backup: MySQL企业备份
+一个执行MySQL数据库热备(***hot backup***)的授权产品。它提供最高效可靠的***InnoDB***表备份，但也能备份MyISAM和其它类型的表。
+
+参见 [hot backup], [InnoDB].
+
+### <a name="glos_mysqlbackup_command"></a>mysqlbackup command: mysqlbackup命令
+一个MySQL企业备份(***MySQL Enterprise Backup***)的命令行工具。它对InnoDB表执行热备(***hot backup***)操作，并对MyISAM和其它类型表执行温备(***warm backup***)操作。如需更多关于该命令行的信息，请参考[第24.2节，MySQL企业备份][24.02.00]。
+
+参见 [hot backup], [MySQL Enterprise Backup], [warm backup].
+
+### <a name="glos_mysqld"></a>mysqld: MySQL daemon(Unix)或MySQL service(Windows)
+`mysqld`程序是MySQL数据库的数据库引擎。它以Unix后台驻留程序或Windows服务的型式运行，在后台持续等待请求并执行维护工作。
+
+参见 [mysql].
+
+### <a name="glos_mysqldump"></a>mysqldump: mysqldump命令
+一个执行数据库、表和表数据混合体逻辑备份(***logical backup***)的命令。结果是可以重现原始结构对象、数据或两都的SQL语句。对于大量的数据，像MySQL企业备份(***MySQL Enterprise Backup***)这样的物理备份(***physical backup***)解决方案是非常快速的，特别是对于恢复(***restore***)操作来说。
+
+参见 [logical backup], [MySQL Enterprise Backup], [physical backup], [restore].
+
+## <a name="N"></a>N ##
+### <a name="glos_natural_key"></a>natural key: 自然主键
+一个索引列，通常是主键(***primary key***)，其中的值是有现实意义的。通常不建议这么做，因为：
+
+* 如果值万一变了，会有许多潜在的索引维护工作来重排簇索引(***clustered index***)，并且更新在每一个二级索引(***secondary index***)里重复出现的主键拷贝。
+
+* 即使看似稳定的值也会以一种不可预测的方式改变，很难在数据库中正确地表示改变。举个例子，一个国家可以变成两个或更多，这会让之前的国家码过时。或者，唯一值的规则可能发生异常。举个例子，即使纳税人的身份证号的初衷是一人一个，但数据库可能需要处理违犯规则的记录，如身份证被盗这种事儿。纳税人的身份证和其它敏感ID也很少做为主键，因为它们需要被保护、加密以及其它不同于它列的对待。
+
+因此，使用任意数字来组成一个人造(***synthetic key***)的键通常来说是更好的选择，比如使用自增列(***auto-increment***)。
+
+参见 [auto-increment], [primary key], [secondary index], [synthetic key].
+
+### <a name="glos_neighbor_page"></a>neighbor page: 相邻页
+相同区(***extend***)中的任何一个页。当一个页(***page***)被选中用来刷新(***flush***)时，作为传统硬盘的I/O优化器会将任何相邻的脏页(***dirty page***)通常也被刷新。在MySQL 5.6及更高版本中，该行为可以被配置变量[innodb_flush_neighbors]所控制；你可以为SSD磁盘关掉该选项，它在写更小批量数据的随机查找上不会产生相同的负载。
+
+参见 [dirty page], [extent], [flush], [page].
+
+### <a name="glos_next_key_lock"></a>next-key lock: 行间隙锁
+一个索引记录(***index record***)上记录锁和索引记录前间隙上间隙锁(***gap lock***)的组合。
+
+参见 [gap lock], [locking], [record lock].
+
+### <a name="glos_non_blocking_io"></a>non-blocking I/O: 同AIO
+专业术语，异步I/O(***asynchronous I/O***)的同义词。
+
+参见  [asynchronous I/O].
+
+### <a name="glos_non_blocking_read"></a>non-locking read: 不加锁读
+没有使用`SELECT ... FROM UPDATE`或`SELECT ... LOCK IN SHARE MODE`子句的查询(***query***)。在只读事务(***read-only transaction***)中全局表所允许的唯一的查询类型。与之相对的是加锁读(***locking read***)。
+
+参见 [locking read], [query], [read-only transaction].
+
+### <a name="glos_non_repeatable_read"></a>non-repeatable read: 非重复读
+这种情况下，一个查询检索了数据，随后一个查询在同一个事务(***transaction***)中检打算检索相同的数据，但是却返回了不同的结果(期间被另一个事务的提交所变更)。
+
+这种操作类型与数据库设计的***ACID***理念相违背。在一个事务中，数据应该是一致的，有可预知和稳定的关系。
+
+Among different isolation levels, non-repeatable reads are prevented by the serializable read and repeatable read levels, and allowed by the consistent read, and read uncommitted levels.
+
+在不同的隔离级别(***isolation levels***)中，非重复读可以通过可序列化读(***serializable read***)和可重复读(***repeatable read***)来避免，在一致性读(***consistent read***)，也就是未提交读(***read uncommitted***)级别中是允许的。
+
+参见 [ACID], [consistent read], [isolation level], [READ UNCOMMITTED], [REPEATABLE READ], [SERIALIZABLE], [transaction].
+
+### <a name="glos_normalized"></a>normalized: (符合)范式的
+一个数据库设计策略，其中数据分拆到多个表中，并且重复的值简化为由一个ID代表的行，来避免存储、查询和更新冗余或冗长的值。它通常用联机事务处理(***OLTP***)应用中。
+
+举个例子，一个地址可能会给定一个唯一ID，这样一个普查的数据库可以通过将一个家庭中的每个成员与地址ID关联在一起来表现住在该地址下(***lives at this address***)的关系，而不用存储一个复杂值的多个拷贝，如中国北京前门外大街皮条胡同(***123 Main Street, Anytown, USA***)。
+
+再举个例子，虽然一个电话本应用会把每个人的名字和地址连同电话号码存到同一张表中，但一个电话公司的数据库可能会给每个电话号码一个指定的ID，并将号码和ID存到一个独立的表中。这种范式的表现方式可以简化在区号分拆时的大范围的更新。
+
+范式化也不总是推荐使用。主要用来查询且只在完全删除和加载时被更新的数据常常保存在更少、更大的表中，重复的值存在冗余拷贝。这种数据表现方式叫反范式(***denormalized***)，在数据仓库应用中十分常见。
+
+参见 [denormalized], [foreign key], [OLTP], [relational].
+
+### <a name="glos_nosql"></a>NoSQL: NoSQL
+表示一组数据访问技术的广泛的术语，它不使用***SQL***语句作为它们读写数据的主要途径。一些NoSQL技术是键-值存储，只接受单值的读写；一些放松了***ACID***方法的限制；还有一些不需要预先认定的结构(***schema***)。MySQL用户可以通过使用***memcached*** API直接访问一些类型的MySQL表，将NoSQL风格进程的快速与简单和SQL操作的灵活与方便结合起来。针对InnoDB表的***memcached***接口在MySQL 5.6及更高版本中可能；如需更多细节，参考[第14.2.16节，InnoDB集成***memcached***][14.02.16]。针对MySQL Cluster的memached接口在MySQL CLuster 7.2版中可用，如果更多细节，请参考[http://dev.mysql.com/doc/ndbapi/en/ndbmemcache.html]。
+
+参见 [ACID], [InnoDB], [memcached], [schema], [SQL].
+
+### <a name="glos_not_null_constraint"></a>NOT NULL constraint: 非空约束
+具体指定一列(***column***)不能包含任何空(***NULL***)值的一类约束(***constraint***)。它有助于保护引用一致性(***referential integrity***)，数据库服务器可以识别错误遗漏值的数据。它也可以让优化器来预计一个列上索引中实体的数目，而有助于查询优化器中的算法。
+
+参见 [column], [constraint], [NULL], [primary key], [referential integrity].
+
+### <a name="glos_null"></a>NULL: 空
+一个***SQL***中特殊的值，用来指代数据的缺失。任何算术运算或等于测试都会引起一个空值，反过来会产生一个空的结果。(因此它类似于IEEE浮点原则中的NaN，“不是一个数据(***not a number***)”。)任何诸如`AVG()`这样的聚集计算在决定多少行需要做除数时会忽略掉含有空值的行。唯一可以测试空值的SQL语句是`IS NULL`或`IS NOT NULL`。
+
+空值在索引操作中发挥作用，因为对于性能来说，一个数据库必须最小化为了保持跟踪缺失值的负载。通常地，空值不存在索引中，因为在一个在索引列上使用标准比较操作查询是不可能匹配到该列上含有空值的行。因为同样的原因，唯一索引不阻止空值；那些值根本不在索引中。在一个列上定义一个非空约束提供了一个没有行从索引中漏掉的保证，可以更好地查询优化(行的精确行数和评估是否使用索引)。
+
+因为主键(***primary key***)必须能唯一地标识表中的每一行，一个单列主键不能包含任何空值，多列主键在所有列中都不能包含空值。
+
+虽然Orcale数据库允许一个空值可以和字符串连结，但是InnoDB会把这样的操作结果视为空。
+
+参见 [index], [primary key], [SQL].
+
+## <a name="O"></a>O ##
+### <a name="glos_off_page_column"></a>off-page column 跨页列
+一个包含变长数据(诸如BLOB和VARCHAR)的列，其中数据太长而不能适用于B树(***B-tree***)页。数据存储在溢出页(***overflow page***)中。InnoDB ***Barracuda***文件格式中的动态(`DYNAMIC`)行格式对于这种存储来说，会比老的精简(`COMPACT`)行格式更有效。
+
+参见 [B-tree], [Barracuda], [overflow page].
+
+
+### <a name="glos_oltp"></a>OLTP: 在线联机查询
+“在线联机查询(***Online Transaction processing***)”的简写。一个数据库系统，或一个数据库应用，运行很多事务(***transaction***)，伴随频繁的读写，通常一次只影响小部的数据。举个例子，一个航线预订系统或一个处理银行存款的应用。考虑到***DML***(insert/update/delete)效率和查询(***query***)效率的平衡，数据可能会以范式(***normalized***)形式组织。与之相对的是数据仓库(***data warehouse***)。
+
+凭借其行级锁与事务能力，InnoDB是在应用中使用MySQL表的理想存储引擎。
+
+参见 [data warehouse], [DML], [InnoDB], [query], [row lock], [transaction].
+
+### <a name="glos_online"></a>online: 在线
+一类不会引起宕机、阻塞或限制操作数据库的操作。通常适用于***DDL***。缩短限制操作的操作，诸如快速索引创建(***fast index creation***)，在MySQL 5.6中已经大量引入了在线DDL操作(***online DDL***)。
+
+在备份环境中，热备(***hot backup***)是一个在线操作，温备(***warm backup***)的一部分是在线操作。
+
+参见 [DDL], [Fast Index Creation], [hot backup], [online DDL], [warm backup].
+
+### <a name="glos_online_ddl"></a>online DDL: 在线DDL
+一个在***DDL***(主要是`ALTER TABLE`)期间提高InnoDB表性能、并发和可用性的特性。更多细节请参考[第14.2.11节，`InnoDB`和在线DDL]。
+
+具体细节因操作类型的不同而不同。在某些情况下，表可以在ALTER TABLE运行的同时被并发修改。操作可能可以在不做表拷贝的情况下执行，或使用一个特殊优化类型的表拷贝。空间使用量由配置选项[innodb_online_alter_log_max_size]控制。
+
+这个特征是MySQL 5.5和MySQL 5.1 InnoDB Plugin中快速索引创建(***Fast Index Creation***)的加强版。
+
+参见 [DDL], [Fast Index Creation], [online].
+
+### <a name="glos_opt_file"></a>.OPT file: .OPT文件
+一个多包含数据库配置信息的文件。带有这个后缀名的文件总是包含在MySQL企业备份产品(***MySQL Enterprise Backup***)的mysqlbackup命令(***mysqlbackup command***)生成的备份中。
+
+参见 [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_optimistic"></a>optimistic: 乐观的
+一个引导关系型数据库系统低层实现决策的方法。在一个关系型数据库中对性能和并发(***concurrency***)的要求意味着操作必须快速启动或调度。对一致性和参照完整性(***referential integrity***)的要求意味着任何操作都有可能失败：一个事务可能回滚，一个***DML***操作可能违反约束，一个对锁的请求可能导致死锁，一个网络错误可能导致超时。乐观策略假设大多数请求或尝试都会成功，所以只做相对来说很小的工作来对付失败的情况。当这个假设为真时，数据库做少许不必要的操作；当请求失败了时，必须要额外的工作来清理和撤消变更。
+
+InnoDB为锁(***locking***)和提交等操作采用乐观策略。例如，事务产生的数据变更会在提交(***commit***)发生前就写到数据文件中，使得提交本身非常快，但如果事务回滚时需要做更多的荏来撤消变更。
+
+与乐观策略相对的是悲观(***pessimistic***)策略，其中的系统优化为处理不可靠靠或频繁失败的操作。这种方法在数据库系统中很罕见，因为更多关注选择可靠的硬件、网络和算法。
+
+参见 [commit], [concurrency], [DML], [locking], [pessimistic].
+
+### <a name="glos_optimizer"></a>optimizer: 优化器
+MySQL基于相关表(***table***)的特点与数据分布用，来决定为查询(***query***)采用最优索引(***index***)和关联(***join***)顺序的组件。
+
+参见 [index], [join], [query], [table].
+
+### <a name="glos_option"></a>option: 选项
+一个MySQL的配置参数，既存在配置文件(***option file***)中，又可以通过命令行命令传递。
+
+对于应用到(***InnoDB***)表上的选项，每个选项名都以前缀`innodb_`开头。
+
+参见 [InnoDB], [option file].
+
+### <a name="glos_option_file"></a>option file: 选项文件
+保存MySQL实例配置选项(***option***)的文件，一般来说，在Linux和UNIX上，这个文件叫`my.cnf`，在Windows上，这个文件叫`my.ini`。
+
+参见 [configuration file], [my.cnf], [option].
+
+### <a name="glos_overflow_page"></a>overflow page 溢出页
+单独申请用来存储因太长而不能放置B树(***B-tree***)页(***page***)的变长列(如`BLOB`和`VARCHAR`)的磁盘页。这些相关的列也叫页外列(***off-page column***)。
+
+参见 [B-tree], [off-page column], [page].
+
+## <name="P"></a>P ##
+### <a name="glos_page"></a>page: 页
+一个数据单元，表示InnoDB任何时刻在磁盘(数据文件，***data files***)与内存(***buffer pool***)之间传输的数据量。一个页可以包含一行或多行，取决于每行有多少数据。如果一行不能完整放到单个页中，InnoDB会设置一个指针类型数据结构，这样行的信息能存到一个页中。
+
+让每行中可以放置更多数据的一种方法是使用压缩行格式(***compressed row format***)。对于使用BLOB或大文本段列的表，精简行格式(***compact row format***)可以让这些大列跟行中的其它内容分开来存储，针对那些没有引用到那些列的查询降低I/O负载和内存使用。
+
+当InnoDB为了提高吞吐量而批量读写一组页时，它会一次读写一个区(***extend***)。
+
+一个MySQL实例中所有的InnoDB磁盘数据结构都使用同样的页大小(***page size***)。
+
+参见 [buffer pool], [compact row format], [compressed row format], [data files], [extent], [page size], [row].
+
 ### page cleaner 页清理器(页清理线程)
-### page size 数据页大小
-### .PAR file .PAR文件
-### parent table 父表
-### partial backup 部分备份
-### partial index 部分索引
-### Performace Schema 性能库
-### persistent statistic 持久统计
-### pessimistic 悲观锁
-### phantom 幻(读)
-### physical 物理
-### physical backup 物理备份
-### PITR 定点恢复
-### plan stability 执等计划稳定性
-### plugin 插件
-### point-in-time recovery 定点恢复
-### prefix 前缀
-### prepared backup 一致备份
-### primary key 主键
-### process 进程
-### pseudo-record 伪记录
-### Pthread Posix threads 不译
-### purge 清除
-### purge buffering 清除缓冲
-### purge lag 清除链表
-### purge thread 清除线程
+一个InnoDB后台线程(***thread***)，用来从***buffer pool***中刷新脏页(***dirty page***)。在MySQL 5.6之前的版本中，该行为由主线程(***master thread***)执行。
 
-## Q ##
-### query 查询
-### query execution plan 查询执行计划 
+参见 [buffer pool], [dirty page], [flush], [master thread], [thread].
+
+### <a name="glos_page_size"></a>page size: 页大小
+对于发布到MySQL 5.5版本，包括MySQL 5.5，每个InnoDB页(***page***)固定为16KB。这个值代表一个平衡：对于保存绝大多数行来说足够大，对减小加载不必要的数据到内存中的性能开销来说也足够小。其它值未经测试或不支持。
+
+从MySQL 5.6开始，InnoDB实例(***instance***)的页大小可以是4KB、8KB或16KB，由[innodb_page_size]配置选项控制。你在创建MySQL实例的时候设置这个值，之后它会一直保持不变。相同的页大小会应用到所有的InnoDB表空间(***tablespace***)中，无论是系统表空间(***system tablespace***)还是在***file-per-table***模式下创建的任何独立表空间。
+
+更小的页大小有助于提升使用比较小的块大小的存储设备，特别是对磁盘受限系统(***disk-bound***)中的***SSD***设备来说，比如***OLTP***应用。当单独的行被更新时，更少的数据被拷贝到内存中、写到磁盘、重组及锁定等等。
+
+参见 [disk-bound], [file-per-table], [instance], [OLTP], [page], [SSD], [system tablespace], [tablespace].
+
+### <a name="glos_par_file"></a>.PAR file: .PAR文件
+分区定义表。此后缀命的文件常常包含在由MySQL企业备份(***MySQL Enterprise Backup***)中mysqlbackup命令(***mysqlbackup command***)生产的备份中。
+
+参见 [MySQL Enterprise Backup], [mysqlbackup command].
+
+### <a name="glos_parent_table"></a>parent table: 父表
+外键(***foreign key***)关系中保存从子表(***child table***)中指向初始列的值的表。在父表中删除或更新行的结果依赖于外键定义中的`ON UPDATE`和`ON DELETE`子句。子表中符合条件的值会被自动依次删除或更新，或这些列被设置为`NULL`，或操作被拒绝。
+
+参见 [child table], [foreign key].
+
+### <a name="glos_partial_backup"></a>partial backup: 部分备份
+一个包含MySQL数据库中部分表(***table***)、或包含MySQL实例中部分数据库的备份。与之相对的是全备份(***full backup***)。
+
+参见 [backup], [full backup], [table].
+
+### <a name="glos_partial_index"></a>ppartial index: 部分索引
+只一部分表示列值的索引，一般来说是长VARCHAR值的前N个字符(前缀，***prefix***)。
+
+参见 [index], [index prefix].
+
+### <a name="glos_performance_schema"></a>Performace Schema: 性能库
+在MySQL 5.5及以上版本中，性能库(***performance_schema***)提供一组表，你通过它们可以查询到很多MySQL服务内部性能特性。
+
+参见  [latch], [mutex], [rw-lock].
+
+### <a name="glos_persistent_statistic"></a>persistent statistic: 持久统计
+MySQL 5.6的特性，将InnoDB表(***table***)的索引(***index***)统计存储到磁盘上，为查询(***query***)提供更好的执行计划稳定性(***plan stability***)。
+
+参见 [index], [optimizer], [plan stability], [query], [table].
+
+### <a name="glos_pessimistic"></a>pessimistic: 悲观
+一种牺牲性能或并发来获得安全的方法。它适用等请求或尝试可能失败的占比很高或失败请求的后果很严重的情况。InnoDB使用悲观锁(***locking***)机制来最小化死锁(***deadlock***)的机会。在应用层，你可以在通过在一开始就申请事务所需要的所有锁的悲观策略来避免死锁。
+
+很多内置的数据库机制使用与它相对的乐观(***optimistic***)方法。
+
+参见 [deadlock], [locking], [optimistic].
+
+### <a name="glos_phantom"></a>phantom: 幻(读)
+一个出现在查询结果集中，却没有在之前该查询结果集中出现的行。例如，如果一个查询在一个事务(***transaction***)中运行了两次，期间，另一个事务在新插入一行或更新一行后提交了所以在这个查询的`WHERE`子句中匹配到了。
+
+这种情况叫幻读。这要比非重复读(***non-repeatable read***)要更难防御一些，因为锁住第一次查询结果集中的所有行并不能阻止导致幻读出现的变更。
+
+在不同的隔离级别(***isolation level***)中，幻读在可序列化读(***serializable read***)级别是被阻止的，但在可重复读(***repeatable read***)、一致性读(***consistent read***)和未提交读(***read uncommitted***)级别是允许的。
+
+参见 [consistent read], [isolation level], [non-repeatable read], [READ UNCOMMITTED], [REPEATABLE READ], [SERIALIZABLE], [transaction].
+
+### <a name="glos_physical"></a>physical: 物理
+涉及硬件相关方面的一类操作，如磁盘块、内存页、文件、位及读盘等等。一般情况下，物理层面在专家级性能调优和问题诊断中是很重要的。与之相对的是逻辑(***logical***)。
+
+参见 [logical], [physical backup].
+
+### <a name="glos_physical_backup"></a>physical backup: 物理备份
+一个拷贝实际数据文件的备份(***backup***)。例如，MySQL企业备份(***MySQL Enterprise Backup***)产品的mysqldump命令生成的就是物理备份，因为它的输出包含可以被mysqld直接使用的数据文件，这让恢复(***restore***)操作变得更快。与之相对的是逻辑备份(***logical backup***)。
+
+参见 [backup], [logical backup], [MySQL Enterprise Backup], [restore].
+
+### <a name="glos_pitr"></a>PITR: 定点恢复
+定点恢复(***point-in-time recovery***)的简写。
+
+参见 [point-in-time recovery].
+
+### <a name="glos_plan_stability"></a>plan stability: 执行计划稳定性
+一个查询执行计划(***query execution plan***)的属性，其中优化器对于给定的查询(***query***)总是做出相同的选择，这样性能就是不变的和可预知的了。
+
+参见 [query], [query execution plan].
+
+### <a name="glos_plugin"></a>plugin: 插件
+在MySQL 5.1及更早的版本中，一个包含了对InnoDB存储引擎的特性与性能改善的独立可安装形式，这些改善在那些发行版中的内置InnoDB中并未包括。
+
+在MySQL 5.5及更高版本中，MySQL分发版包含最新的InnoDB特性与性能的改善，即InnoDB 1.1，它不再是一个单独的InnoDB插件了。
+
+差别主要在MySQL 5.1中，其中一个特性或bug修复可能要应用到InnoDB插件中，但不是内置的InnoDB中，反之亦然。
+
+参见 [built-in], [InnoDB].
+
+### <a name="glos_point_in_time_recovery"></a>point-in-time recovery: 定点恢复
+通过恢复备份(***backup***)将数据库的状态重建到一个指定的日期与时间点的进程。通常简写为***PITR***。因为指定的时间点不太可能恰好就是备份的时间点，所以这项技术常常需要一个物理备份(***physical backup***)和一个逻辑备份(***logical backup***)的组合。例如，利用MySQL企业备份(***MySQL Enterprise Backup***)产品，你恢复了指定时间点前的最近一个备份，然后重放备份时间点与定点恢复时间点之间的二进制日志(***binary log***)中的变更。
+
+参见 [backup], [logical backup], [MySQL Enterprise Backup], [physical backup], [PITR].
+
+### <a name="glos_prefix"></a>prefix: 前缀
+
+参见 [index prefix].
+
+### <a name="glos_prepared_backup"></a>prepared backup: 一致备份
+在所有二进制日志(***binary log***)与增量备份(***incremental backup***)应用阶段都完成后的一组备份文件，由MySQL企业备份(***MySQL Enterprise Backup***)产品生成。结果文件已为恢复(***restore***)做好准备。在应用步骤之前，这些文件叫原始备份(***raw backup***)。
+
+参见 [binary log], [hot backup], [incremental backup], [MySQL Enterprise Backup], [raw backup], [restore].
+
+### <a name="glos_primary_key"></a>primary key: 主键
+可以在表中唯一确定每一行的一组列(注：基于这组列的索引)。因此，它必须是一个不含`NULL`值的唯一索引。
+
+InnoDB要求每张表都有这样一个索引(也叫簇索引，***clustered index***或***cluster index***)，并且基于主键的列值组织表存储。
+
+当选择一个主键值时，考虑使用任意值(人造键，***synthetic key***)，而依靠其它来源得出的值(自然键，***natural key***)。
+
+参见 [clustered index], [index], [natural key], [synthetic key].
+
+### <a name="glos_process"></a>process: 进程
+一个正在执行的程序的实例。操作系统在多个运行的进程之间切换，允许一定级别的并发(***concurrency***)。在大多数据操作系统上，进程可以包含多个执行共享资源的线程(***thread***)。线程之间的上下文切换要快于进程之间的等效切换。
+
+参见[concurrency], [thread].
+
+### <a name="glos_pseudo_record"></a>pseudo-record: 伪记录
+一个索引中人造的记录，用来锁定(***locking***)当前不存在的键值或范围。
+
+参见 [infimum record], [locking], [supremum record].
+
+### <a name="glos_pthread"></a>Pthread: 不译
+POSIX线程标准，定义了UNIX和Linux系统上线程和锁操作API。在UNIX和Linux系统上，InnoDB使用为互斥(***mutex***)的使用它的实现。
+
+参见 [mutex].
+
+### <a name="glos_purge"></a>purge: 清除
+由独立线程执行的一类垃圾回收，按周期表运行。清除包含这些动作：从索引中删去过期的值；物理删除被之前的`DELETE`语句标记为删除的行。
+
+参见 [crash recovery], [delete], [doublewrite buffer].
+
+### <a name="glos_purge_buffering"></a>purge buffering: 清除缓冲
+在将在`DELETE`操作中的索引变更存储到插入缓冲(***insert buffer***)中而不是直接写盘的技术，这样物理写可以最小化随机I/O。(因为删除是两步操作，所以这个操作缓冲了正常清除之前标记为删除的索引记录的写操作。)它是变更缓冲(***change buffering***)的一种类型；其它类型为插入缓冲(***insert buffering***)和删除缓冲(***delete buffering***)。
+
+参见 [change buffer], [change buffering], [delete buffering], [insert buffer], insert buffering.
+
+### <a name="glos_purge_lag"></a>purge lag: 清除链表
+InnoDB清除链表(***history list***)的另一种叫法。与[innodb_max_purge_lag]配置选项有关。
+
+参见 [history list], [purge].
+
+### <a name="glos_purge_thread"></a>purge thread: 清除线程
+InnoDB进程中一个专门用来定期执行清除操作的线程。在MySQL 5.6及更高版本中，多清除线程可以用innodb_purge_thread配置选项来使其生效。
+
+参见 [purge], [thread].
+
+## <a name="Q"></a>Q ##
+### <a name="glos_query"></a>query: 查询
+在***SQL***中，一个从一张或多张表(***table***)中读取信息的操作。根据数据的组织和查询的参数不同，查找可能会通过查询(***index***)索引而优化。如果涉及多表，这个查询就叫做关联(***join***)。
+
+因为历史原因，有时“查询”在更广义上被用作内部进程讨论的语句上，包括其它类型的MySQL语句，读如***DDL***和***DML***语句。
+
+参见 [DDL], [DML], [index], [join], [SQL], [table].
+
+### <a name="glos_query_execution_plan"></a>query execution plan: 查询执行计划
+优化器关于如何最有效执行一个查询(***query***)的决策集，包括使用哪个或哪些索引(***index***)，以及其中表的关联(***join***)顺序。执行计划稳定性(***plan stability***)使得对于一个给定的查询，一直会选择相同的计划。
+
+参见 [index], [join], [plan stability], [query].
+
 ### query log 查询日志
-### quiesce 系统静默
 
-## R ##
-### RAID 磁盘阵列
-### random dive 随机取样
-### raw backup 原始备份
-### READ COMMITTED 隔离级别，不译 
-### READ UNCOMMITTED 隔离级别，不译
-### read view MVCC在内核中用到的一个快照模式 
-### read-ahead 预读
-### read-only transaction 只读事务
-### record lock 行锁
-### redo 重做，不译
-### redo log 重做日志，不译
-### redundant row format 冗余行格式，innodb的一种行的存储格式，不译
-### referential integrity 参照完整性 
-### relational 关系
-### relevance 相关性
-### REPEATABLE READ 隔离级别，不译
-### replication 复制
-### restore 恢复
-### rollback 回滚
-### rollback segment 回滚段
-### row 行
-### row format 行格式
-### row lock 行级锁
-### row-based replication 行复制
-### row-level locking 行级锁
-### rw-lock 读写锁
+参见 [general query log].
+
+### <a name="glos_quiesce"></a>quiesce: 系统静默状态
+为了减少数据库的活动量，常常为诸如`ALTER TABLE`、备份(***backup***)或关机(***shutdown***)而准备。有可能会引起尽可能多刷新(***flush***)，也有可能不会，因此InnoDB不能继续做后台I/O操作。
+
+在MySQL 5.6及更高版本中，语法`FLUSH TABLES ... FOR EXPORT`为`InnoDB`表往磁盘写一些数据，确保易于通过拷贝数据来备份那些表。
+
+参见 [backup], [flush], [InnoDB], [shutdown].
+
+## <a name="R"></a>R ##
+### <a name="glos_raid"></a>RAID: 磁盘阵列
+“廉价冗余磁盘阵列(Redundant Array of Inexpensive Drives)”的首字母缩写。通过在多个磁盘上分散I/O操作在硬件层获得更大的并发，并且改善低层写操作，否则它们将以顺序执行。
+
+参见 [concurrency].
+
+### <a name="glos_random_dive"></a>random dive: 随机取样
+一种用来快速估计一列中不同值个数(列的基数，***cardinality***)的技术。InnoDB从索引中随机取样页，并且使用这些数据来估算不同值的个数据。这个操作在每张表首词打开时发生。
+
+起初，取样的页数固定为8；现在，此值取决于设置[innodb_stats_sample_pages]参数。
+
+如何随机取页的方法取决于设置innodb_use_legacy_cardinality_algorithm参数。默认设置(OFF)比老版本拥有更优的随机性。
+
+参见 [cardinality].
+
+### <a name="glos_raw_backup"></a>raw backup: 原始备份
+在二进制日志(***binary log***)与任何增量备份(***incremental backup***)中的变更被应用之前，MySQL企业备份(***MySQL Enterprise Backup***)产品生成的初始的备份文件集。在这个阶段，文件尚未为恢复(***restore***)做好准备。当这些变更被应用后，文件就叫一致性备份(***prepared backup***)。
+
+参见 [binary log], [hot backup], [ibbackup_logfile], [incremental backup], [MySQL Enterprise Backup], [prepared backup], [restore].
+
+### <a name="glos_read_committed"></a>READ COMMITTED: 隔离级别，不译 
+为了性能，使用放宽事务(***transaction***)之间部分保护的锁(***locking***)策略的一种隔离级别(***isolation level***)。事务不能看到其它事务未提交的数据，但他们可以看到当前事务之后启动的另一个事务所提交的数据。所以，事务从来看不到任何错误数据，但数据能不能看到，一定程度上取决于其它事务的时间。
+
+在这个隔离级别下，当一个事务执行`UPDATE ... WHERE`或`DELETE ... WHERE`操作，其它事务可能不得不等待。事务可以执行`SELECT ... FOR UPDATE`和不会造成其它事务等待的`LOCK IN SHARE MODE`操作。
+
+参见 [ACID], [isolation level], [locking], [REPEATABLE READ], [SERIALIZABLE], [transaction].
+
+### <a name="glos_read_uncommitted"></a>READ UNCOMMITTED: 隔离级别，不译
+提供事务之间最小量保护的隔离级别(***isolation level***)。查询使用的锁(***locking***)策略使它们能够在通常会等待另一个事务的情况下继续。尽管如此，额外的性能是用不可靠结果的代价换来的，包括其它其它更正了但尚未提交的数据(被称为脏读，***dirty read***)。使用这个隔离级别要格外小心，要注意结果集可能会不一致或不能重现，取决于同一时刻其它事务在做什么。一般来说，这个隔离级别下的事务只做查询，没有插入、更新或删除操作。
+
+参见 [ACID], [dirty read], [isolation level], [locking], [transaction].
+
+### <a name="glos_read_view"></a>read view: 读视图
+InnoDB的***MVCC***机制所使用的一个内部快照。取决于其隔离级别(***isolation***)，某些事务(***transaction***)可以看到那些在事务(某些情况下是语句)启动时刻可以看到的数据值。使用读视图的隔离级别有***REPEATABLE READ***、***READ COMMITTED***和***READ UNCOMMITTED***。
+
+参见 [isolation level], [MVCC], [READ COMMITTED], [READ UNCOMMITTED], [REPEATABLE READ], [transaction].
+
+### <a name="glos_read_ahead"></a>read-ahead: 预读
+异步提前获取一组页(***pages***)(一整个区，***extend***)到***buffer pool***中的一种I/O请求，在预期中这些页很快就被用到。线性预读技术基于上一个区中对页访问的模式，提前获取区中的所有页，并且这是自MySQL 5.1 InnoDB Plugin始的所有MySQL版本的一部分。随机预读技术在同一个区中有一定数量的页存在于buffer pool的情况下，将提前获取该区中的所有页。随机预读不是MySQL 5.5的一部分，但在MySQL 5.6中由配置选项[innodb_random_read_ahead]重新引入。
+
+参见 [buffer pool], [extent], [page].
+
+### <a name="glos_read_only_transaction"></a>read-only transaction: 只读事务
+一类事务，可以通过排除一些涉及为每个事务(***transaction***)创建一个读视图(***read view***)的簿记来达到为InnoDB表的优化。只能执行无锁读(***non-locking read***)的查询。它可以明确地用使用语法s`TART TRANSACTION READ ONLY`来启动，或在某些条件下自动完成。更多细节参考[第14.2.12.2.3，优化只读事务][14.02.12.02.03]。
+
+参考 [non-locking read], [read view], [transaction].
+
+### <a name="glos_record_lock"></a>record lock: 索引记录锁
+一个索引记录上的锁(***lock***)。例如，`SELECT C1 FROM UPDATE FROM T WHERE C1=10;` 阻止其它事务的插入、更新或删除那些`tc.1`是10的行。与之对应的是间隙锁(***gap lock***)和行记录锁(***next-key lock***)。
+
+参见 [gap lock], [lock], [next-key lock].
+
+### <a name="glos_redo"></a>redo: 重做，不译
+当***DML***语句对InnoDB表产生变更时记录在redo日志(***redo log***)中的以记录为单位的数据。它在崩溃恢复(***crash recovery***)中用于校正于不完整的事务(***transaction***)写入的数据。单调递增的***LSN***值代表通过redo日志的redo数据的积累量。
+
+参见 [crash recovery], [DML], [LSN], [redo log], [transaction].
+
+### <a name="glos_redo_log"></a>redo log: 重做日志，不译
+崩溃恢复(***crash recovery***)过程中使用一种基于磁盘的数据结构，用于校正由不完整事务(***transaction***)写入的数据。在正常操作过程中，它将变更InnoDB表数据的请求编码，这些请求由SQL语句或低层的API调用NoSQL接口产生。在异常关机(***shutdown***)之前完有完成更新数据文件(***data files***)的修改会被自动重放。
+
+redo log在物理上表现为一组文件，通常命名为`ib_logfile0`和`iblogfile1`。redo日志中的数据根据受影响的记录编码；这些数据统称为***redo***。redo日志中通过的数据表现为单调递增的***LSN***值。在MySQL 5.6.3中，之前redo日志大小4GB的上限升至512G。
+
+redo log在磁盘上的布局取决于配置选项[innodb_log_file_size]、[innodb_log_group_home_dir]及[innodb_log_files_in_group](基本不用)。redo日志操作的性能也受日志缓冲的影响，由配置选项[innodb_log_buffer_size]控制。
+
+参见 [crash recovery], [data files], [ib_logfile], [log buffer], [LSN], [redo], [shutdown], [transaction].
+
+### <a name="glos_redundant_row_format"></a>redundant row format: 冗余行格式
+最早的InnoDB行格式，对于使用Antelope文件格式的表有效。在MySQL 5.0.3之前，它是InnoDB中唯一有效的行格式。在MySQL 5.0.3及更高版本中，默认为精简行格式。你仍然可以指定冗余行格式以兼容较老的InnoDB表。
+
+如需更多关于InnoDB冗余行格式的信息，请参考[第14.2.9.4节，精简与冗余行格式][14.02.09.04]。
+
+参见 [Antelope], [compact row format], [file format], [row format].
+
+### <a name="glos_referential_integrity"></a>referential integrity: 参照完整性 
+维护数据一直处于一致格式的技术，***ACID***理念的一部分。实际上，不同表中的数据通过使用外键约束(***FOREIGN KEY constraint***)来保持一致，它能阻止变更发生或自动像变更传递到关联的表中。关联机制包括阻止即将误插入重复值的唯一约束(***unique constraint***)和阻止即将误插入空白值的非空约束(***NOT NULL constraint***)。
+
+参见 [ACID], [FOREIGN KEY constraint], [NOT NULL constraint], [unique constraint].
+
+### <a name="glos_relational"></a>relational: 关系
+现代数据库系统很重要的一部分。数据库服务编码并强制实施关系，如一对一、一对多和唯一性。例如，一个人在一个地址本数据库中可能拥有零个、一个或多个手机号；单个电话号码可能与多个家庭成员关联。在财务数据库中，一个人可能要求刚好拥有一个纳税人ID，并且任何纳税人ID只能与一个人关联。
+
+数据库服务可以利用这些关系来阻止错误数据被插入，并且找到高效查询信息的方法。例如，如果一个值被定义为唯一，那么服务可以在找到第一个匹配项之后就停止搜索，并且他可以拒绝试图插入相同值的第二份拷贝。
+
+在数据库层面，这些关系通过SQL特性来表示，诸如表中的列(***column***)、唯一约束、非空约束(***NOT NULL constarnts***)、外键(***foreign key***)及不同类型的关联操作等。复杂的关系一般会引用数据分拆到多个表中。通常，数据是范式化(***normalized***)的，所以一对多关系中的重复的值只被存储一次。
+
+在数学语境中，数据库中的关系起源于集合论。比如，`WHERE`子句中的`OR`和`AND`操作表现为并集和交集的概念。
+
+参见 [ACID], [constraint], [foreign key], [normalized].
+
+### <a name="glos_relevance"></a>relevance: 相关度
+在全文搜索(***full-text search***)特性中，一个表示搜索字符串与全文索引(***FULLTEXT index***)中数据相似度的数字。例如，当你搜索一个单词时，该词出现多次的行相比只出现一次的行，单词与它的相关性要更大一些。
+
+参见 [full-text search], [FULLTEXT index].
+
+### <a name="glos_repeatable_read"></a>REPEATABLE READ: 隔离级别，不译
+InnoDB默认的隔离级别(***isolation level***)。它阻止查询任何正在被其它事务修改的行，从而阻断了非重复读(***non-repeatable read***)但不能阻断幻(***phantom***)读。它使用了一个适度严格的锁(***locking***)策略，所以所有在同一个事务中的查询能从同一个快照上读到数据，也就是说，数据跟事务启动时一样的。
+
+当一个事务在这个隔离级别下执行`UPDATE ... WHERE`、`DELETE ... WHERE`、`SELECT ... FOR UPDATE`和`LOCK IN SHARE MODE`操作时，其它事务可能需要等待。
+
+参见 [ACID], [consistent read], [isolation level], [locking], [phantom], [SERIALIZABLE], [transaction].
+
+### <a name="glos_replication"></a>replication: 复制
+从主库(***master database***)发送变更到一个或多个从库(***slave database***)的做法，这样所有的数据库拥有相同的数据。这个技术有着广泛的应用，如为更好的扩展性而做的负载均衡、容备以及测试软件升级与配置变更。变更在数据库之间发送的方法有基于行的复制(***row-based replication***)与基于语句的复制(***statement-based replication***)。
+
+参见 [row-based replication], [statement-based replication].
+
+### <a name="glos_restore"></a>restore: 恢复
+将一组文件从MySQL企业备份产品(***MySQL Enterprise Backup***)中放置到MySQL中的进程。执行这个操作可以修改损坏了的数据库、返回到早期某个时间点或设置一个新的从库(在复制(***replication***)环境下)。在MySQL企业备份产品(***MySQL Enterprise Backup***)中，这个操作由mysqlbackup命令(***mysqlbackup command***)的`copy-back`选项来执行。
+
+参见 [hot backup], [MySQL Enterprise Backup], [mysqlbackup command], [prepared backup], [replication].
+
+### <a name="glos_rollback"></a>rollback: 回滚
+一个结束一个事务(***transaction***)，撤消任何由该事务生成的变更的***SQL***语句。它与提交相对(***commit***)，提交是让该事务产生的变更保持持久。
+
+默认情况下，MySQL使用自动提交(***autocommit***)设置，它在每条SQL语句之后自动执行提交。如果你要使用回滚技术的话，必须要变更这个设置。
+
+参见 [ACID], [commit], [transaction].
+
+### <a name="glos_rollback_segment"></a>rollback segment: 回滚段
+包含undo日志(***undo log***)的存储区，是系统表空间(***system tablespace***)的一部分。
+
+参见 [system tablespace], [undo log].
+
+### <a name="glos_row"></a>row: 行
+有一组列(***column***)定义的逻辑数据结构。一组行组成一张表(***table***)，在InnoDB数据文件(***data files***)中，每个页可以包含一行或多行。
+
+尽管InnoDB为了与MySQL语法保持一致而使用了术语行格式(***row format***)，但行格式是每张表的一个属性并且应用到了表中的所有行上。
+
+参见 [column], [data files], [page], [row format], [table].
+
+### <a name="glos_row_format"></a>row format: 行格式
+InnoDB表(***table***)中行(***row***)的磁盘存储格式。当InnoDB有了如压缩等新的功能时，新的行格式会被引进，以支持存储在效率与性能方面的改善。
+
+每一张表都有自己的行格式，通过`ROW_FORMAT`选项来指定。要查看每张InnoDB表的行格式，执行命令`SHOW TABLE STATUS`。因为系统表空间中的所有表使用同一种行格式，所以要利用其它行格式的优势的话，一般要求打开[innodb_file_per_table]选项，以便每张表都存储在独立的表空间中。
+
+参见 [compact row format], [compressed row format], [dynamic row format], [fixed row format], [redundant row format], [row], [table].
+
+### <a name="glos_row_lock"></a>row lock: 行锁
+一种锁(***lock***)，阻止一行被别一个事务(***transaction***)以互斥的方式访问。同一个表中的其它行则可以被其它事务自由的写入。这是在***InnoDB***表上做***DML***操作产生的一类锁(***locking***)。
+
+与之对应的是MyISAM对应的表级锁(***table lock***)，或***DDL***操作期间的用在不能做在线DDL(***online DDL***)操作的InnoDB表上的锁；这些锁阻止对表的并发访问。
+
+参见 [DDL], [DML], [InnoDB], [lock], [locking], [online DDL], [table lock], [transaction].
+
+### <a name="glos_row_based_replication"></a>row-based replication: 行复制
+一种复制(***replication***)的形式，其中事件从主库(***master***)传播到从库(***slave***)上，并说明独立的行如何发生变更。它对于[innodb_autoinc_lock_mode]选项的所有设置都是安全的。
+
+参见 [auto-increment locking], [innodb_autoinc_lock_mode], [master server], [replication], [slave server], [statement-based replication].
+
+### <a name="glos_row_level_locking"></a>row-level locking: 行级锁
+***InnoDB***表使用的锁(***locking***)机制，依靠行锁(***row lock***)而非表锁(***table lock***)。多个事务(***transaction***)可以同时修改同一张表。只有当两个事务试图修改同一行数据时让其中一个事务等待其它事务完成(并且释放它的行锁)。
+
+参见 [InnoDB], [locking], [row lock], [table lock], [transaction].
+
+### <a name="glos_rw_lock"></a>rw-lock: 读写锁
+InnoDB低级对象，用来表示和强制对内部内存结构体共享访问锁(***lock***)。一旦这个锁被获取了，任何其它的进程和线程等等能读到数据结构，但是没有一个可以写它。与之对应的是互斥锁(***mutex***)，它强制排它访问。互斥锁和读写锁统称为闩锁(***latch***)。
+
+参见 [latch], [lock], [mutex], [Performance Schema].
 
 ## S ##
 ### savepoint 保存点
