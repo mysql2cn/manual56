@@ -1717,18 +1717,75 @@ redo log在磁盘上的布局取决于配置选项[innodb_log_file_size]、[inno
 
 参见 [ACID], [constraint], [foreign key], [normalized].
 
-### relevance 相关性
-### REPEATABLE READ 隔离级别，不译
-### replication 复制
-### restore 恢复
-### rollback 回滚
-### rollback segment 回滚段
-### row 行
-### row format 行格式
-### row lock 行级锁
-### row-based replication 行复制
-### row-level locking 行级锁
-### rw-lock 读写锁
+### <a name="glos_relevance"></a>relevance: 相关度
+在全文搜索(***full-text search***)特性中，一个表示搜索字符串与全文索引(***FULLTEXT index***)中数据相似度的数字。例如，当你搜索一个单词时，该词出现多次的行相比只出现一次的行，单词与它的相关性要更大一些。
+
+参见 [full-text search], [FULLTEXT index].
+
+### <a name="glos_repeatable_read"></a>REPEATABLE READ: 隔离级别，不译
+InnoDB默认的隔离级别(***isolation level***)。它阻止查询任何正在被其它事务修改的行，从而阻断了非重复读(***non-repeatable read***)但不能阻断幻(***phantom***)读。它使用了一个适度严格的锁(***locking***)策略，所以所有在同一个事务中的查询能从同一个快照上读到数据，也就是说，数据跟事务启动时一样的。
+
+当一个事务在这个隔离级别下执行`UPDATE ... WHERE`、`DELETE ... WHERE`、`SELECT ... FOR UPDATE`和`LOCK IN SHARE MODE`操作时，其它事务可能需要等待。
+
+参见 [ACID], [consistent read], [isolation level], [locking], [phantom], [SERIALIZABLE], [transaction].
+
+### <a name="glos_replication"></a>replication: 复制
+从主库(***master database***)发送变更到一个或多个从库(***slave database***)的做法，这样所有的数据库拥有相同的数据。这个技术有着广泛的应用，如为更好的扩展性而做的负载均衡、容备以及测试软件升级与配置变更。变更在数据库之间发送的方法有基于行的复制(***row-based replication***)与基于语句的复制(***statement-based replication***)。
+
+参见 [row-based replication], [statement-based replication].
+
+### <a name="glos_restore"></a>restore: 恢复
+将一组文件从MySQL企业备份产品(***MySQL Enterprise Backup***)中放置到MySQL中的进程。执行这个操作可以修改损坏了的数据库、返回到早期某个时间点或设置一个新的从库(在复制(***replication***)环境下)。在MySQL企业备份产品(***MySQL Enterprise Backup***)中，这个操作由mysqlbackup命令(***mysqlbackup command***)的`copy-back`选项来执行。
+
+参见 [hot backup], [MySQL Enterprise Backup], [mysqlbackup command], [prepared backup], [replication].
+
+### <a name="glos_rollback"></a>rollback: 回滚
+一个结束一个事务(***transaction***)，撤消任何由该事务生成的变更的***SQL***语句。它与提交相对(***commit***)，提交是让该事务产生的变更保持持久。
+
+默认情况下，MySQL使用自动提交(***autocommit***)设置，它在每条SQL语句之后自动执行提交。如果你要使用回滚技术的话，必须要变更这个设置。
+
+参见 [ACID], [commit], [transaction].
+
+### <a name="glos_rollback_segment"></a>rollback segment: 回滚段
+包含undo日志(***undo log***)的存储区，是系统表空间(***system tablespace***)的一部分。
+
+参见 [system tablespace], [undo log].
+
+### <a name="glos_row"></a>row: 行
+有一组列(***column***)定义的逻辑数据结构。一组行组成一张表(***table***)，在InnoDB数据文件(***data files***)中，每个页可以包含一行或多行。
+
+尽管InnoDB为了与MySQL语法保持一致而使用了术语行格式(***row format***)，但行格式是每张表的一个属性并且应用到了表中的所有行上。
+
+参见 [column], [data files], [page], [row format], [table].
+
+### <a name="glos_row_format"></a>row format: 行格式
+InnoDB表(***table***)中行(***row***)的磁盘存储格式。当InnoDB有了如压缩等新的功能时，新的行格式会被引进，以支持存储在效率与性能方面的改善。
+
+每一张表都有自己的行格式，通过`ROW_FORMAT`选项来指定。要查看每张InnoDB表的行格式，执行命令`SHOW TABLE STATUS`。因为系统表空间中的所有表使用同一种行格式，所以要利用其它行格式的优势的话，一般要求打开[innodb_file_per_table]选项，以便每张表都存储在独立的表空间中。
+
+参见 [compact row format], [compressed row format], [dynamic row format], [fixed row format], [redundant row format], [row], [table].
+
+### <a name="glos_row_lock"></a>row lock: 行锁
+一种锁(***lock***)，阻止一行被别一个事务(***transaction***)以互斥的方式访问。同一个表中的其它行则可以被其它事务自由的写入。这是在***InnoDB***表上做***DML***操作产生的一类锁(***locking***)。
+
+与之对应的是MyISAM对应的表级锁(***table lock***)，或***DDL***操作期间的用在不能做在线DDL(***online DDL***)操作的InnoDB表上的锁；这些锁阻止对表的并发访问。
+
+参见 [DDL], [DML], [InnoDB], [lock], [locking], [online DDL], [table lock], [transaction].
+
+### <a name="glos_row_based_replication"></a>row-based replication: 行复制
+一种复制(***replication***)的形式，其中事件从主库(***master***)传播到从库(***slave***)上，并说明独立的行如何发生变更。它对于[innodb_autoinc_lock_mode]选项的所有设置都是安全的。
+
+参见 [auto-increment locking], [innodb_autoinc_lock_mode], [master server], [replication], [slave server], [statement-based replication].
+
+### <a name="glos_row_level_locking"></a>row-level locking: 行级锁
+***InnoDB***表使用的锁(***locking***)机制，依靠行锁(***row lock***)而非表锁(***table lock***)。多个事务(***transaction***)可以同时修改同一张表。只有当两个事务试图修改同一行数据时让其中一个事务等待其它事务完成(并且释放它的行锁)。
+
+参见 [InnoDB], [locking], [row lock], [table lock], [transaction].
+
+### <a name="glos_rw_lock"></a>rw-lock: 读写锁
+InnoDB低级对象，用来表示和强制对内部内存结构体共享访问锁(***lock***)。一旦这个锁被获取了，任何其它的进程和线程等等能读到数据结构，但是没有一个可以写它。与之对应的是互斥锁(***mutex***)，它强制排它访问。互斥锁和读写锁统称为闩锁(***latch***)。
+
+参见 [latch], [lock], [mutex], [Performance Schema].
 
 ## S ##
 ### savepoint 保存点
