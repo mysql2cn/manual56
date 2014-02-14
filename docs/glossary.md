@@ -631,10 +631,10 @@ InnoDB Plugin中引入的一种行格式，是Barracuda文件格式(***Barracuda
 
 参见 [concurrency], [consistent read], [isolation level], [lock], [REPEATABLE READ], [shared lock], [transaction].
 
-### <a name='glos_extent'></a>extent: 区
-表空间(***tablespace***)中总共1MB的一组页(***pages***)。默认的页大小(***page size***)为16KB，一个区包含64个页。在MySQL5.6中，页大小可以是4KB或8KB，这种情况下一个区可以包含更多的页，但总大小仍为1M。
+### <a name='glos_extent'></a>extent: 簇
+表空间(***tablespace***)中总共1MB的一组页(***pages***)。默认的页大小(***page size***)为16KB，一个区包含64个页。在MySQL5.6中，页大小可以是4KB或8KB，这种情况下一个簇可以包含更多的页，但总大小仍为1M。
 
-诸如段(***segments***)、预读(***read-ahead***)请求和双写缓冲(***doublewrite buffer***)等这样InnoDB的特性在使用读、写、申请或释放数据时，都是一次一个区来操作。
+诸如段(***segments***)、预读(***read-ahead***)请求和双写缓冲(***doublewrite buffer***)等这样InnoDB的特性在使用读、写、申请或释放数据时，都是一次一个簇来操作。
 
 参见 [doublewrite buffer], [neighbor page], [page], [page size], [read-ahead], [segment], [tablespace].
 
@@ -1317,7 +1317,7 @@ MySQL用来存储MyISAM表索引的文件。
 参见 [auto-increment], [primary key], [secondary index], [synthetic key].
 
 ### <a name="glos_neighbor_page"></a>neighbor page: 相邻页
-相同区(***extend***)中的任何一个页。当一个页(***page***)被选中用来刷新(***flush***)时，作为传统硬盘的I/O优化器会将任何相邻的脏页(***dirty page***)通常也被刷新。在MySQL 5.6及更高版本中，该行为可以被配置变量[innodb_flush_neighbors]所控制；你可以为SSD磁盘关掉该选项，它在写更小批量数据的随机查找上不会产生相同的负载。
+相同簇(***extend***)中的任何一个页。当一个页(***page***)被选中用来刷新(***flush***)时，作为传统硬盘的I/O优化器会将任何相邻的脏页(***dirty page***)通常也被刷新。在MySQL 5.6及更高版本中，该行为可以被配置变量[innodb_flush_neighbors]所控制；你可以为SSD磁盘关掉该选项，它在写更小批量数据的随机查找上不会产生相同的负载。
 
 参见 [dirty page], [extent], [flush], [page].
 
@@ -1451,7 +1451,7 @@ MySQL基于相关表(***table***)的特点与数据分布用，来决定为查�
 
 让每行中可以放置更多数据的一种方法是使用压缩行格式(***compressed row format***)。对于使用BLOB或大文本段列的表，精简行格式(***compact row format***)可以让这些大列跟行中的其它内容分开来存储，针对那些没有引用到那些列的查询降低I/O负载和内存使用。
 
-当InnoDB为了提高吞吐量而批量读写一组页时，它会一次读写一个区(***extend***)。
+当InnoDB为了提高吞吐量而批量读写一组页时，它会一次读写一个簇(***extend***)。
 
 一个MySQL实例中所有的InnoDB磁盘数据结构都使用同样的页大小(***page size***)。
 
@@ -1666,7 +1666,7 @@ InnoDB的***MVCC***机制所使用的一个内部快照。取决于其隔离级�
 参见 [isolation level], [MVCC], [READ COMMITTED], [READ UNCOMMITTED], [REPEATABLE READ], [transaction].
 
 ### <a name="glos_read_ahead"></a>read-ahead: 预读
-异步提前获取一组页(***pages***)(一整个区，***extend***)到***buffer pool***中的一种I/O请求，在预期中这些页很快就被用到。线性预读技术基于上一个区中对页访问的模式，提前获取区中的所有页，并且这是自MySQL 5.1 InnoDB Plugin始的所有MySQL版本的一部分。随机预读技术在同一个区中有一定数量的页存在于buffer pool的情况下，将提前获取该区中的所有页。随机预读不是MySQL 5.5的一部分，但在MySQL 5.6中由配置选项[innodb_random_read_ahead]重新引入。
+异步提前获取一组页(***pages***)(一整个簇，***extend***)到***buffer pool***中的一种I/O请求，在预期中这些页很快就被用到。线性预读技术基于上一个区中对页访问的模式，提前获取区中的所有页，并且这是自MySQL 5.1 InnoDB Plugin始的所有MySQL版本的一部分。随机预读技术在同一个区中有一定数量的页存在于buffer pool的情况下，将提前获取该区中的所有页。随机预读不是MySQL 5.5的一部分，但在MySQL 5.6中由配置选项[innodb_random_read_ahead]重新引入。
 
 参见 [buffer pool], [extent], [page].
 
@@ -1787,32 +1787,150 @@ InnoDB低级对象，用来表示和强制对内部内存结构体共享访问�
 
 参见 [latch], [lock], [mutex], [Performance Schema].
 
-## S ##
-### savepoint 保存点
-### scalability 可扩展性
-### scale out 水平扩展 
-### scale up 垂直扩展
-### schema 数据库(仅MySQL)
-### search index 搜索索引
-### secondary index 二级索引
-### segment 段
-### selectivity 选择性
-### semi-consistent read 半一致性读
-### SERIALIZABLE 隔离级别，不译
-### server 服务器
-### shared lock 共享锁
-### shared tablespace 共享表空间
-### sharp checkpoint 清晰检查点
-### fuzzy checkpoint 模糊检查点
-### shutdown 关闭
-### slave server 从服务器
-### slow query log 慢查询日志
-### slow shutdown 慢关闭
-### snapshot 快照
-### space ID 空间ID
-### spin 自旋(锁) 
-### SQL 结构化查询语言
-### SSD 固态驱动器
+## <a name="S"></a>S ##
+
+### <a name="glos_savepoint"></a>savepoint: 保存点
+保存点有助于实现嵌套事务(***transaction***)。它们常用来提供在表上操作的范围，该表是大事务的一部分。例如，在预订系统中安排一个旅行可能会涉及到预订几个不同的航班；如果一个中意的航班不可用，你可以只回滚(***rollback***)预订中涉及单程的变更，而不必将之前成功预约的航班都回滚。
+
+参见 [rollback], [transaction].
+
+### <a name="glos_scalability"></a>scalability: 可扩展性
+往一个系统中增加更多工作，以及处理更多并发请求的能力，并在突破系统容量上限期间并无性能的突然下降。软件架构、硬件配置、应用编码以及负载类型都在可扩展性中扮演重要角色。当系统到达最大容量，提高可扩展性的流行的做法是垂直扩展(***scale up***，提升已有软硬件的能力)和水平扩展(***scale out***，增加新的服务器和更多MySQL实例)。常常与可用性(***availability***)搭配作为一个大规模部署中的关键组成部分。
+
+参见 [availability], [scale out], [scale up].
+
+### <a name="glos_scale_out"></a>scale out: 水平扩展 
+通过增加新服务器和更多MySQL实例来提高可扩展性(***scalability***)的技术。例如，架设复制、MySQL集群、连接池或其它通过一组机器来扩展工作能力的方面。与之对应的是垂直扩展(***scale up***)。
+
+参见 [scalability], [scale up].
+
+### <a name="glos_scale_up"></a>scale up: 垂直扩展
+通过提升已有软硬件能力来提高可扩展性(***scalability***)的技术。例如，给一台服务器增加内存并调整与内存有关的参数，如[innodb_buffer_pool_size]和[innodb_buffer_pool_instances]。与之对应的是水平扩展(***scale out***)。
+
+参见 [scalability], [scale out].
+
+### <a name="glos_schema"></a>schema: 数据库(仅MySQL)
+从概念上讲，schema指的是一组相互之间有关联的数据库对象，如表、表列、列的数据类型、索引、外键等等。这些对象通过SQL语法连在一起，因为这些列组成表，外键指向表和列等。理想情况下，它们在逻辑上也是连在一起的，做为统一的应用或灵活的框架的一部分来一起工作。例如，information_schema和performance_schema数据库在它们的名字中使用"schema"来强化它们所包含表与列之间的亲近关系。
+
+在MySQL中，从物理上讲，一个schema等同于一个数据库。你可以在MySQL语法中，将关键字DATABASE用SCHEMA替代，例如，用CREATE SCHEMA来替代CREATE DATABASE。
+
+一些其它的数据库产品会有区别。例如，在Oracle数据库产品中，schema只代表一部分数据库：属于一个单个用户的表和其它对象。
+
+参见 [database], [ib-file set], [INFORMATION_SCHEMA], [Performance Schema].
+
+### <a name="glos_search_index"></a>search index: 搜索索引
+在MySQL中，全文搜索(***full-text search***)查询使用一种特殊的索引，全文索引(***FULLTEXT index***)。在MySQL 5.6.4及以上版本中，InnoDB和MyISAM表都支持全文索引了；在这之前，这些索引只在MyISAM表中可用。
+
+参见 [full-text search], [FULLTEXT index].
+
+### <a name="glos_secondary_index"></a>secondary index: 二级索引
+相当于表列的子集的一类InnoDB索引(***index***)。一个InnoDB表可以拥有0个、一个或多个二级索引。(与之对应的是聚集索引，***clustered index***，每个InnoDB都要用有这个索引，并且存储了表中所有的列。)
+
+一个二级索引可以用来满足只从索引列中请求数据的查询。对于更加复杂的查询，它可以用来找到表中有关的行，这些行之后会通过查询聚集索引来获取。
+
+创建和删除二级索引通常会因为拷贝所有InnoDB表的数据而带来的明显的性能负载。InnoDB Plugin的快速索引创建(***fast index creation***)特性会加速针对二级索引的`CREATE INDEX`和`DROP INDEX`语句。
+
+参见 [clustered index], [Fast Index Creation], [index].
+
+### <a name="glos_segment"></a>segment: 段
+InnoDB表空间(***tablespace***)中主要组织结构。如果表空间像是一个目录的话，段就像是目录里的文件。段会增长，新段会被创建。
+
+例如，在***file-per-table***的表空间中，表数据在一个段中，每个相关的索引在自己的段中。系统表空间(***system tablespace***)包含多个不同的段，因为它要保存多个表和它们相关的索引。系统表空间也包括最多由128个回滚段(***rollback segments***)组成的undo日志(***undo log***)。
+
+段会随着数据的插入与删除会增大与缩小。当一个段需要更多空间，它会一次扩展一个簇(***extent***，1MB)。类似地，当某个簇中的数据不再需要时，段会释放掉这个簇中可利用的空间。
+
+参见 [extent], [file-per-table], [rollback segment], [system tablespace], [tablespace], [undo log].
+
+### <a name="glos_selectivity"></a>selectivity: 选择性
+数据分布的一个属性，一个列中不同值的数(基数，***cardinality***)除以表中的记录数。高选择性意味着列中的值相对唯一，且可以高效地通过索引来获取数据。在你(或查询优化器)可以预测到一个尝试在WHERE子句只能匹配少量(或部分)表中的行的情况下，如果首先使用索引评估这个尝试，整个查询(***query***)往往是高效的。
+
+参见 [cardinality], [query].
+
+### <a name="glos_semi_consistent_read"></a>semi-consistent read: 半一致性读
+`UPDATE`语句使用的一类读操作，是提交读(***read committed***)和一致性读(***consistent read***)的组合体。当一个`UPDATE`语句检查一个已经被锁了的行时，InnoDB返回给MySQL最近提交的版本以便MySQL可以判断此行是否满足`UPDATE`的`WHERE`条件。如果行匹配(必须要被更新)，MySQL重读该行，并且这次InnoDB会锁住它或等待为它上锁。这类读操作只有在事务在读提交隔离级别(***isolation level***)时发生，或在[innodb_locks_unsafe_for_binlog]选项开启时发生。
+
+参见 [consistent read], [isolation level], [READ COMMITTED].
+
+### <a name="glos_serializable"></a>SERIALIZABLE: 隔离级别，不译
+使用最保守锁机制的隔离级别(***isolation level***)，阻止任何其它的事务插入或变更本事务读取的数据，直到它结束。这种情况下，同一个查询可以在一个事务里一遍又一遍地运行，并且每次都能确保读到相同的结果集。任何对被当前事务启动之后的事务所提交数据的变更尝试，都会导致当前事务的等待。
+
+这是SQL标准指定的默认隔离级别。实际上，这么严格的级别是很少需要的，所以InnoDB的默认隔离级别是次严格的，可重复读(***repeatable read***)。
+
+参迎 [ACID], [consistent read], [isolation level], [locking], [REPEATABLE READ], [transaction].
+
+### <a name="glos_server"></a>server: 服务(器)
+持续运行的一程序，等待接收并处理另一个程序(客户端，***client***)发来的请求。因为一整台计算机常常专门用于运行一个或多个服务(数据数据库服务、web服务、应用服务或它们的组合)，所以这个术语***server***也用来指运行这个服务软件的计算机。
+
+参见 [client], [mysqld].
+
+### <a name="glos_shared_lock"></a>shared lock: 共享锁
+一种锁(***lock***)，允许其它事务(***transaction***)读取锁定了的对象，也可以在它之上再加共享锁，但不能写它。与它相反的是排它锁(***exclusive lock***)。
+
+参见 [exclusive lock], [lock], [transaction].
+
+### <a name="glos_shared_tablespace"></a>shared tablespace: 共享表空间
+同系统表空间(***system tablespace***)。
+
+参见 [system tablespace]。
+
+### <a name="glos_sharp_checkpoint"></a>sharp checkpoint: 清晰检查点
+将所有buffer pool中的redo实体包含在redo日志(***redo log***)的某个地方的脏页(***dirty page***)全部刷新(***flush***)到磁盘的进程。发生在InnoDB重用一个log文件的一部分之前；log日志沿环性使用。通常发生在写敏感的工作负载下(***workload***)。
+
+参见 [dirty page], [flush], [redo log], [workload].
+
+### <a name="glos_shutdown"></a>shutdown: 关闭
+停止MySQL服务的进程。默认情况下，这个进程对InnoDB表做清扫操作，所以它可以缓慢关闭，但是之后会很快启动。如果你略过了清扫操作，它很快关闭但在下次重启时必须做清扫工作。
+
+快速关闭模式由[innodb_fast_shutdown]选项控制。
+
+参见 [fast shutdown], [InnoDB], [slow shutdown], [startup].
+
+### <a name="glos_slave_server"></a>slave server: 从服务器
+常常简写为“slave”。复制(***replication***)环境下的一个数据库服务器(***server***)，从另一台服务器上接收变更并应用那些同样的变更。所以它维护着与主库(***master***)一样的数据，虽然它有一些延后。
+
+在MySQL，从服务器常常通过替换崩溃了的主服务器来做灾难恢复。它们也常常用来做软件升级和新设置的测试，来确保数据库的配置变更不会给性能或可靠性带来问题。
+
+从服务器通常有高的负载，因为它要处理所有的从主库同步过来的***DML***(写)操作和用户的查询。为了确保从服务器可以足够快速地应用从主库而来的变更，它们常常使用快速的I/O设备和足够的CPU和内存来运行同一台从服务器上的多个数据库实例。例如，主服务器可能使用机械硬盘，而从服务器使用固态硬盘(***SSD***)。
+
+参见 [DML], [replication], [server], [SSD].
+
+### <a name="glos_slow_query_log"></a>slow query log: 慢查询日志
+一类用来针对MySQL服务处理过的SQL语句进行性能调优的日志(***log***)。日志信息存储在一个文件中。你可以启用这个特性来使用它。你控制记录哪种类型的“慢”SQL语句。如需更多信息，参考[第5.2.5节，慢查询日志][05.02.05]。
+
+参见 [general query log], [log].
+
+### <a name="glos_slow_shutdown"></a>slow shutdown: 慢关闭
+在关闭操作之前还要做额外的InnoDB刷新操作的一类关闭(***shutdown***)。也叫***clean shutdown***。由配置参数``innodb_fast_shutdown=0``或命令`SET GLOBAL innodb_fast_shutdown=0`来指定；虽然关闭本身要花更长时间，但它却节省下来的是下次启动的时间。
+
+参见 [clean shutdown], [fast shutdown], [shutdown].
+
+### <a name="glos_snapshot"></a>snapshot: 快照
+数据在一个具体时间点的表示，即使数据被其它事务(***transaction***)的变更提交(***commit***)了，它也保持着相同的数据。在某些隔离级别(***isolation level***)中用来做一致性读(***consitent read***)。
+
+参见 [commit], [consistent read], [isolation level], [transaction].
+
+### <a name="glos_space_id"></a>space ID: 表空间ID
+MySQL实例中用来标志`InnoDB`表空间(***tablespace***)唯一标识。对于系统表空间(***system tablespace***)来说，表空间ID一直为0；系统表空间中所有的表都使用同一个ID。在[file-pre-table]模式下创建的每个表空间文件也拥有自己的空间ID。
+
+在MySQL 5.6之前，硬编码的值使得在MySQL实例之间移动表空间变得困难重重。自MySQL 5.6始，你可以使用包含`FLUSH TABLES FOR EXPORT`，`ALTER TABLE ... DISCARD`和`ALTER TABLE ... IMPORT TABLESPACE`语句的可传输表空间(***transportable tablespace***)特性，在实例间拷贝表空间文件。需要调整的表空间ID的信息通过你与表空间一起拷贝的.cfg文件(***.cfg file***)传达。如果更多信息，参考[第14.2.5.5节，往另一台服务拷贝表空间(可传输表空间)]。
+
+参见 [.cfg file][cfg file], [file-per-table], [.ibd file][ibd file], [system tablespace], [tablespace], [transportable tablespace].
+
+### <a name="glos_spin"></a>spin: 自旋
+持续尝试一个资源是否可用的一种等待。这种技术用在那些通常只在短时间内被持有的资源上，这种情况下在一个“繁忙的循环”下等待要比把一个线程推到休眠状态并执行一个上下文切换要高效得多。如果资源在短时间内没有变为有效，自旋循环终止，另一种等待技术上阵。
+
+参考 [latch], [lock], [mutex], [wait].
+
+### <a name="glos_sql"></a>SQL: 结构化查询语言
+结构化查询语言是标准执行数据库操作的语言。常常分类为***DDL***、***DML***和查询(***query***)。MySQL包含一些附加的语句类型，如复制(***replication***)。SQL语法基础参考[第9章，语言结构][9]，MySQL表的列所使用的数据类型参考[第11章，数据类型][11]，查询中所用到的标准的和MySQL特有的函数参考[第12章，函数与操作符][12]。
+
+参见 [DDL], [DML], [query], [replication].
+
+### <a name="glos_ssd"></a>SSD: 固态驱动器
+Acronym for "solid-state drive". A type of storage device with different performance characteristics than a traditional hard disk drive (HDD): smaller storage capacity, faster for random reads, no moving parts, and with a number of considerations affecting write performance. Its performance characteristics can influence the throughput of a disk-bound workload.
+固态car
+See Also disk-bound, SSD.
+
 ### startup 启动
 ### statement-based replication 语句复制 
 ### statistics 统计信息
