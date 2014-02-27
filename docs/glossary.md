@@ -2009,14 +2009,71 @@ MySQL也有一些叫严格模式的东西。
 
 参见 [Barracuda], [change buffer], [compression], [data dictionary], [database], [doublewrite buffer], [dynamic row format], [file-per-table], [.ibd file][ibd file], [ibdata file], [innodb_file_per_table], [instance], [MySQL Enterprise Backup], [tablespace], [undo log].
 
-## T ## 
-### table 表
-### table lock 表级锁
-### table scan 全表扫描
-### table type 表(引擎)类型
-### tablespace 表空间
-### tablespace dictionary 表空间数据字典
-### temporary table 临时表
+## <a name="T"></a>T ##
+### <a name="glos_trg_file"></a>.TRG file 
+一个包含触发器参数的文件。该后缀名的文件一直包含在由MySQL企业备份(***MySQL Enterprise Backup***)产品的mysqlbackup命令(***mysqlbackup command***)生成的备份文件中。
+
+参见 [MySQL Enterprise Backup], [mysqlbackup command], [.TRN file][TRN file].
+
+### <a name="glos_trn_file"></a>.TRN file
+一个包含触发器命名空间信息的文件。该后缀名的文件一直包含在由MySQL企业备份(***MySQL Enterprise Backup***)产品的mysqlbackup命令(***mysqlbackup command***)生成的备份文件中。
+
+参见 [MySQL Enterprise Backup], [mysqlbackup command], [.TRG file][TRG file].
+
+### <a name="glos_table"></a>table: 表
+每一张MySQL表都与一种特定存储引擎(***storage engine***)相关联。***InnoDB***表有特定的物理(***physical***)与逻辑(***logcial***)特性，这些特性会影响性能、扩展性(***scalability***)、备份(***backup***)、管理和应用部署。
+
+在文件存储术语中，如果表是在***file-per-table***模式下创建的，每一张InnoDB表既是单个大InnoDB系统表空间(***system tablespace***)的一部分，又是独立的`.ibd`文件的一部分。.ibd文件保存所有表和它的索引(***index***)的数据，也就是表空间(***tabelspace***)。
+
+在file-per-table模式下创建的InnoDB表可以使用***Barracuda文***件格式。Barracuda表可以使用动态行格式(***DYNAMIC row format***)或压缩行格式(***COMPRESSED row format***)。这些对应的新设置启用了大量的InnoDB特性，比如压缩(***compression***)、快速索引创建(***fast index creation***)和溢出页列(***off-page columns***)。
+
+为了向后兼容MySQL 5.1及更早版本，系统表空间中的InnoDB表必须使用***Antelope***文件格式，它支持精简行格式(***compact row format***)与冗余行格式(***redundant row format***)。
+
+InnoDB的行(***row***)由叫聚集索引(***clustered index***)的的索引结构体组织起来，实体基于表的主键(***primary key***)列排序。在主键列上的过滤与排序的查询的数据访问是优化的，并且每个索引中包含每个实体对应的主键拷贝。更新主键列中的任何值都是一个开销很大的操作。因此InnoDB表设计的一个重要因素是将最重要查询的列选为主键，并保持主键短小，键值极少变更。
+
+参见 [Antelope], [backup], [Barracuda], [clustered index], [compact row format], [compressed row format], [compression], [dynamic row format], [Fast Index Creation], [file-per-table], [.ibd file][ibd file], [index], [off-page column], [primary key], [redundant row format], [row], [system tablespace], [tablespace].
+
+### <a name="glos_table_lock"></a>table lock: 表级锁
+一个阻止其它事务(***transaction***)访问表的锁(***lock***)。InnoDB做了很大的努力，通过在线DDL(***online DDL***)、行锁(***row lock***)和针对处理***DML***语句和查询(***query***)的一致性读(***consistent read***)等技术，使得这种锁不再需要。你可以通过使用`LOCK TABLE`的SQL语句来创建一个这样的锁；从其它数据库系统和MySQL存储引擎迁移数据的步骤之一就是删除这样的语句，不管实不实用。
+
+参见 [consistent read], [DML], [lock], [locking], [online DDL], [query], [row lock], [table], [transaction].
+
+### <a name="glos_table_scan"></a>table scan: 全表扫描
+
+参见 [full table scan].
+
+### <a name="glos_table_statistics"></a>table statistics: 表统计
+
+参见 [statistics].
+
+### <a name="glos_table_statistics"></a>table type 表(引擎)类型
+淘汰了的存储引擎的别称。我们用来指InnoDB表、MyISAM表等。
+
+参见 [InnoDB], [storage engine].
+
+### <a name="glos_tablespace"></a>tablespace: 表空间
+一个可以保存一个或多个InnoDB表(***table***)和对应索引(***index***)数据的文件。系统表空间(***system tablespace***)包含构成数据字典(***data dictionary***)的表，在MySQL 5.6之前默认保存所有其它的InnoDB表。[innodb_file_per_table]选项在MySQL5.6及更高版本中默认为打开状态，打开这个选项允许所新建的表都拥有息的表空间，每个表一个独立的数据文件(***data file***)。
+
+通过打开[innodb_file_per_table]选项来使用多个表空间，这对于使用像压缩和可传输表空间以及管理磁盘使用是必不可少的。参见[第14.2.5.2节，InnoDB File-Per-Table模式][14.02.05.02]。
+
+由内置的InnoDB存储引擎创建的表空间向上兼容InnoDB Plugin。如果表空间使用***Antilope***文件格式，由InnoDB Plugin创建的表空间向下兼容内置的InnoDB存储引擎。 
+
+MySQL集群也把它的表归组到表空间中，如需更多细节，参见[17.5.12.1节，MySQL集群数据对象][17.05.12.01]。
+
+参见 [Antelope], [Barracuda], [compressed row format], [data dictionary], [data files], [file-per-table], [index], [innodb_file_per_table], [system tablespace], [table].
+
+### <a name="glos_tablespace_dictionary"></a>tablespace dictionary: 表空间数据字典
+InnoDB表空间中，一个表数据字典(***data dictionary***)元数据的体现。当表被打开后，该元数据可以通过.frm文件(***.frm file***)检查一致性，来诊断由过期的.frm文件引起的错误。该信息为在系统表空间(***system tablespace***)中的表而准备，也为因***file-per-table***选项而拥有它们自己.ibd文件(***.ibd file***)的表而准备。
+
+参见 [data dictionary], [file-per-table], [.frm file][frm file], [.ibd file][ibd file], [system tablespace], [tablespace].
+
+### <a name="glos_temporary_table"></a>temporary table: 临时表
+一张表(***table***)，它的数据不需要做执久化。例如，临时表可能被作是复杂计算或变换中间结果的存储区域；这个中间数据可能不需要在崩溃后恢复。通过减少对数据写盘的严谨性与其它在重启时保护数据的措施，数据产品可以采取多种便捷来提高在临时表上操作的性能。
+
+有时，数据自己会在一个设定的时候自动删除，比如在事务结束时或在会话结束时。在一些数据库产品中，表自己也会自动删除。
+
+参见 [table].
+
 ### temporary tablespace 临时表空间
 ### text collection 文本集合 
 ### thread 线程
