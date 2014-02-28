@@ -2074,23 +2074,76 @@ InnoDB表空间中，一个表数据字典(***data dictionary***)元数据的体
 
 参见 [table].
 
-### temporary tablespace 临时表空间
-### text collection 文本集合 
-### thread 线程
-### torn page 残缺页
-### TPS 每秒事务，不译
-### transaction 事务
-### transaction ID 事务ID
-### transportable tablespace 可传输表空间 
-### .TRG file 触发器参数文件
-### .TRN file 触发器命名空间信息文件
-### troubleshooting 故障排除
-### truncate 删节
-### tuple 元组
-### two-phase commit 两段式提交
+### <a name="glos_temporary_tablespace"></a>temporary tablespace: 临时表空间
+针对没有压缩的InnoDB临时表和相关对象的表空间。该表空间在MySQL 5.7.1中引入。配置文件选项innodb_temp_data_file_path允许用户为临时数据文件定义一个相关的路径。如果innodb_temp_data_file_path没有指定，默认行为是创建一个单独的自动增长的12MB的数据文件，位置在数据目录下的ibdata1边上，叫ibtmp1。临时表空间在每次服务启动时重建并接收到一个动态生成的空间id，它有助于避开与已有表空间id发生冲突。临时表空间不能放在裸设备上。无法创建临时表或创建错误会当成致命错误并且服务启动被拒绝。
 
-## U ##
-### undo 撤销，不译
+在正常关机或初始化中止时表空间会被删掉，例如，一个用户指定了错误的启动选项时可能产生了中止。临时表空间在崩溃发生时不能被删除。在这种情况下，数据库管理员可以手动删除这个表空间或用同样的配置重启服务，这将会删除或重建临时表空间。
+
+参见 [ibtmp file].
+
+### <a name="glos_text_collection"></a>text collection: 文本集合 
+包含中全文索引(***FULLTEXT index***)中的一个列集。
+
+参见 [FULLTEXT index].
+
+### <a name="glos_thread"></a>thread: 线程
+处理的一个单元，一般要比进程(***process***)更轻量一些，允许更大的并发(***concurrency***)。
+
+参见 [concurrency], [master thread], [process], [Pthreads].
+
+### <a name="glos_torn_page"></a>torn page: 残缺页
+一种错误状态，它会因I/O设置配备和硬件错误的组合而发生。如果数据被写入的块要比InnoDB的页大小(***page size***，默认为16K)要小，写入时的硬件错误会导致页的一部分存储到磁盘上。InnoDB的双写缓冲(***doublewrite buffer***)避免这种可能性。
+
+参见 [doublewrite buffer].
+
+### TPS 每秒事务，不译
+每秒事务(***transations*** per second)的首字母缩写，有时用在基准测试中的一种测量单位。它的值取决于特定基准测试中所体现的负载(***workload***)，结合你所控制的硬件容量与数据配置因素。
+
+参见 [transaction], [workload].
+
+### <a name="glos_transaction"></a>transaction: 事务
+事务是可以提交(***commit***)或回滚(***rollback***)的原子工作单元。当一个事务造成数据库中多处变更时，要么在事务提交时所有的变更全部成功，要么在事务回滚时所有的变更都挥毫撤销。
+
+数据库事务，如InnoDB实现了的，拥有的属性统称为***ACID***，即原子性、一致性、隔离性与持久性。
+
+参见 [ACID], [commit], [isolation level], [lock], [rollback].
+
+### <a name="glos_transaction_id"></a>transaction ID: 事务ID
+与每行关联的一个内部字段。这个字段可以在物理上可以被INSERT、UPDATE和DELETE操作变更以记录哪个事务已经锁住了这行。
+
+参见 [implicit row lock].
+
+### <a name="glos_transportable_tablespace"></a>transportable tablespace: 可传输表空间 
+允许一个表空间(***tablespace***)从一个实例移动到另一个实例的特性。通常情况下，对于InnoDB表空间来说这是不可能的，因为所有的表数据是系统表空间(***system tablespace***)的一部分。在MySQL 5.6及更高版本中，`FLUSH TABLE ... FROM EXPORT`语法为一个InnoDB表向另一个服务拷贝做好准备；在其它服务器上执行`ALTER TABLE ... DISCARD TABLESPACE`和`ALTER TABLE ... IMPORT TABLESPACE`会让拷贝了的数据文件进入到另一个实例中。一个单独的`.cfg`文件与.ibd文件(***.ibd file***)一起拷贝，用来在导入时更新表的元数据(例如空间ID，***space ID***)。使用方法信息参见[第14.2.5.5节，拷贝表空间到另一个服务器(可传输表空间)][14.02.05.05]。
+
+参见 [.ibd file][ibd file], [space ID], [system tablespace], [tablespace].
+
+### <a name="glos_trg_file"></a>.TRG file: 触发器参数文件
+
+### <a name="glos_trn_file"></a>.TRN file 触发器命名空间信息文件
+
+### <a name="glos_troubleshooting"></a>troubleshooting: 故障排除
+InnoDB可靠性与性能故障排除的资源包括：Information Schema表。
+
+### <a name="glos_truncate"></a>truncate: 删节
+一个删除一个表中整个内容的***DDL***操作，同时表和相关的索引不受影响。相之相对的是***drop***。虽然在概念上它与没有`WHERE`子句的`DELETE`语句有相同的结果，但在幕后会有着不同的操作：InnoDB创建一个新的空表，删掉旧表，然后再重命名新表替换掉老的。因为这是一个DDL操作，所以不能回滚(***roll back***)。
+
+如果将要被删节的表中包含引用另一个表的的外键，删节操作使用一个较慢的操作，每次删除一行，这样在引用表中相应的行可以根据需要通过任何`ON DELETE CASCADE`子句而删除。(MySQL 5.5及更高版本不允许这种慢的删节，如果涉及外键，它会返回一个错误来替代。在这种情况下，使用`DELETE`语句替代)。
+
+参见 [DDL], [drop], [foreign key], [rollback].
+
+### <a name="glos_tuple"></a>tuple: 元组
+指代一个有序集合的一个技术术语。它是个抽像概念，用在正式的数据库理论的讨论中。在数据库范畴中，元组常常被用来表中一行的列来表示。它们也可以用来表示查询的结果集，例如，只获取一部分表列的查询或关联表中的列。
+
+参见 [cursor].
+
+### <a name="glos_two_phase_commit"></a>two-phase commit: 两段式提交
+***XA***规范下，分布式事务(***transaction***)中的一个操作。（有时候也简称为2PC）。当多个数据库参与到事务中时，要么所有的数据库提交(***commit***)都发生变更，要么所有的数据库都回滚变更(***rollback***)。
+
+参见 [commit], [rollback], [transaction], [XA].
+
+## <a name="U"></a>U ##
+### <a name="glos_two_phase_commit"></a>undo: 撤销，或不译
 ### undo buffer undo缓冲，不译
 ### undo log undo 日志，不译
 ### undo tablespace undo 表空间
@@ -2113,7 +2166,8 @@ InnoDB表空间中，一个表数据字典(***data dictionary***)元数据的体
 ### XA XA
 
 ## Y ##
-### young InnoDB Buffer Pool 通过LRU算法管理页面的替换策略。LRU List按照功能被划分为两部分：LRU_young 与LRU_old.
+### young InnoDB Buffer Pool 
+通过LRU算法管理页面的替换策略。LRU List按照功能被划分为两部分：LRU_young 与LRU_old.
 
 [ACID]: #glos_acid
 [.ARM file]: #glos_arm_file
