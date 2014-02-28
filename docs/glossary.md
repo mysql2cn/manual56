@@ -2143,12 +2143,45 @@ InnoDB可靠性与性能故障排除的资源包括：Information Schema表。
 参见 [commit], [rollback], [transaction], [XA].
 
 ## <a name="U"></a>U ##
-### <a name="glos_two_phase_commit"></a>undo: 撤销，或不译
-### undo buffer undo缓冲，不译
-### undo log undo 日志，不译
-### undo tablespace undo 表空间
+### <a name="glos_undo"></a>undo: 撤销，或不译
+整个于事务(***transaction***)生命周期中的维护的数据，记录所有变更，这样它们可以在回滚(***rollback***)操作的情况下可以被撤销。它们存储于undo日志(***undo log***)中，也叫回滚段(***rollback segment***)，要么在系统表空间(***system tablespace***)中，要么在单独的undo表空间(***undo tablespace***)中。
+
+参见 [rollback], [rollback segment], [system tablespace], [transaction], [undo log], [undo tablespace].
+
+### <a name="glos_undo_buffer"></a>undo buffer: undo缓冲，不译
+
+参见 [undo log].
+
+### <a name="glos_undo_log"></a>undo log: undo 日志，不译
+保存被活动事务(***transaction***)修改了的数据拷贝的存储区。如果另一个事务需要查看原始数据(作为一致性读(***consistent read***)操作的一部分)，没有修改的数据从这个存储区获取。
+
+默认情况下，这个区域在物理上是系统表空间(***system tablespace***)的一部分。在MySQL 5.6及更高版本中，你可以使用[innodb_undo_tablespaces]和[innodb_undo_directory]配置选项来把它拆分到一个或多个独立的表空间(***tablespace***)文件中，即undo表空间(***undo tablespace***)，可以选项性地放到另一种存储设备上，比如***SSD***。
+
+The undo log is split into separate portions, the insert undo buffer and the update undo buffer. Collectively, these parts are also known as the rollback segment, a familiar term for Oracle DBAs.
+undo日志拆分为独立的部分，即插入undo缓冲(***insert undo buffer***)和更新undo缓冲(***update undo buffer***)。这些部分也统称为回滚段(***rollback segment***)中，这对于Oracle DBA来说是一个比较熟悉的术语。
+
+参见 [consistent read], [rollback segment], [SSD], [system tablespace], [transaction], [undo tablespace].
+
+### <a name="glos_undo_tablespace"></a>undo tablespace undo: 表空间
+在通过innodb_undo_tablespaces和innodb_undo_directory配置选项将undo日志从系统表空间(***system tablespace***)中分拆出来的情况下，包含undo日志(***undo log***)的一组文件。仅适用于MySQL 5.6及更高版。
+
+参见 [system tablespace], [undo log].
+A kind of constraint that asserts that a column cannot contain any duplicate values. In terms of relational algebra, it is used to specify 1-to-1 relationships. For efficiency in checking whether a value can be inserted (that is, the value does not already exist in the column), a unique constraint is supported by an underlying unique index.
+
+See Also constraint, relational, unique index.
+
 ### unique constraint 唯一约束
+一列不能包含任何重复值的一种约束(***constraint***)断言。在关系(***relational***)代数的术语中，它常用来指一对一关系。为了高效检查一列是否可以被插入(也就是说，值不能已经存在于列中)，唯一约束由唯一索引(***unique index***)支持。
+
+参见 [constraint], [relational], [unique index].
+
 ### unique index 唯一索引
+An index on a column or set of columns that have a unique constraint. Because the index is known not to contain any duplicate values, certain kinds of lookups and count operations are more efficient than in the normal kind of index. Most of the lookups against this type of index are simply to determine if a certain value exists or not. The number of values in the index is the same as the number of rows in the table, or at least the number of rows with non-null values for the associated columns.
+
+The insert buffering optimization does not apply to unique indexes. As a workaround, you can temporarily set unique_checks=0 while doing a bulk data load into an InnoDB table.
+
+See Also cardinality, insert buffering, unique constraint, unique key.
+
 ### unique key 唯一键
 
 ## V ##
