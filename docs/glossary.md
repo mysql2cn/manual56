@@ -2166,23 +2166,24 @@ undo日志拆分为独立的部分，即插入undo缓冲(***insert undo buffer**
 在通过innodb_undo_tablespaces和innodb_undo_directory配置选项将undo日志从系统表空间(***system tablespace***)中分拆出来的情况下，包含undo日志(***undo log***)的一组文件。仅适用于MySQL 5.6及更高版。
 
 参见 [system tablespace], [undo log].
-A kind of constraint that asserts that a column cannot contain any duplicate values. In terms of relational algebra, it is used to specify 1-to-1 relationships. For efficiency in checking whether a value can be inserted (that is, the value does not already exist in the column), a unique constraint is supported by an underlying unique index.
 
-See Also constraint, relational, unique index.
-
-### unique constraint 唯一约束
+### <a name="glos_unique_constraint"></a>unique constraint: 唯一约束
 一列不能包含任何重复值的一种约束(***constraint***)断言。在关系(***relational***)代数的术语中，它常用来指一对一关系。为了高效检查一列是否可以被插入(也就是说，值不能已经存在于列中)，唯一约束由唯一索引(***unique index***)支持。
 
 参见 [constraint], [relational], [unique index].
 
-### unique index 唯一索引
-An index on a column or set of columns that have a unique constraint. Because the index is known not to contain any duplicate values, certain kinds of lookups and count operations are more efficient than in the normal kind of index. Most of the lookups against this type of index are simply to determine if a certain value exists or not. The number of values in the index is the same as the number of rows in the table, or at least the number of rows with non-null values for the associated columns.
+### <a name="glos_unique_index"></a>unique index: 唯一索引
+在一个或一组具有唯一约束(***unique constraint***)的列上的索引。因为这个索引已知不含任何重复的值，所以某些类型的检索和计数操作要比普通类型的索引更高效。在此类型索引上的绝大多数检索是简单地判断某个值是否存在。这个索引中值的数量与表中的行数相同，或至少与关联的列中非空的行数相同。
 
-The insert buffering optimization does not apply to unique indexes. As a workaround, you can temporarily set unique_checks=0 while doing a bulk data load into an InnoDB table.
+插入缓冲(***insert buffering***)优化不会应用到唯一索引中。作为一种变通方法，你可以在往InnoDB表中加载数据时临时设置`unique_check=0`。
 
-See Also cardinality, insert buffering, unique constraint, unique key.
+参见 [cardinality], [insert buffering], [unique constraint], [unique key].
 
-### unique key 唯一键
+### <a name="glos_unique_key"></a>unique key: 唯一键
+包括一个唯一索引的列(一列或多列)集。当你可以定义正好匹配一行的`WHERE`条件，且查询可以用到相应的唯一索引(***unique index***)时，这个检索和错误处理起来就会非常高效。
+
+参见 [cardinality], [unique constraint], [unique index].
+
 
 ## V ##
 ### victim 牺牲(死锁检测，牺牲影响最少行的事物) 
