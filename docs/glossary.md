@@ -2185,19 +2185,54 @@ undo日志拆分为独立的部分，即插入undo缓冲(***insert undo buffer**
 参见 [cardinality], [unique constraint], [unique index].
 
 
-## V ##
-### victim 牺牲(死锁检测，牺牲影响最少行的事物) 
+## <a name="V"></a>V ##
+### <a name="glos_victim"></a>victim: 牺牲(死锁检测，牺牲影响最少行的事物) 
+当检测到死锁(***deadlock***)时，被自动选择回滚的那个事务。InnoDB回滚更新了最少行的事务。
 
-## W ##
-### wait 等待
-### warm backup 热备
-### warm up 预热
-### Windows 不译
-### workload 工作负载
-### write combining 合并写
+参见 [deadlock], [deadlock detection], [innodb_lock_wait_timeout].
 
-## X ##
-### XA XA
+## <a name="W"></a>W ##
+### <a name="glos_wait"></a>wait: 等待
+当一个操作，比如获取一个锁(***lock***)、互斥锁(***mutex***)或闩锁(***latch***)时，不能立即完成，InnoDB暂停并再次尝试。暂停机制是精心设计的，以至于它都有自己的名字，等待。独立的线程使用内部InnoDB调度、操作系统`wait()`调用和短期自旋锁(***spin***)循环的组合。
+
+在重负和多事务的系统上，你可以使用`SHOW INNODB STATUS`命令的输出来判断线程是否被太多的时间等待挂起，以及如果这样，你该如何提高并发(***concurrency***)。
+
+参见 [concurrency], [latch], [lock], [mutex], [spin].
+
+### <a name="glos_warm_backup"></a>warm backup: 温备
+在数据库运行时发生的备份(***backup***)，但备份期间它限制了一些数据库的操作。例如，表可能变成只读。对于繁忙的应用和网站，你可能优先使用热备(***hot backup***)。
+
+参见 [backup], [cold backup], [hot backup].
+
+### <a name="glos_warm_up"></a>warm up: 预热
+在启动后，在一个普通的负载(***workload***)下让系统运行一段时间，以便***buffer pool***和其它内存区域像在平时条件下一样被填充。
+这个过程在MySQL服务重启或经受一个新的负载时自然会产生。自MySQL 5.6始，你可以通过设置配置变量`innodb_buffer_pool_dump_at_shutdown=ON`和`innodb_buffer_pool_load_at_startup=ON`来加速预热。一般情况下，你在执行性能测试前会运行一个负载一段时候来预热***buffer pool***，来确保多个执行结果的一致性；其它情况下，性能可能在第一次运行时虚低。
+
+参见 [buffer pool], [workload].
+
+### <a name="glos_windows"></a>Windows: 不译
+内置的***InnoDB***存储引擎和InnoDB ***Plugin***对所有与MySQL服务相同版本的微软Windows都支持。MyQSL企业备份(***MySQL Enterprise Backup***)产品有比它取代了的InnoDB热备更全面的支持。
+
+参见 [InnoDB], [MySQL Enterprise Backup], [plugin].
+
+### <a name="glos_workload"></a>workload: 工作负载
+***SQL***量和其它数据库操作的组合，由数据库应用在普通或峰会情况下产生。你可以在测试瓶颈(***bottleneck***)期间，或是容规划期间，会将数据库置于一个特定的负载下。
+
+参见 [bottleneck], [CPU-bound], [disk-bound], [SQL].
+
+### <a name="glos_write_combining"></a>write combining: 合并写
+当脏页(***dirty page***)从InnoDB ***buffer pool***刷新(***flush***)时为了减少写操作的优化技术。如果页中的一行被更新了多次，或同一个页中的多行被更新，它们的所有的更新会在一次写操作中存储到数据文件中，而不是每个变更写一次。
+
+参见 [buffer pool], [dirty page], [flush].
+
+
+## <a name="X"></a>X ##
+### <a name="glos_xa"></a>XA: XA
+A standard interface for coordinating distributed transactions, allowing multiple databases to participate in a transaction while maintaining ACID compliance. For full details, see Section 13.3.7, “XA Transactions”.
+
+XA Distributed Transaction support is turned on by default. If you are not using this feature, you can disable the innodb_support_xa configuration option, avoiding the performance overhead of an extra fsync for each transaction.
+
+See Also commit, transaction, two-phase commit.
 
 ## Y ##
 ### young InnoDB Buffer Pool 
