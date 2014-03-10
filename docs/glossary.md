@@ -2229,14 +2229,16 @@ undo日志拆分为独立的部分，即插入undo缓冲(***insert undo buffer**
 ## <a name="X"></a>X ##
 ### <a name="glos_xa"></a>XA: XA
 A standard interface for coordinating distributed transactions, allowing multiple databases to participate in a transaction while maintaining ACID compliance. For full details, see Section 13.3.7, “XA Transactions”.
+一个用来协调分布式事务(***transaction***)的标准接口，允许多个数据库在保持服从***ACID***的同时参与到一个事务中来。如需全部细节，参考[第13.3.7节，XA事务][13.03.07]。
 
-XA Distributed Transaction support is turned on by default. If you are not using this feature, you can disable the innodb_support_xa configuration option, avoiding the performance overhead of an extra fsync for each transaction.
+分布式事务支持是默认打开的。如果你用不上这个特性，你可以使用[innodb_support_xa]配置选项来禁用它，避免对每个事务额外的fsync带来的性能负载。
+参见 [commit], [transaction], [two-phase commit].
 
-See Also commit, transaction, two-phase commit.
+## <a name="Y"></a>Y ##
+### <a name="glos_young_innodb_buffer_pool"></a>young InnoDB Buffer Pool: young InnoDB Buffer Pool
+`InnoDB` ***buffer pool***中一页(***page***)的一个特性，意味着它刚刚被访问过，因为这样，它被移进buffer pool数据结构体中，这样它就不会很快被***LRU***算法刷新(***flush***)。这个术语也用在一些***information schema***中buffer pool相关表的列名上。
 
-## Y ##
-### young InnoDB Buffer Pool 
-通过LRU算法管理页面的替换策略。LRU List按照功能被划分为两部分：LRU_young 与LRU_old.
+参见 [buffer pool], [flush], [INFORMATION_SCHEMA], [LRU], [page].
 
 [ACID]: #glos_acid
 [.ARM file]: #glos_arm_file
