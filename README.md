@@ -19,7 +19,7 @@
 
 * **MySQL 文档**
  1. [MySQL 5.6 Reference Manual 翻译专用版本](https://www.dropbox.com/s/ensorysm4wgl3a6/refman-5.6-en.a4.pdf) --必须采用本文件作为翻译基础.  
- MD5 (refman-5.6-en.a4.pdf) = 63a71b0b9b36ec5e1f88e64ab764758a  
+ MD5 (refman-5.6-en.a4.pdf) = c0571d4ce9d9e77efcc30d3c1b307fa4  
  已修正连接采用Dropbox做源,每日有流量限制,如果遇到不能下载请第二天再试或者联系@rikki.
  2. [MySQL 5.6 Reference Manual](http://dev.mysql.com/doc/refman/5.6/en/index.html)——没错，这就是要翻译的文档(在线版本).变动较为频繁请不要基于此做翻译.
  3. [MySQL 5.6 Reference Manual A4 PDF版](http://downloads.mysql.com/docs/refman-5.6-en.a4.pdf)——PDF版的帮助手册，这个可能会随时更新，不推荐使用。
