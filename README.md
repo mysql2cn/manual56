@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # MySQL 5.6 手册翻译
 
 
@@ -41,9 +40,3 @@
 * 关于科学上网相关的事情,请私下联系@rikki解决.
 
 
-=======
-test
-====
-
-just for test
->>>>>>> 89af854ccbf279c10f3a90c7bae64ec7b10fad4d
