@@ -3,7 +3,8 @@
 这些术语在MySQL数据库服务器中经常被用到。此词汇表源于InnoDB存储引擎的专业术语手册，并且主要的释义都是InnoDB相关的。
 
 ## <a name="A"></a>A ##
-### <a name='glos_acid' /></a>ACID: ACID 
+### ACID: ACID 
+<a name='glos_acid' /></a>
 原子性(atomicity).  一致性(consistency). 隔离性(isolation)和持久性(durability)的首字母缩写。这些属性是一个数据库系统全部具备的，并且与事务(***transaction***)的概念紧紧绑在一起。InnoDB的事务特性遵守ACID原则。
 
 事务是可以提交或回滚的原子(***atomic***)工作单元。当一个事务造成数据库的多处更改，所有的更改要么在事务提交(***committed***)后全部成功，要么在事务回滚(***rolled back***)后全部撤消。
@@ -30,7 +31,8 @@
 
 参见 [B-tree], [buffer pool], [hash index], [memcached], [page], [secondary index].
 
-### <a name='glos_ahi'></a>AHI: adaptive hash index的缩写
+### AHI: adaptive hash index的缩写
+<a name='glos_ahi'></a>
 adaptive hash index的缩写。
 
 参见 [adaptive hash index]。
