@@ -10,6 +10,10 @@ MD5 (refman-5.6-en.a4.pdf) = fd9efdf9129239b0bd5e891570f25241
 
 > 这是官方最新的 5.6 手册，请大家注意使用统一版本。
 
+## 工具集
+
+为了方便大家使用，把整理好的一些可能用到的工具集也分享一下： [Markdown 和 Git 相关的工具集](https://pan.baidu.com/s/1eRFFW9k)。
+
 ## 时间进度
 
 * **准备阶段：** 2016年12月18日-2016年12月23日
@@ -49,7 +53,7 @@ MD5 (refman-5.6-en.a4.pdf) = fd9efdf9129239b0bd5e891570f25241
 
 * **MySQL 文档**
  1. [MySQL 5.6 Reference Manual 翻译专用版本](https://pan.baidu.com/s/1kViCbaR) -- **必须采用本文件作为翻译基础。**
- MD5 (refman-5.6-en.a4.pdf) = c0571d4ce9d9e77efcc30d3c1b307fa4  
+ MD5 (refman-5.6-en.a4.pdf) = fd9efdf9129239b0bd5e891570f25241
  2. [MySQL 5.6 Reference Manual](http://dev.mysql.com/doc/refman/5.6/en/index.html)——没错，这就是要翻译的文档(在线版本).变动较为频繁请不要基于此做翻译.
 
 
