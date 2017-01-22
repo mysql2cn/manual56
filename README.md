@@ -4,11 +4,16 @@
 
 MySQL 官方文档更新还是挺频繁，我们必须选择一个版本来翻译。否则没法统一协调和分工。选择的版本如下：
 
-[MySQL 5.6 Reference Manual 翻译专用版本](https://pan.baidu.com/s/1mibgPT2) -- **必须采用本文件作为翻译基础。**
+[MySQL 5.6 Reference Manual 翻译专用版本](https://pan.baidu.com/s/1kViCbaR) -- **必须采用本文件作为翻译基础。**
 
-MD5 (refman-5.6-en.a4.pdf) = c0571d4ce9d9e77efcc30d3c1b307fa4  
+MD5 (refman-5.6-en.a4.pdf) = fd9efdf9129239b0bd5e891570f25241
 
-> 这是官方最新的5.6 手册，请大家注意版本。
+> 这是官方最新的 5.6 手册，请大家注意使用统一版本。
+
+## 工具集
+
+为了方便大家使用，把整理好的一些可能用到的工具集也分享一下： [Markdown 和 Git 相关的工具集](https://pan.baidu.com/s/1eRFFW9k)。
+>>>>>>> master
 
 ## 时间进度
 
@@ -48,8 +53,8 @@ MD5 (refman-5.6-en.a4.pdf) = c0571d4ce9d9e77efcc30d3c1b307fa4
  1. [翻译模板](./Template.md)
 
 * **MySQL 文档**
- 1. [MySQL 5.6 Reference Manual 翻译专用版本](https://pan.baidu.com/s/1mibgPT2) -- **必须采用本文件作为翻译基础。**
- MD5 (refman-5.6-en.a4.pdf) = c0571d4ce9d9e77efcc30d3c1b307fa4  
+ 1. [MySQL 5.6 Reference Manual 翻译专用版本](https://pan.baidu.com/s/1kViCbaR) -- **必须采用本文件作为翻译基础。**
+ MD5 (refman-5.6-en.a4.pdf) = fd9efdf9129239b0bd5e891570f25241
  2. [MySQL 5.6 Reference Manual](http://dev.mysql.com/doc/refman/5.6/en/index.html)——没错，这就是要翻译的文档(在线版本).变动较为频繁请不要基于此做翻译.
 
 
@@ -58,7 +63,7 @@ MD5 (refman-5.6-en.a4.pdf) = c0571d4ce9d9e77efcc30d3c1b307fa4
  2. [Markdown 语法说明](http://wowubuntu.com/markdown/index.html)——这里有Markdown编辑器介绍。选一个自己趁手的工具就行。
  3. [轻量级标记语言](http://www.worldhello.net/gotgithub/appendix/markups.html)——我们需要使用一些Github扩展过的Markdown格式，比如表格，这个文档有详细介绍。
  4. [超链接和锚点在Markdown中的处理：视频+文档](http://www.diguage.com/archives/64.html)
- 5. [GFM(Github 风格的MD)参考](https://help.github.com/articles/github-flavored-markdown#references)--我们使用的MD版本
+ 1. [GFM(Github 风格的MD)参考](https://help.github.com/articles/github-flavored-markdown#references)--我们使用的MD版本
 
 * **Git & Github**
  1. [GotGitHub](http://www.worldhello.net/gotgithub/)
