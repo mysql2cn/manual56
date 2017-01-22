@@ -1,8 +1,8 @@
-#!/usr/bin/env python  
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
 
-files = '../filename.txt'
+files = './filename.txt'
 f = open(files, 'r+')
 line= f.readline()
 for line in f.readlines():
@@ -11,5 +11,5 @@ for line in f.readlines():
     print line,
     cf = open(line.strip('\n'), 'w')
     cf.close()
-    
+
 f.close()
