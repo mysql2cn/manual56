@@ -13,7 +13,6 @@ MD5 (refman-5.6-en.a4.pdf) = fd9efdf9129239b0bd5e891570f25241
 ## 工具集
 
 为了方便大家使用，把整理好的一些可能用到的工具集也分享一下： [Markdown 和 Git 相关的工具集](https://pan.baidu.com/s/1eRFFW9k)。
->>>>>>> master
 
 ## 时间进度
 
