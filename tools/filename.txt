@@ -3,7 +3,7 @@
 01.01.00_About_This_Manual.md
 01.02.00_Typographical_and_Syntax_Conventions.md
 01.03.00_Overview_of_the_MySQL_Database_Management_System.md
-01.03.01_What_is_MySQLg.md
+01.03.01_What_is_MySQL.md
 01.03.02_The_Main_Features_of_MySQL.md
 01.03.03_History_of_MySQL.md
 01.04.00_What_Is_New_in_MySQL_5.6.md
