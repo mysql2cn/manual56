@@ -2,3 +2,8 @@
 *.swp
 
 test.md
+
+/build
+/docs/summary.md
+/docs/index.rst
+/docs/rsts
