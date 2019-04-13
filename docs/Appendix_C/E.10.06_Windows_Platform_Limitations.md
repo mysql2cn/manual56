@@ -1,3 +1,5 @@
+# E.10.06. Window平台限制
+
 ## E.10.06. Window平台限制
  
 MySQL在Winows 平台下有以下限制

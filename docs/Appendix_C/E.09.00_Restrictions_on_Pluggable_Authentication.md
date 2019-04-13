@@ -1,3 +1,5 @@
+#  E.09.00_插件式认证的约束
+
 ## E.09.00_插件式认证的约束
  
  第一节描述了可插入式认证框架的一些通用性限制，可参考[Section 6.3.7, “Pluggable Authentication”。](./06.03.07_Pluggable_Authentication.md)第二节描述了第三方的插入式认证框架对于MySQL认证带来的好处以及如何变得兼容性更好。

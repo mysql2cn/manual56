@@ -1,3 +1,5 @@
+# Restrictions_on_Performance_Schema
+
 
    因MySQL中的性能库避免使用互斥的方法去收集或产生数据，性能库中的值是不确定和不可征税的，所以无法保证数据的一致性和结果集是正确的。
  
