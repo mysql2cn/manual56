@@ -2,14 +2,24 @@ import os
 import chardet
 import re
 
-rootdir=os.path.dirname(os.path.abspath(__file__))+"/../docs/"
+rootdir=os.path.dirname(os.path.abspath(__file__))+"/../docs"
+dirmaplist={}
+dirkeylist=[]
+
+def initdirmaplist():
+  for root, _, _ in os.walk(rootdir, False):
+    basename = os.path.basename(root)
+    if basename != "images" and basename != "docs" and basename != "rsts" and basename != "_static":
+      list = os.listdir(root)
+      list.sort()
+      dirmaplist[root] = list
 
 def convert():
-  for root, _, files in os.walk(rootdir, False):
+  for root in dirkeylist:
     print(root)
     basename = os.path.basename(root)
     if basename != "images" and basename != "docs" and basename != "rsts" and basename != "_static":
-      for file in files:
+      for file in dirmaplist[root]:
         f = open(root+"/"+file, "rb+")
         data = f.read()
         charset = chardet.detect(data)["encoding"]
@@ -54,11 +64,11 @@ def summary():
   sf = open(rootdir+"/summary.md", "w+")
   sf.write("# 目录\n\n")
   sf.write("<style>p{margin-bottom:0 !important;}</style>\n")
-  for root, _, files in os.walk(rootdir, False):
+  for root in dirkeylist:
     alpha=0
     basename = os.path.basename(root)
     if basename != "images" and basename != "docs" and basename != "rsts":
-      for file in files:
+      for file in dirmaplist[root]:
         name = basename+"/"+file
         f = open(root+"/"+file, "r")
         line = f.readline()
@@ -108,11 +118,11 @@ Welcome to mysql_zh_manual56's documentation!
    :caption: mysql56中文文档:\n\n''')
   sf.write("   summary.md\n")
   sf.write("   glossary.md\n")
-  for root, _, files in os.walk(rootdir, False):
+  for root in dirkeylist:
     alpha=0
     basename = os.path.basename(root)
     if basename != "images" and basename != "docs" and basename != "rsts":
-      for file in files:
+      for file in dirmaplist[root]:
         pattern = re.compile(r'((\w+|\d{0,2})(\.(\d{0,2})){1,3})')
         match = pattern.findall(file)
         if len(match) > 0 and len(match[0]) > 0:
@@ -156,6 +166,8 @@ Welcome to mysql_zh_manual56's documentation!
 
 if __name__ == "__main__":
   import sys
+  initdirmaplist()
+  dirkeylist=sorted(dirmaplist.keys())
   if len(sys.argv) >= 2:
     fn = sys.argv[1]
     if fn in dir():
