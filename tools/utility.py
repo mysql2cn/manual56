@@ -150,18 +150,13 @@ Welcome to mysql_zh_manual56's documentation!
 .. toctree::
    :caption: {title}:
    :maxdepth: 1\n\n'''.format(title=title,underline="="*(5+len(title))))
-            for _, _, cffs in os.walk(rootdir+"/"+basename, False):
-              for cff in cffs:
-                toc = "   ../{name}\n".format(name=basename+"/"+cff)
-                cf.write(toc)
+            cffs = os.listdir(rootdir+"/"+basename)
+            cffs.sort()
+            for cff in cffs:
+              toc = "   ../{name}\n".format(name=basename+"/"+cff)
+              cf.write(toc)
             cf.close()
   sf.write("\n\n\n")
-#   sf.write('''Indices and tables
-# ==================
-
-# * :ref:`genindex`
-# * :ref:`modindex`
-# * :ref:`search`\n''')
   sf.close()
 
 if __name__ == "__main__":
